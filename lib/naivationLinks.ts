@@ -9,8 +9,8 @@ import {
 export const navigationLinks = [
     {
         icon: MessageCircle,
-        label: "Messages",
-        route: "/messages"
+        label: "Chats",
+        route: "/chats"
     },
     {
         icon: UsersRound,
