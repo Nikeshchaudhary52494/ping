@@ -1,12 +1,19 @@
-import { FC } from 'react';
+import { fetchUser } from "@/actions/user.actions";
+import { UserButton } from "@clerk/nextjs";
+import { currentUser } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
 
-interface setupPageProps { }
-const SetupPage: FC<setupPageProps> = async () => {
+export default async function Home() {
+  const user = await currentUser();
+  if (!user) return null;
+
+  const userInfo = await fetchUser(user.id);
+  if (!userInfo?.onboarded) redirect("/onboarding");
+
   return (
     <div>
-      Setup-Page
+      Home
+      <UserButton />
     </div>
   )
-};
-
-export default SetupPage;
+}
