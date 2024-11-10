@@ -1,6 +1,5 @@
 "use client";
 
-import * as z from "zod";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { usePathname, useRouter } from "next/navigation";
@@ -21,15 +20,15 @@ import { Textarea } from "@/components/ui/textarea";
 
 import { useUploadThing } from "@/lib/uploadthing";
 import { isBase64Image } from "@/lib/utils";
-
-import { UserValidation } from "@/lib/validations/user";
-import { initialProfile } from "@/actions/user/user.actions";
+import { OnBoardingUserSchema, onBoardingUserSchema } from "@/lib/validationSchemas";
+import { onboardUser } from "@/actions/user/onboardUser";
+import { User } from "lucide-react";
 
 interface Props {
     user: {
         userId: string;
         username: string;
-        name: string;
+        displayName: string;
         bio: string;
         imageUrl: string;
     };
@@ -43,40 +42,45 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
 
     const [files, setFiles] = useState<File[]>([]);
 
-    const form = useForm<z.infer<typeof UserValidation>>({
-        resolver: zodResolver(UserValidation),
+    const form = useForm({
+        resolver: zodResolver(onBoardingUserSchema),
         defaultValues: {
-            user_profile: user?.imageUrl ? user.imageUrl : "",
-            name: user?.name ? user.name : "",
-            username: user?.username ? user.username : "",
-            bio: user?.bio ? user.bio : "",
+            displayName: user.displayName || "",
+            imageUrl: user.imageUrl || "",
+            username: user.username || "",
+            bio: user.bio || "",
         },
     });
 
-    const onSubmit = async (values: z.infer<typeof UserValidation>) => {
-        const blob = values.user_profile;
 
-        const hasImageChanged = isBase64Image(blob);
-        if (hasImageChanged) {
-            const imgRes = await startUpload(files);
+    const onSubmit = async (values: OnBoardingUserSchema) => {
+        try {
+            const blob = values.imageUrl;
+            if (blob) {
+                const hasImageChanged = isBase64Image(blob);
+                if (hasImageChanged) {
+                    const imgRes = await startUpload(files);
 
-            if (imgRes && imgRes[0].url) {
-                values.user_profile = imgRes[0].url;
+                    if (imgRes && imgRes[0].url) {
+                        values.imageUrl = imgRes[0].url;
+                    }
+                }
             }
-        }
+            await onboardUser({
+                userId: user.userId,
+                displayName: values.displayName,
+                imageUrl: values.imageUrl,
+                username: values.username,
+                bio: values.bio
+            });
 
-        await initialProfile({
-            name: values.name,
-            username: values.username,
-            userId: user.userId,
-            bio: values.bio,
-            imageUrl: values.user_profile,
-        })
-
-        if (pathname === "/profile/edit") {
-            router.back();
-        } else {
-            router.push("/");
+            if (pathname === "/profile/edit") {
+                router.back();
+            } else {
+                router.push("/");
+            }
+        } catch (error) {
+            console.error("Error updating profile:", error);
         }
     };
 
@@ -106,61 +110,53 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
     return (
         <Form {...form}>
             <form
-                className='flex flex-col justify-start gap-10'
+                className='flex flex-col justify-start mt-4 space-y-4'
                 onSubmit={form.handleSubmit(onSubmit)}
             >
                 <FormField
                     control={form.control}
-                    name='user_profile'
+                    name='imageUrl'
                     render={({ field }) => (
-                        <FormItem className='flex items-center gap-4'>
-                            <FormLabel className=''>
-                                {field.value ? (
-                                    <Image
-                                        src={field.value}
-                                        alt='profile_icon'
-                                        width={96}
-                                        height={96}
-                                        priority
-                                        className='object-contain rounded-full'
-                                    />
-                                ) : (
-                                    <Image
-                                        src='/assets/profile.svg'
-                                        alt='profile_icon'
-                                        width={24}
-                                        height={24}
-                                        className='object-contain'
-                                    />
-                                )}
+                        <FormItem className='relative flex items-center gap-4 mt-10'>
+                            <FormLabel className="space-y-2">
+                                <p className="absolute full -top-4"> Profile Image (optional)</p>
+                                <div className="relative flex mx-3 h-20 w-20 bg-[#252B2E] items-center justify-center rounded-full overflow-hidden">
+                                    {field.value ? (
+                                        <Image
+                                            fill
+                                            priority
+                                            src={field.value}
+                                            alt='profile_icon'
+                                        />
+                                    ) : (
+                                        <User size={40} className="text-slate-400" />
+                                    )}
+                                </div>
+
                             </FormLabel>
-                            <FormControl className='flex-1 text-gray-200'>
-                                <Input
-                                    type='file'
-                                    accept='image/*'
-                                    placeholder='Add profile photo'
-                                    className=''
-                                    onChange={(e) => handleImage(e, field.onChange)}
-                                />
-                            </FormControl>
+                            <div className="flex flex-col space-y-2">
+                                <FormControl className='flex-1 text-gray-200'>
+                                    <Input
+                                        type='file'
+                                        accept='image/*'
+                                        placeholder='Add profile photo'
+                                        onChange={(e) => handleImage(e, field.onChange)}
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </div>
                         </FormItem>
                     )}
                 />
 
                 <FormField
                     control={form.control}
-                    name='name'
+                    name='displayName'
                     render={({ field }) => (
                         <FormItem className='flex flex-col w-full gap-3'>
-                            <FormLabel className=''>
-                                Name
-                            </FormLabel>
+                            <FormLabel>Name</FormLabel>
                             <FormControl>
-                                <Input
-                                    type='text'
-                                    className=''
-                                    {...field}
-                                />
+                                <Input type='text' {...field} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
@@ -172,15 +168,9 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
                     name='username'
                     render={({ field }) => (
                         <FormItem className='flex flex-col w-full gap-3'>
-                            <FormLabel className=''>
-                                Username
-                            </FormLabel>
+                            <FormLabel>Username</FormLabel>
                             <FormControl>
-                                <Input
-                                    type='text'
-                                    className=''
-                                    {...field}
-                                />
+                                <Input type='text' {...field} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
@@ -192,22 +182,16 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
                     name='bio'
                     render={({ field }) => (
                         <FormItem className='flex flex-col w-full gap-3'>
-                            <FormLabel className=''>
-                                Bio
-                            </FormLabel>
+                            <FormLabel>Bio</FormLabel>
                             <FormControl>
-                                <Textarea
-                                    rows={10}
-                                    className=''
-                                    {...field}
-                                />
+                                <Textarea rows={10} {...field} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
                     )}
                 />
 
-                <Button type='submit' className=''>
+                <Button type='submit'>
                     {btnTitle}
                 </Button>
             </form>

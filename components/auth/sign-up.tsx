@@ -19,7 +19,7 @@ import Link from "next/link";
 import { RegisterUserInput, registerUserSchema } from "@/lib/validationSchemas";
 import { registerUser } from "@/actions/user/registerUser";
 import { toast } from "@/app/hooks/use-toast";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 
 export default function SignUp() {
     const router = useRouter();

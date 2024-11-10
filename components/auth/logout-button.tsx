@@ -9,7 +9,6 @@ const LogoutButton: React.FC = () => {
 
     const handleLogout = () => {
         logoutUser();
-        console.log("Hello")
     router.refresh();
     };
 

@@ -4,7 +4,6 @@ import { cookies } from "next/headers";
 const JWT_SECRET = process.env.JWT_SECRET as string;
 
 export const generateToken = (userId: string, email: string): string => {
-    console.log(JWT_SECRET);
     return sign({ userId, email }, JWT_SECRET, {
         expiresIn: "1h",
     });
