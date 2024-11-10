@@ -12,12 +12,12 @@ export const navigationTabs = [
     {
         icon: MessageCircle,
         label: "Chats",
-        route: "/chats"
+        route: "/privateChat"
     },
     {
         icon: UsersRound,
         label: "Groups",
-        route: "/groups"
+        route: "/groupChat"
     },
     {
         icon: Phone,

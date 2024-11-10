@@ -8,14 +8,92 @@ datasource db {
 }
 
 model User {
-  id          String   @id @default(cuid())
+  id          String  @id @default(cuid())
   displayName String
-  email       String   @unique
+  email       String  @unique
   password    String
-  onboarded   Boolean  @default(false)
-  username    String?  @unique
-  bio         String   @default("New user to ping!!") @db.Text
+  onboarded   Boolean @default(false)
+  username    String? @unique
+  bio         String  @default("New user to ping!!") @db.Text
   imageUrl    String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+
+  messages        Message[]
+  privateChats    PrivateChat[]  @relation("UserPrivateChats")
+  groupChats      GroupChat[]    @relation("UserGroupChats")
+  blockedContacts ContactBlock[] @relation("UserBlockedContacts")
+  blockedBy       ContactBlock[] @relation("UserBlockedBy")
+  settings        UserSettings?
+  GroupChat       GroupChat[]
+  admin           GroupChat[]    @relation("groupAdmin")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model UserSettings {
+  id                          Int     @id @default(autoincrement())
+  userId                      String  @unique
+  user                        User    @relation(fields: [userId], references: [id])
+  themeColor                  String  @default("light")
+  showProfileImage            Boolean @default(true)
+  allowMessageForwarding      Boolean @default(true)
+  hideLastSeen                Boolean @default(false)
+  restrictMessagesFromUnknown Boolean @default(false)
+  hideProfile                 Boolean @default(false)
+  hideOnlineStatus            Boolean @default(false)
+}
+
+model ContactBlock {
+  id        Int    @id @default(autoincrement())
+  userId    String
+  blockedId String
+  user      User   @relation("UserBlockedContacts", fields: [userId], references: [id])
+  blocked   User   @relation("UserBlockedBy", fields: [blockedId], references: [id])
+}
+
+model PrivateChat {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  participants User[]    @relation("UserPrivateChats")
+  messages     Message[]
+
+  @@index([createdAt])
+}
+
+model GroupChat {
+  id        String   @id @default(cuid())
+  name      String
+  ImageUrl  String?
+  about     String?
+  userId    String
+  owner     User     @relation(fields: [userId], references: [id])
+  admin     User[]   @relation("groupAdmin")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  members  User[]    @relation("UserGroupChats")
+  messages Message[]
+
+  @@index([name, createdAt])
+}
+
+model Message {
+  id            String       @id @default(cuid())
+  content       String
+  fileUrl       String?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  deleted       Boolean      @default(false)
+  senderId      String
+  sender        User         @relation(fields: [senderId], references: [id])
+  privateChatId String?
+  privateChat   PrivateChat? @relation(fields: [privateChatId], references: [id])
+  groupChatId   String?
+  groupChat     GroupChat?   @relation(fields: [groupChatId], references: [id])
+
+  @@index([senderId, createdAt])
+  @@index([privateChatId, createdAt])
+  @@index([groupChatId, createdAt])
 }

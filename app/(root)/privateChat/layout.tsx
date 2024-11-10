@@ -17,7 +17,7 @@ const ServerIdLayout: FC<serverIdLayoutProps> = async ({
                 initial={{ x: -100 }}
                 animate={{ x: 0 }}
                 transition={{ duration: 0.2 }}
-                className="hidden md:flex h-full w-64 z-20 flex-col fixed inset-y-0">
+                className="fixed inset-y-0 z-20 flex-col hidden w-64 h-full md:flex">
                 <ChatSidebar />
             </motion.div>
             <main className="h-full md:pl-64">{children}</main>

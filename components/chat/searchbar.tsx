@@ -11,6 +11,8 @@ import {
     CommandList,
 } from '../ui/command';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import { getOrCreatePrivateChatId } from '@/actions/chat/privateChat/getOrCreatePrivateChatId';
 
 interface SearchbarProps {
     CurrentuserId: string,
@@ -36,6 +38,8 @@ export default function Searchbar({
 }: SearchbarProps) {
 
     const [open, setOpen] = useState(false);
+    const router = useRouter();
+    // const params = useParams();
 
     useEffect(() => {
         const down = (e: KeyboardEvent) => {
@@ -51,8 +55,9 @@ export default function Searchbar({
         };
     }, []);
 
-    const onClick = () => {
-
+    const onClick = async (memberOne: string, memberTwo: string) => {
+        const privateChatId = await getOrCreatePrivateChatId(memberOne, memberTwo);
+        router.push(`/privateChat/${privateChatId}`);
     };
 
     return (
@@ -73,26 +78,26 @@ export default function Searchbar({
                 <CommandInput placeholder="Search all channels and members" />
                 <CommandList>
                     <CommandEmpty>No Result Found</CommandEmpty>
-                    {type === 'Private' ? privateChatData?.map(({ displayName, imageUrl, username, id }) => (
+                    {type === 'Private' ? privateChatData?.map(({ displayName, imageUrl, username, id: userId }) => (
                         <CommandItem
                             className='cursor-pointer'
                             key={username}
-                            onSelect={() => { }}
+                            onSelect={() => onClick(userId, CurrentuserId)}
                         >
                             <div
                                 className="relative flex mx-3 h-[48px] w-[48px] bg-[#252B2E] items-center justify-center rounded-full overflow-hidden"
                             >
-                                {imageUrl ?
+                                {/* {imageUrl ?
                                     <Image
                                         fill
                                         src={imageUrl}
                                         alt="UserProfile" /> :
-                                    <User className="text-slate-400" />}
+                                    <User className="text-slate-400" />} */}
                             </div>
                             <div className='flex flex-col'>
                                 <span>
                                     {displayName}
-                                    {CurrentuserId === id && (
+                                    {CurrentuserId === userId && (
                                         <span>{"  "}(YOU)</span>
                                     )}
                                 </span>
