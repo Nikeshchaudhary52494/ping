@@ -13,7 +13,7 @@ export const signInUserSchema = z.object({
 
 export const onBoardingUserSchema = z.object({
     displayName: z.string().min(2, { message: "Name must be at least 2 characters." }),
-    imageUrl: z.string().url().optional(),
+    imageUrl: z.string().optional(),
     username: z
         .string()
         .min(3, { message: "Username must be at least 3 characters." })
