@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
 import { Open_Sans } from "next/font/google";
 import "./globals.css";
-import { ClerkProvider } from "@clerk/nextjs";
-import { dark } from "@clerk/themes";
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/components/providers/theme-provider";
+import { Toaster } from "@/components/ui/toaster";
 
 const font = Open_Sans({ subsets: ["latin"] });
 
@@ -19,30 +18,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider
-      appearance={{
-        baseTheme: dark,
-        layout: {
-          socialButtonsPlacement: "bottom",
-        },
-        variables: {
-          colorPrimary: "#5765F2",
-          colorBackground: "#1A1A1D"
-        }
-      }}
-    >
-      <html lang="en" suppressHydrationWarning>
-        <body className={cn(font.className, "bg-white dark:bg-[#0D0D0E]")}>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="dark"
-            enableSystem
-            storageKey="discord-theme"
-          >
-            {children}
-          </ThemeProvider>
-        </body>
-      </html>
-    </ClerkProvider >
+    <html lang="en" suppressHydrationWarning>
+      <body className={cn(font.className, "bg-white dark:bg-[#0D0D0E]")}>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem
+          storageKey="discord-theme"
+        >
+          {children}
+        </ThemeProvider>
+        <Toaster />
+      </body>
+    </html>
   );
 }

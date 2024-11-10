@@ -1,23 +1,27 @@
-import { currentProfile } from "@/lib/current-profile";
+import { getUser } from "@/actions/user/getUser";
+import { User } from "lucide-react";
 import Image from "next/image";
 
 export default async function ChatHeader() {
-    const profile = await currentProfile();
-    if (!profile) return null;
-
+    const { user } = await getUser();
     return (
-        <div className="w-full flex gap-2">
+        <div className="flex w-full gap-2">
             <div
-                className="relative flex mx-3 h-[48px] w-[48px] bg-[#252B2E] rounded-full overflow-hidden"
+                className="relative flex mx-3 h-[48px] w-[48px] bg-[#252B2E] items-center justify-center rounded-full overflow-hidden"
             >
-                <Image fill src={profile?.imageUrl} alt="Channel" />
+                {user?.imageUrl ?
+                    <Image
+                        fill
+                        src={user?.imageUrl}
+                        alt="UserProfile" /> :
+                    <User className="text-slate-400" />}
             </div>
             <div className="flex flex-col">
                 <span>
-                    {profile?.name}
+                    {user?.displayName}
                 </span>
                 <span className="text-xs text-slate-400">
-                    {`@${profile?.username}`}
+                    {`@${user?.username}`}
                 </span>
             </div>
         </div>

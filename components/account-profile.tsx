@@ -23,7 +23,7 @@ import { useUploadThing } from "@/lib/uploadthing";
 import { isBase64Image } from "@/lib/utils";
 
 import { UserValidation } from "@/lib/validations/user";
-import { initialProfile } from "@/actions/user.actions";
+import { initialProfile } from "@/actions/user/user.actions";
 
 interface Props {
     user: {
@@ -122,7 +122,7 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
                                         width={96}
                                         height={96}
                                         priority
-                                        className='rounded-full object-contain'
+                                        className='object-contain rounded-full'
                                     />
                                 ) : (
                                     <Image
@@ -151,7 +151,7 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
                     control={form.control}
                     name='name'
                     render={({ field }) => (
-                        <FormItem className='flex w-full flex-col gap-3'>
+                        <FormItem className='flex flex-col w-full gap-3'>
                             <FormLabel className=''>
                                 Name
                             </FormLabel>
@@ -171,7 +171,7 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
                     control={form.control}
                     name='username'
                     render={({ field }) => (
-                        <FormItem className='flex w-full flex-col gap-3'>
+                        <FormItem className='flex flex-col w-full gap-3'>
                             <FormLabel className=''>
                                 Username
                             </FormLabel>
@@ -191,7 +191,7 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
                     control={form.control}
                     name='bio'
                     render={({ field }) => (
-                        <FormItem className='flex w-full flex-col gap-3'>
+                        <FormItem className='flex flex-col w-full gap-3'>
                             <FormLabel className=''>
                                 Bio
                             </FormLabel>

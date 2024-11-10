@@ -11,8 +11,8 @@ export default function SettingsSidebar() {
         router.push(`/settings/${route}`);
     }
     return (
-        <div className="space-y-4 flex border-l-[1px] border-slate-200 border-opacity-10 flex-col h-full text-primary w-full dark:bg-[#1E1F22] bg-[#E3E5E8] py-3">
-            <p className="px-2 text-3xl font-extrabold">Setiings</p>
+        <div className="space-y-2 flex border-l-[1px] border-slate-200 border-opacity-10 flex-col h-full text-primary w-full dark:bg-[#1E1F22] bg-[#E3E5E8] py-3">
+            <p className="px-4 text-3xl font-extrabold">Setiings</p>
             <Separator className="h-[1px] bg-zinc-300 dark:bg-zinc-700 rounded-md w-full" />
             {
                 settingsTabs.map((item) => {
