@@ -1,12 +1,14 @@
 import {
     Camera,
+    Lock,
     MessageCircle,
     Phone,
     Settings,
+    UserRoundCog,
     UsersRound
 } from "lucide-react";
 
-export const navigationLinks = [
+export const navigationTabs = [
     {
         icon: MessageCircle,
         label: "Chats",
@@ -31,5 +33,18 @@ export const navigationLinks = [
         icon: Settings,
         label: "Settings",
         route: "/settings"
+    },
+]
+
+export const settingsTabs = [
+    {
+        icon: UserRoundCog,
+        label: "Profile",
+        route: "/profile"
+    },
+    {
+        icon: Lock,
+        label: "Security",
+        route: "/security"
     },
 ]

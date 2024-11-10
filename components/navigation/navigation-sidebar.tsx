@@ -5,7 +5,7 @@ import NavigationAction from './navigation-action';
 import { Separator } from '../ui/separator';
 import { ModeToggle } from '../mode-toggle';
 import ActionTooltip from '../action-tooltip';
-import { navigationLinks } from '@/lib/naivationLinks';
+import { navigationTabs } from '@/lib/tabLinks';
 import { usePathname, useRouter } from 'next/navigation';
 
 interface navigationSidebarProps { }
@@ -23,9 +23,9 @@ const NavigationSidebar: FC<navigationSidebarProps> = async ({ }) => {
     return (
         <div className="space-y-4 flex flex-col items-center h-full text-primary w-full dark:bg-[#1E1F22] bg-[#E3E5E8] py-3">
             <ModeToggle />
-            <div className='flex-1 flex flex-col gap-5 justify-center items-center '>
+            <div className='flex flex-col items-center justify-center flex-1 gap-5 '>
                 {
-                    navigationLinks.map((item) => {
+                    navigationTabs.map((item) => {
                         const Icon = item.icon;
                         const isActive =
                             (pathname.includes(item.route) && item.route.length > 1) ||
@@ -45,7 +45,7 @@ const NavigationSidebar: FC<navigationSidebarProps> = async ({ }) => {
                 }
             </div>
             <Separator className="h-[2px] bg-zinc-300 dark:bg-zinc-700 rounded-md w-10 mx-auto" />
-            <div className="pb-3 mt-auto flex items-center flex-col gap-y-4">
+            <div className="flex flex-col items-center pb-3 mt-auto gap-y-4">
                 <NavigationAction />
             </div>
         </div>
