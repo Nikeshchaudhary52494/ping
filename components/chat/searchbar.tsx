@@ -87,12 +87,12 @@ export default function Searchbar({
                             <div
                                 className="relative flex mx-3 h-[48px] w-[48px] bg-[#252B2E] items-center justify-center rounded-full overflow-hidden"
                             >
-                                {/* {imageUrl ?
+                                {imageUrl ?
                                     <Image
                                         fill
                                         src={imageUrl}
                                         alt="UserProfile" /> :
-                                    <User className="text-slate-400" />} */}
+                                    <User className="text-slate-400" />}
                             </div>
                             <div className='flex flex-col'>
                                 <span>

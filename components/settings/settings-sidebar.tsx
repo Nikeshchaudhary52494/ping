@@ -22,7 +22,7 @@ export default function SettingsSidebar() {
                         pathname === item.route;
                     return (
                         <button
-                            className={`p-4 flex gap-2 text-slate-400 ${isActive ? 'bg-[#252B2E]  text-white' : 'hover:bg-[#252B2E] hover:bg-opacity-40'}`}
+                            className={`px-4 py-2 flex gap-2 text-slate-400 ${isActive ? 'bg-[#252B2E]  text-white' : 'hover:bg-[#252B2E] hover:bg-opacity-40'}`}
 
                             onClick={() => handleClick(item.route)}
                         >
