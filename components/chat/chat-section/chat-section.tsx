@@ -1,6 +1,7 @@
 import { getUser } from "@/actions/user/getUser";
 import ChatInput from "../chat-input";
 import ChatSectionHeader from "../chat-section-header";
+import ChatMessages from "./chat-messages";
 
 interface chatSectionProps {
     params: {
@@ -18,7 +19,7 @@ const Chatsection = async ({ params }: chatSectionProps) => {
             </div>
 
             <div className="flex-1 p-2 overflow-y-auto">
-                {/* Chat messages Here */}
+                <ChatMessages params={params} />
             </div>
 
             <div className="p-3 bg-[#1E1F22] border-l-[1px] border-slate-200 border-opacity-10 ">
