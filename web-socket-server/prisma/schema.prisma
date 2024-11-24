@@ -1,0 +1,125 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String  @id @default(cuid())
+  displayName String
+  email       String  @unique
+  password    String
+  onboarded   Boolean @default(false)
+  username    String? @unique
+  bio         String  @default("New user to ping!!")
+  imageUrl    String?
+
+  messages        Message[]
+  chats           Chat[]         @relation("ChatMemberships")
+  blockedContacts ContactBlock[] @relation("BlockedBy")
+  blockedBy       ContactBlock[] @relation("BlockedUsers")
+  settings        UserSettings?
+  notifications   Notification[]
+
+  ownedGroups      GroupChat[] @relation("GroupOwners")
+  adminGroups      GroupChat[] @relation("GroupAdmins")
+  groupMemberships GroupChat[] @relation("GroupMemberships")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model UserSettings {
+  id                          Int     @id @default(autoincrement())
+  userId                      String  @unique
+  user                        User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  themeColor                  String  @default("light")
+  showProfileImage            Boolean @default(true)
+  allowMessageForwarding      Boolean @default(true)
+  hideLastSeen                Boolean @default(false)
+  restrictMessagesFromUnknown Boolean @default(false)
+  hideProfile                 Boolean @default(false)
+  hideOnlineStatus            Boolean @default(false)
+}
+
+model ContactBlock {
+  id        Int    @id @default(autoincrement())
+  userId    String
+  blockedId String
+  user      User   @relation("BlockedBy", fields: [userId], references: [id], onDelete: Cascade)
+  blocked   User   @relation("BlockedUsers", fields: [blockedId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, blockedId])
+}
+
+enum ChatType {
+  PRIVATE
+  SELF
+  GROUP
+}
+
+model Chat {
+  id            String         @id @default(cuid())
+  type          ChatType
+  createdAt     DateTime       @default(now())
+  members       User[]         @relation("ChatMemberships")
+  messages      Message[]
+  notifications Notification[]
+  groupChat     GroupChat?
+
+  @@index([type, createdAt])
+}
+
+model GroupChat {
+  id       String  @id @default(cuid())
+  name     String
+  imageUrl String?
+  about    String?
+  ownerId  String
+  owner    User    @relation("GroupOwners", fields: [ownerId], references: [id], onDelete: Cascade)
+  admins   User[]  @relation("GroupAdmins")
+  members  User[]  @relation("GroupMemberships")
+  chat     Chat    @relation(fields: [chatId], references: [id])
+  chatId   String  @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Message {
+  id          String  @id @default(cuid())
+  content     String?
+  fileUrl     String?
+  isDeleted   Boolean @default(false)
+  isEdited    Boolean @default(false)
+  isForwarded Boolean @default(false)
+  sender      User    @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  senderId    String
+  chatId      String
+  chat        Chat    @relation(fields: [chatId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([chatId, createdAt])
+  @@index([senderId, createdAt])
+}
+
+model Notification {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  chatId      String
+  chat        Chat      @relation(fields: [chatId], references: [id])
+  unreadCount Int       @default(0)
+  lastMessage String?
+  lastSeenAt  DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId, chatId])
+}

@@ -1,13 +1,18 @@
 'use client'
+
 import { SendHorizonal } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import React, { useState } from 'react';
+import axiosInstance from '@/web-socket-server/src/lib/axiosConfig';
 
-const ChatInput = () => {
+interface ChatInputProps {
+    senderId: String
+}
+
+const ChatInput = ({ senderId }: ChatInputProps) => {
     const [content, setContent] = useState('');
     const params = useParams();
-    const conversationId = params.privateChatId;
-    console.log(conversationId);
+    const chatId = params.privateChatId;
 
     const onSubmit = async (e: any) => {
         e.preventDefault();
@@ -16,6 +21,7 @@ const ChatInput = () => {
         }
         try {
             setContent('');
+            axiosInstance.post(`/api/message/send/${chatId}`, { content, senderId });
         } catch (error) {
             console.error('Failed to send message:', error);
         }

@@ -1,15 +1,25 @@
-import express, { Express, Request, Response } from "express";
+import express from "express";
 import dotenv from "dotenv";
+import cors from "cors";
+import { app, server } from "./socket/socket";
+
+import messageRoutes from "./routes/message.routes";
 
 dotenv.config();
+const PORT = process.env.PORT || 5000;
 
-const app: Express = express();
-const port = process.env.PORT || 4000;
+app.use(express.json());
+app.use(cors({
+    origin: true,
+    credentials: true,
+}));
 
-app.get("/", (req: Request, res: Response) => {
-    res.send("Ping weeb socket server");
+app.get("/", (req, res) => {
+    res.json({ message: "Ping web-socket server" });
 });
 
-app.listen(port, () => {
-    console.log(`[server]: Server is running at http://localhost:${port}`);
+app.use("/api/message", messageRoutes);
+
+server.listen(PORT, () => {
+    console.log(`Server is running at PORT: ${PORT}`);
 });
