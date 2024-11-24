@@ -11,19 +11,19 @@ interface ChatSectionHeaderProps {
 }
 
 export default async function ChatSectionHeader({ params }: ChatSectionHeaderProps) {
-    const privateChat = await db.privateChat.findFirst({
+    const privateChat = await db.chat.findFirst({
         where: {
             id: params.privateChatId?.toString(),
         },
         include: {
-            participants: true
+            members: true
         },
     });
 
     const { user } = await getUser();
 
-    const secondPerson = privateChat?.participants.find(
-        (participant) => participant.id !== user?.id
+    const secondPerson = privateChat?.members.find(
+        (members) => members.id !== user?.id
     );
 
 

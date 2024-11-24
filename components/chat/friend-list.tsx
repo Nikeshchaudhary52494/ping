@@ -10,8 +10,8 @@ export default async function FriendList({
 }: FriendsListProps) {
     const friendList = await getFriendList(user.id);
 
-    const friends = friendList?.privateChats.flatMap(chat =>
-        chat.participants
+    const friends = friendList?.chats.flatMap(chat =>
+        chat.members
     ) || [];
 
     console.log(friends)

@@ -9,9 +9,9 @@ export const getFriendList = async (userId: string) => {
                 id: userId
             },
             include: {
-                privateChats: {
+                chats: {
                     include: {
-                        participants: {
+                        members: {
                             where: {
                                 id: {
                                     not: userId

@@ -1,36 +1,52 @@
-"use server"
+"use server";
 
 import { db } from "@/lib/db";
+import { ChatType } from "@prisma/client";
 
-export const getOrCreatePrivateChatId = async (memberOne: string, memberTwo: string) => {
-    try {
-        const privateChat = await db.privateChat.findFirst({
-            where: {
-                participants: {
-                    every: {
-                        id: {
-                            in: [memberOne, memberTwo]
-                        }
+
+const findChatByTypeAndMembers = async (type: ChatType, memberIds: string[]) => {
+    return await db.chat.findFirst({
+        where: {
+            type,
+            members: {
+                every: {
+                    id: {
+                        in: memberIds
                     }
                 }
             }
-        });
+        }
+    });
+};
 
-        if (privateChat) {
-            return privateChat.id;
+
+const createChat = async (type: ChatType, memberIds: string[]) => {
+    return await db.chat.create({
+        data: {
+            type,
+            members: {
+                connect: memberIds.map((id) => ({ id }))
+            }
+        }
+    });
+};
+
+export const getOrCreatePrivateChatId = async (memberOne: string, memberTwo: string) => {
+    try {
+        const isSelfChat = memberOne === memberTwo;
+        const chatType = isSelfChat ? ChatType.SELF : ChatType.PRIVATE;
+        const memberIds = [memberOne, memberTwo];
+
+        const existingChat = await findChatByTypeAndMembers(chatType, memberIds);
+        if (existingChat) {
+            return existingChat.id;
         }
 
-        const newPrivateChat = await db.privateChat.create({
-            data: {
-                participants: {
-                    connect: [{ id: memberOne }, { id: memberTwo }]
-                }
-            }
-        });
+        const newChat = await createChat(chatType, memberIds);
+        return newChat.id;
 
-        return newPrivateChat.id;
     } catch (error) {
-        console.error('Error fetching or creating private chat:', error);
-        throw new Error('Failed to fetch or create private chat');
+        console.error("Error fetching or creating private chat:", error);
+        throw new Error("Failed to fetch or create private chat");
     }
 };
