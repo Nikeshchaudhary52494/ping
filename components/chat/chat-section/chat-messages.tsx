@@ -1,34 +1,52 @@
-import { getUser } from "@/actions/user/getUser";
+"use client";
+
+import { useEffect, useRef } from "react";
 import MessageItem from "./message-item";
-import { db } from "@/lib/db";
+import { useSocket } from "@/components/providers/socketProvider";
+import { Message } from "@prisma/client";
+import { useMessage } from "@/components/providers/messageProvider";
 
 interface ChatMessagesProps {
-    params: {
-        privateChatId?: string;
-        groupChatId?: string
-    };
+    messages: Message[];
+    userId: string;
+    chatId: string;
 }
 
-export default async function ChatMessages({ params }: ChatMessagesProps) {
-    const chat = await db.chat.findUnique({
-        where: {
-            id: params.privateChatId
-        },
-        include: {
-            messages: true,
+export default function ChatMessages({ userId, messages: initialMessages }: ChatMessagesProps) {
+    const { socket, isConnected } = useSocket();
+    const { messages, setMessages, addMessage } = useMessage();
+    const messageEndRef = useRef<HTMLDivElement | null>(null);
+
+    useEffect(() => {
+        if (messages.length === 0) setMessages(initialMessages);
+
+        if (!socket) return;
+
+        socket.on("newMessage", (newMessage) => {
+            addMessage(newMessage);
+        });
+
+        return () => {
+            socket.off("newMessage");
+        };
+    }, [socket, addMessage, setMessages, initialMessages]);
+
+    useEffect(() => {
+        if (messageEndRef.current) {
+            messageEndRef.current.scrollIntoView({ behavior: "instant" });
         }
-    })
-    const { user } = await getUser();
+    }, [messages]);
 
     return (
         <div className="flex flex-col space-y-2">
-            {chat?.messages && chat.messages.map(({ content, senderId }, index) => (
+            {messages.map(({ content, senderId }, index) => (
                 <MessageItem
                     key={index}
-                    isMine={user?.id === senderId}
+                    isMine={userId === senderId}
                     content={content!}
                 />
             ))}
+            <div ref={messageEndRef} />
         </div>
     );
 }
