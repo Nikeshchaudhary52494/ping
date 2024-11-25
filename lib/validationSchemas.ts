@@ -25,8 +25,15 @@ export const onBoardingUserSchema = z.object({
     bio: z.string().optional().default("hey there new to ping"),
 });
 
+export const createGroupSchema = z.object({
+    name: z.string().min(2, { message: "Name must be at least 2 characters." }),
+    imageUrl: z.string().optional(),
+    about: z.string().optional().default("New ping group chat"),
+})
+
 
 
 export type RegisterUserInput = z.infer<typeof registerUserSchema>;
 export type SignInUserInput = z.infer<typeof signInUserSchema>;
 export type OnBoardingUserSchema = z.infer<typeof onBoardingUserSchema>;
+export type CreateGroupInput = z.infer<typeof createGroupSchema>;
