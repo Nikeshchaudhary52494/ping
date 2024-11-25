@@ -16,20 +16,20 @@ export default function ChatMessages({ userId, messages: initialMessages }: Chat
     const { socket, isConnected } = useSocket();
     const { messages, setMessages, addMessage } = useMessage();
     const messageEndRef = useRef<HTMLDivElement | null>(null);
+    console.log(initialMessages);
+    useEffect(() => {
+        setMessages(initialMessages);
+    }, [setMessages, initialMessages])
 
     useEffect(() => {
-        if (messages.length === 0) setMessages(initialMessages);
-
         if (!socket) return;
-
         socket.on("newMessage", (newMessage) => {
             addMessage(newMessage);
         });
-
         return () => {
             socket.off("newMessage");
         };
-    }, [socket, addMessage, setMessages, initialMessages]);
+    }, [socket, addMessage]);
 
     useEffect(() => {
         if (messageEndRef.current) {
@@ -39,12 +39,15 @@ export default function ChatMessages({ userId, messages: initialMessages }: Chat
 
     return (
         <div className="flex flex-col space-y-2">
-            {messages.map(({ content, senderId }, index) => (
-                <MessageItem
-                    key={index}
-                    isMine={userId === senderId}
-                    content={content!}
-                />
+            {messages.map(({ content, senderId, fileUrl }, index) => (
+                <div className={`chat  ${userId === senderId ? `chat-end` : `chat-start`}`}>
+                    <MessageItem
+                        key={index}
+                        content={content!}
+                        fileUrl={fileUrl!}
+                        isMine={userId === senderId}
+                    />
+                </div>
             ))}
             <div ref={messageEndRef} />
         </div>

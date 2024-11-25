@@ -1,12 +1,26 @@
+import Image from "next/image";
+
 interface MessageItemProps {
     content: string;
+    fileUrl?: string;
     isMine: boolean;
 }
 
-export default function MessageItem({ content, isMine }: MessageItemProps) {
+export default function MessageItem({ content, fileUrl, isMine }: MessageItemProps) {
     return (
-        <div className={`p-4 border rounded-b-lg max-w-xs ${isMine ? 'bg-[#48A6C3] rounded-tl-md text-black self-end' : 'bg-[#252B2E] rounded-tr-lg text-slate-300 self-start'}`}>
-            {content}
+        <div className={`${!fileUrl ? `chat-bubble` : `rounded-md`} ${isMine && `chat-bubble-primary text-white`}`}>
+            {fileUrl && (
+                <div className="relative w-40 h-40">
+                    <Image
+                        src={fileUrl}
+                        alt="Attachment"
+                        fill
+                        className="p-1 rounded-lg "
+                        objectFit="cover"
+                    />
+                </div>
+            )}
+            {content && <p className={`${fileUrl && `p-2`}`}>{content}</p>}
         </div>
-    )
+    );
 }

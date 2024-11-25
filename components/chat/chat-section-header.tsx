@@ -11,7 +11,7 @@ interface ChatSectionHeaderProps {
 }
 
 export default async function ChatSectionHeader({ params }: ChatSectionHeaderProps) {
-    const privateChat = await db.chat.findFirst({
+    const privateChat = await db.chat.findUnique({
         where: {
             id: params.privateChatId?.toString(),
         },

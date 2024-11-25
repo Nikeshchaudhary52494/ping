@@ -7,8 +7,9 @@ export const sendMessage = async (req: Request, res: Response): Promise<Response
         const { content, senderId, fileUrl, receiverId } = req.body;
         const { chatId } = req.params;
 
-        if (!content || !senderId || !chatId) {
-            return res.status(400).json({ error: "Content, senderId, and chatId are required" });
+        console.log(fileUrl);
+        if ((!content && !fileUrl) || !senderId || !chatId) {
+            return res.status(400).json({ error: "(Content or fileUrl) senderId, and chatId are required" });
         }
 
         const chat = await db.chat.findUnique({
