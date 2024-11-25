@@ -1,7 +1,7 @@
-export default function chats() {
+export default async function chats() {
     return (
         <div className="flex items-center justify-center h-full font-bold text-slate-400">
-            Select or search person to chat
+            Select a conversation from the sidebar to start chatting
         </div>
     )
 }

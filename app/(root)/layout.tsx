@@ -1,11 +1,18 @@
+import { getUser } from '@/actions/user/getUser';
 import NavigationSidebar from '@/components/navigation/navigation-sidebar';
-import { FC, ReactNode } from 'react';
+import { redirect } from 'next/navigation';
+import { ReactNode } from 'react';
 
-interface mainLayoutProps {
+export default async function MainLayout({
+    children,
+}: {
     children: ReactNode;
-}
+}) {
 
-const MainLayout: FC<mainLayoutProps> = ({ children }) => {
+    const { user } = await getUser();
+    if (!user) redirect("/sign-in")
+    if (!user?.onboarded) redirect("/onboarding");
+
     return (
         <div className="h-full">
             <div className="hidden md:flex h-full w-[72px] z-30 flex-col fixed inset-y-0">
@@ -15,5 +22,3 @@ const MainLayout: FC<mainLayoutProps> = ({ children }) => {
         </div>
     );
 };
-
-export default MainLayout;
