@@ -1,4 +1,4 @@
-import GroupChatsection from "@/components/group-chat/group-chat-section/group-chat-section"
+import Chatsection from "@/components/chat/group/ChatSection"
 
 interface GroupsProps {
     params: {
@@ -9,7 +9,7 @@ interface GroupsProps {
 export default function Groups({ params }: GroupsProps) {
     return (
         <div className="h-full">
-            <GroupChatsection params={params} />
+            <Chatsection params={params} />
         </div>
     )
 }

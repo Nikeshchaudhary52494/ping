@@ -3,10 +3,10 @@
 import { Image, SendHorizonal, X } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import React, { useRef, useState, ChangeEvent, FormEvent } from 'react';
-import axiosInstance from '@/web-socket-server/src/lib/axiosConfig';
 import { toast } from '@/app/hooks/use-toast';
 import { useUploadThing } from '@/lib/uploadthing';
 import { useMessage } from '@/components/providers/messageProvider';
+import axiosInstance from '@/lib/axiosConfig';
 
 interface MessageInputProps {
     senderId: string;
@@ -14,9 +14,9 @@ interface MessageInputProps {
 }
 
 export default function MessageInput({
-     senderId,
-      receiverId 
-    }: MessageInputProps) {
+    senderId,
+    receiverId
+}: MessageInputProps) {
 
     const { addMessage } = useMessage();
     const params = useParams();

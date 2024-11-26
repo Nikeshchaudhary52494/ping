@@ -15,7 +15,7 @@ export default async function Chatsection({
 }: ChatSectionProps) {
 
     const { user } = await getUser();
-    
+
     const chat = await db.chat.findUnique({
         where: {
             id: params.groupChatId
