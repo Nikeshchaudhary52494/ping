@@ -2,14 +2,16 @@ import { db } from "@/lib/db";
 import { UsersRound } from "lucide-react";
 import Image from "next/image";
 
-interface ChatSectionHeaderProps {
+interface SectionHeaderProps {
     params: {
         privateChatId?: string;
         groupChatId?: string
     }
 }
 
-export default async function GroupChatSectionHeader({ params }: ChatSectionHeaderProps) {
+export default async function SectionHeader({
+    params
+}: SectionHeaderProps) {
 
     const groupChat = await db.groupChat.findFirst({
         where: {

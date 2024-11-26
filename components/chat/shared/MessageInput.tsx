@@ -4,22 +4,28 @@ import { Image, SendHorizonal, X } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import React, { useRef, useState, ChangeEvent, FormEvent } from 'react';
 import axiosInstance from '@/web-socket-server/src/lib/axiosConfig';
-import { useMessage } from '../providers/messageProvider';
 import { toast } from '@/app/hooks/use-toast';
 import { useUploadThing } from '@/lib/uploadthing';
+import { useMessage } from '@/components/providers/messageProvider';
 
-interface ChatInputProps {
+interface MessageInputProps {
     senderId: string;
     receiverId?: string;
 }
 
-const ChatInput: React.FC<ChatInputProps> = ({ senderId, receiverId }) => {
-    const [content, setContent] = useState<string>('');
+export default function MessageInput({
+     senderId,
+      receiverId 
+    }: MessageInputProps) {
+
+    const { addMessage } = useMessage();
     const params = useParams();
     const chatId = params?.privateChatId || params?.groupChatId as string;
-    const { addMessage } = useMessage();
-    const [imagePreview, setImagePreview] = useState<string | null>(null);
+
+    const [content, setContent] = useState<string>('');
     const [files, setFiles] = useState<File[]>([]);
+    const [imagePreview, setImagePreview] = useState<string | null>(null);
+
     const fileInputRef = useRef<HTMLInputElement>(null);
     const { startUpload } = useUploadThing("messageFile");
 
@@ -39,47 +45,42 @@ const ChatInput: React.FC<ChatInputProps> = ({ senderId, receiverId }) => {
         setImagePreview(null);
         if (fileInputRef.current) fileInputRef.current.value = '';
     };
+
     const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
-        // Check if the content is empty
         if (!content.trim() && files.length === 0) {
             toast({ description: 'Message or image must not be empty.' });
             return;
         }
 
         let fileUrl = null;
-
-        // Upload the files if any are selected
         if (files.length > 0) {
             try {
                 const imgRes = await startUpload(files);
                 if (imgRes && imgRes.length > 0) {
-                    fileUrl = imgRes[0].url; // Use the first uploaded file URL
+                    fileUrl = imgRes[0].url;
                 }
             } catch (error) {
                 console.error('Failed to upload file:', error);
                 toast({ description: 'Failed to upload the file. Please try again.' });
-                return; // Exit early since the file upload failed
+                return;
             }
         }
 
         try {
-            // Reset the input field and image preview
             setContent('');
             setFiles([]);
             setImagePreview(null);
             if (fileInputRef.current) fileInputRef.current.value = '';
 
-            // Send the message to the server
             const res = await axiosInstance.post(`/api/message/send/${chatId}`, {
                 content,
                 senderId,
                 receiverId,
-                fileUrl, // Attach the file URL if it exists
+                fileUrl,
             });
 
-            // Add the new message to the chat
             addMessage(res.data);
         } catch (error) {
             console.error('Failed to send message:', error);
@@ -143,5 +144,3 @@ const ChatInput: React.FC<ChatInputProps> = ({ senderId, receiverId }) => {
         </>
     );
 };
-
-export default ChatInput;

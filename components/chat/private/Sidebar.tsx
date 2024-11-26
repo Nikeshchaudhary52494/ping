@@ -1,10 +1,11 @@
-import ChatHeader from "./chat-header";
-import Searchbar from "./searchbar";
+import ChatHeader from "../shared/Header";
 import { getUser } from "@/actions/user/getUser";
 import { db } from "@/lib/db";
-import FriendList from "./friend-list";
+import FriendList from "./FriendList";
+import Searchbar from "../shared/Searchbar";
 
-export default async function ChatSidebar() {
+export default async function Sidebar() {
+
     const { user } = await getUser();
     const allUsers = await db.user.findMany();
 

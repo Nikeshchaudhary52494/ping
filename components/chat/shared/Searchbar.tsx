@@ -8,11 +8,11 @@ import {
     CommandInput,
     CommandItem,
     CommandList,
-} from '../ui/command';
+} from '@/components/ui/command';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { getOrCreatePrivateChatId } from '@/actions/chat/privateChat/getOrCreatePrivateChatId';
-import { Chat, GroupChat } from '@prisma/client';
+import { GroupChat } from '@prisma/client';
 
 interface SearchbarProps {
     CurrentuserId: string,
@@ -35,7 +35,6 @@ export default function Searchbar({
 
     const [open, setOpen] = useState(false);
     const router = useRouter();
-    // const params = useParams();
 
     useEffect(() => {
         const down = (e: KeyboardEvent) => {

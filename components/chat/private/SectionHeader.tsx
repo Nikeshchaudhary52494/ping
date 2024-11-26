@@ -3,14 +3,17 @@ import { db } from "@/lib/db";
 import { User } from "lucide-react";
 import Image from "next/image";
 
-interface ChatSectionHeaderProps {
+interface SectionHeaderProps {
     params: {
         privateChatId?: string;
         groupChatId?: string
     }
 }
 
-export default async function ChatSectionHeader({ params }: ChatSectionHeaderProps) {
+export default async function SectionHeader({
+    params
+}: SectionHeaderProps) {
+    
     const privateChat = await db.chat.findUnique({
         where: {
             id: params.privateChatId?.toString(),

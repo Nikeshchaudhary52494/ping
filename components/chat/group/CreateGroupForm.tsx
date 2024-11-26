@@ -16,10 +16,10 @@ import { Input } from "@/components/ui/input";
 import { CreateGroupInput, createGroupSchema } from "@/lib/validationSchemas";
 import { Camera } from "lucide-react";
 import Image from "next/image";
-import { Textarea } from "../ui/textarea";
 import { useUploadThing } from "@/lib/uploadthing";
 import { createGroup } from "@/actions/chat/groupChat/createGroup";
-import { useUser } from "../providers/userProvider";
+import { useUser } from "@/components/providers/userProvider";
+import { Textarea } from "@/components/ui/textarea";
 
 export default function CreateGroupForm() {
 
@@ -56,20 +56,6 @@ export default function CreateGroupForm() {
                     name: values.name
                 })
             }
-            // await onboardUser({
-            //     userId: user.userId,
-            //     displayName: values.displayName,
-            //     imageUrl: values.imageUrl,
-            //     username: values.username,
-            //     bio: values.bio
-            // });
-
-
-            // if (pathname === "/profile/edit") {
-            //     router.back();
-            // } else {
-            //     router.push("/");
-            // }
             catch (error) {
                 console.error("Error updating profile:", error);
             }

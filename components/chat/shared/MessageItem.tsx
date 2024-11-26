@@ -6,7 +6,12 @@ interface MessageItemProps {
     isMine: boolean;
 }
 
-export default function MessageItem({ content, fileUrl, isMine }: MessageItemProps) {
+export default function MessageItem({
+    content,
+    fileUrl,
+    isMine
+}: MessageItemProps) {
+
     return (
         <div className={`${!fileUrl ? `chat-bubble` : `rounded-md`} ${isMine && `chat-bubble-primary text-white`}`}>
             {fileUrl && (

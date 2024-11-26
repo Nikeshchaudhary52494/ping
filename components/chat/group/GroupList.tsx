@@ -1,11 +1,13 @@
 import { GroupChat } from "@prisma/client";
-import GroupListItem from "./group-list-item";
+import GroupListItem from "./GroupListItem";
 
 interface GroupListParams {
     groupList: GroupChat[]
 }
 
-export default function GroupList({ groupList }: GroupListParams) {
+export default function GroupList({
+    groupList
+}: GroupListParams) {
 
     return (
         <div className="h-full">

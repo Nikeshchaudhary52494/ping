@@ -9,7 +9,7 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog"
 import ActionTooltip from '../action-tooltip';
-import CreateGroupForm from '../group-chat/create-group-form';
+import CreateGroupForm from '../chat/group/CreateGroupForm';
 
 export default function NavigationAction() {
     return (

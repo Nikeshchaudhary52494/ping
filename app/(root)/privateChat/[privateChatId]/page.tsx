@@ -1,4 +1,4 @@
-import Chatsection from "@/components/chat/chat-section/chat-section";
+import Chatsection from "@/components/chat/private/ChatSection";
 
 interface chatsProps {
     params: {

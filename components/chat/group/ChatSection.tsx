@@ -1,21 +1,24 @@
+import ChatMessages from "@/components/chat/shared/Messages";
 import { getUser } from "@/actions/user/getUser";
-import ChatInput from "../chat-input";
-import ChatSectionHeader from "../chat-section-header";
-import ChatMessages from "./chat-messages";
 import { db } from "@/lib/db";
+import SectionHeader from "./SectionHeader";
+import MessageInput from "../shared/MessageInput";
 
-interface chatSectionProps {
+interface ChatSectionProps {
     params: {
-        privateChatId?: string;
-        groupChatId?: string
+        groupChatId: string
     }
 }
 
-const Chatsection = async ({ params }: chatSectionProps) => {
+export default async function Chatsection({
+    params
+}: ChatSectionProps) {
 
+    const { user } = await getUser();
+    
     const chat = await db.chat.findUnique({
         where: {
-            id: params.privateChatId
+            id: params.groupChatId
         },
         include: {
             messages: true,
@@ -23,18 +26,14 @@ const Chatsection = async ({ params }: chatSectionProps) => {
         }
     })
 
-    const { user } = await getUser();
-    const secondPerson = chat?.members.find(
-        (members) => members.id !== user?.id
-    );
-
     return (
-        <div className="flex flex-col h-full">
+        <div className="h-full flex flex-col">
             <div className="h-16">
-                <ChatSectionHeader params={params} />
+                <SectionHeader params={params} />
+
             </div>
 
-            <div className="flex-1 p-2 overflow-y-auto">
+            <div className="flex-1 overflow-y-auto p-2">
                 <ChatMessages
                     chatId={chat?.id!}
                     messages={chat?.messages!}
@@ -44,13 +43,10 @@ const Chatsection = async ({ params }: chatSectionProps) => {
             </div>
 
             <div className="p-3 bg-[#1E1F22] border-l-[1px] border-slate-200 border-opacity-10 ">
-                <ChatInput
+                <MessageInput
                     senderId={user?.id!}
-                    receiverId={secondPerson?.id!}
                 />
             </div>
         </div>
     );
 }
-
-export default Chatsection;

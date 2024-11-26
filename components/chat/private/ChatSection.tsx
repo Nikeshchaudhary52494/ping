@@ -1,20 +1,23 @@
-import GroupChatSectionHeader from "./group-chat-section-header";
-import ChatMessages from "@/components/chat/chat-section/chat-messages";
-import ChatInput from "@/components/chat/chat-input";
 import { getUser } from "@/actions/user/getUser";
+import ChatSectionHeader from "./SectionHeader";
+import ChatMessages from "../shared/Messages";
 import { db } from "@/lib/db";
+import MessageInput from "../shared/MessageInput";
 
-interface groupChatSectionProps {
+interface ChatSectionProps {
     params: {
-        groupChatId: string
+        privateChatId?: string;
+        groupChatId?: string
     }
 }
 
-const GroupChatsection = async ({ params }: groupChatSectionProps) => {
-    const { user } = await getUser();
+export default async function ChatSection({
+    params
+}: ChatSectionProps) {
+
     const chat = await db.chat.findUnique({
         where: {
-            id: params.groupChatId
+            id: params.privateChatId
         },
         include: {
             messages: true,
@@ -22,14 +25,18 @@ const GroupChatsection = async ({ params }: groupChatSectionProps) => {
         }
     })
 
-    return (
-        <div className="h-full flex flex-col">
-            <div className="h-16">
-                <GroupChatSectionHeader params={params} />
+    const { user } = await getUser();
+    const secondPerson = chat?.members.find(
+        (members) => members.id !== user?.id
+    );
 
+    return (
+        <div className="flex flex-col h-full">
+            <div className="h-16">
+                <ChatSectionHeader params={params} />
             </div>
 
-            <div className="flex-1 overflow-y-auto p-2">
+            <div className="flex-1 p-2 overflow-y-auto">
                 <ChatMessages
                     chatId={chat?.id!}
                     messages={chat?.messages!}
@@ -39,12 +46,11 @@ const GroupChatsection = async ({ params }: groupChatSectionProps) => {
             </div>
 
             <div className="p-3 bg-[#1E1F22] border-l-[1px] border-slate-200 border-opacity-10 ">
-                <ChatInput
+                <MessageInput
                     senderId={user?.id!}
+                    receiverId={secondPerson?.id!}
                 />
             </div>
         </div>
     );
 }
-
-export default GroupChatsection;

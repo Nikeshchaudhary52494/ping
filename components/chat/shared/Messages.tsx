@@ -1,18 +1,21 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import MessageItem from "./message-item";
+import MessageItem from "./MessageItem";
 import { useSocket } from "@/components/providers/socketProvider";
 import { Message } from "@prisma/client";
 import { useMessage } from "@/components/providers/messageProvider";
 
-interface ChatMessagesProps {
+interface MessagesProps {
     messages: Message[];
     userId: string;
     chatId: string;
 }
 
-export default function ChatMessages({ userId, messages: initialMessages }: ChatMessagesProps) {
+export default function Messages({
+    userId, messages: initialMessages
+}: MessagesProps) {
+    
     const { socket, isConnected } = useSocket();
     const { messages, setMessages, addMessage } = useMessage();
     const messageEndRef = useRef<HTMLDivElement | null>(null);

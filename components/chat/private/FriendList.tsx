@@ -1,4 +1,4 @@
-import FriendListItem from "./friend-list-item";
+import FriendListItem from "./FriendListItem";
 import { User } from "@prisma/client";
 import { getFriendList } from "@/actions/chat/privateChat/getFriendList";
 
