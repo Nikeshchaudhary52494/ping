@@ -39,7 +39,7 @@ export default function ChatMessages({ userId, messages: initialMessages }: Chat
 
     return (
         <div className="flex flex-col space-y-2">
-            {messages.map(({ content, senderId, fileUrl }, index) => (
+            {messages && messages.map(({ content, senderId, fileUrl }, index) => (
                 <div className={`chat  ${userId === senderId ? `chat-end` : `chat-start`}`}>
                     <MessageItem
                         key={index}

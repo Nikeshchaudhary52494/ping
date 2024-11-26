@@ -1,6 +1,5 @@
 'use client';
 
-
 import { SearchIcon, User } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import {
@@ -13,6 +12,7 @@ import {
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { getOrCreatePrivateChatId } from '@/actions/chat/privateChat/getOrCreatePrivateChatId';
+import { Chat, GroupChat } from '@prisma/client';
 
 interface SearchbarProps {
     CurrentuserId: string,
@@ -23,11 +23,7 @@ interface SearchbarProps {
         displayName: string,
         imageUrl: string | null
     }[];
-    groupChatData?: {
-        id: string,
-        name: string,
-        ImageUrl: string | null
-    }[]
+    groupChatData?: GroupChat[]
 }
 
 export default function Searchbar({
@@ -105,7 +101,7 @@ export default function Searchbar({
                             </div>
                         </CommandItem>
                     )) :
-                        groupChatData?.map(({ name, id, ImageUrl }) => (
+                        groupChatData?.map(({ name, id, imageUrl }) => (
                             <CommandItem
                                 className='cursor-pointer'
                                 key={id}
@@ -114,7 +110,7 @@ export default function Searchbar({
                                 <div
                                     className="relative flex mx-3 h-[48px] w-[48px] bg-[#252B2E] rounded-full overflow-hidden"
                                 >
-                                    <Image layout="fill" className='object-contain p-1 bg-white' src={ImageUrl || "/group.png"} alt={name} />
+                                    <Image layout="fill" className='object-contain p-1 bg-white' src={imageUrl || "/group.png"} alt={name} />
                                 </div>
                                 <div className='flex flex-col'>
                                     <span>

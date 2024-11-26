@@ -10,13 +10,13 @@ import { useUploadThing } from '@/lib/uploadthing';
 
 interface ChatInputProps {
     senderId: string;
-    receiverId: string;
+    receiverId?: string;
 }
 
 const ChatInput: React.FC<ChatInputProps> = ({ senderId, receiverId }) => {
     const [content, setContent] = useState<string>('');
     const params = useParams();
-    const chatId = params?.privateChatId as string;
+    const chatId = params?.privateChatId || params?.groupChatId as string;
     const { addMessage } = useMessage();
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [files, setFiles] = useState<File[]>([]);

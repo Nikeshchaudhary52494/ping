@@ -21,6 +21,12 @@ export async function createGroup({ about, name, ownerId, imageUrl }: createGrou
                     name,
                     ownerId,
                     imageUrl,
+                    members: {
+                        connect: [{ id: ownerId }]
+                    },
+                    admins: {
+                        connect: [{ id: ownerId }]
+                    }
                 },
             },
         }
