@@ -16,6 +16,7 @@ export default async function UserProfile() {
                     {user?.imageUrl ?
                         <Image
                             src={user?.imageUrl}
+                            className="object-cover"
                             alt="UserProfile"
                             fill
                         /> :

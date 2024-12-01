@@ -56,13 +56,12 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
             return () => {
                 socketInstance.disconnect();
             };
-        } else {
-            if (socket) {
-                socket.close();
-                setSocket(null);
-            }
+        } else if (socket) {
+            socket.close();
+            setSocket(null);
         }
-    }, [user, socket]);
+
+    }, [user]);
 
     return (
         <SocketContext.Provider value={{ socket, isConnected }}>

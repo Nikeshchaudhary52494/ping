@@ -36,6 +36,7 @@ export default function FriendListItem({
                 {imageUrl ?
                     <Image
                         fill
+                        className="object-cover"
                         src={imageUrl}
                         alt="UserProfile" /> :
                     <User className="text-slate-400" />}

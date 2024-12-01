@@ -33,6 +33,7 @@ export default function GroupListItem({
                 {imageUrl ?
                     <Image
                         fill
+                        className="object-cover"
                         src={imageUrl}
                         alt="UserProfile" /> :
                     <UsersRound className="text-slate-400" />}

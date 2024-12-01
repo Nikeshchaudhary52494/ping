@@ -27,6 +27,7 @@ export default async function SectionHeader({
                 {groupChat?.imageUrl ?
                     <Image
                         fill
+                        className="object-cover"
                         src={groupChat?.imageUrl}
                         alt="UserProfile" /> :
                     <UsersRound className="text-slate-400" />}

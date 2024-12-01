@@ -125,6 +125,7 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
                                         <Image
                                             fill
                                             priority
+                                            className="object-cover"
                                             src={field.value}
                                             alt='profile_icon'
                                         />

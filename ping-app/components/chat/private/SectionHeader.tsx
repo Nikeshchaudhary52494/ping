@@ -13,7 +13,7 @@ interface SectionHeaderProps {
 export default async function SectionHeader({
     params
 }: SectionHeaderProps) {
-    
+
     const privateChat = await db.chat.findUnique({
         where: {
             id: params.privateChatId?.toString(),
@@ -37,6 +37,7 @@ export default async function SectionHeader({
                 {user?.imageUrl ?
                     <Image
                         fill
+                        className="object-cover"
                         src={user.imageUrl}
                         alt={user.displayName || "Profile Image"}
                     /> :

@@ -101,6 +101,7 @@ export default function CreateGroupForm() {
                                                 <Image
                                                     fill
                                                     priority
+                                                    className="object-cover"
                                                     src={field.value}
                                                     alt='profile_icon'
                                                 />

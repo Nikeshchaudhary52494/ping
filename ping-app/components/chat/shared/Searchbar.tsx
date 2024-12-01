@@ -109,7 +109,11 @@ export default function Searchbar({
                                 <div
                                     className="relative flex mx-3 h-[48px] w-[48px] bg-[#252B2E] rounded-full overflow-hidden"
                                 >
-                                    <Image layout="fill" className='object-contain p-1 bg-white' src={imageUrl || "/group.png"} alt={name} />
+                                    <Image 
+                                    layout="fill"
+                                     className='object-contain p-1 bg-white' 
+                                     src={imageUrl || "/group.png"} 
+                                     alt={name} />
                                 </div>
                                 <div className='flex flex-col'>
                                     <span>

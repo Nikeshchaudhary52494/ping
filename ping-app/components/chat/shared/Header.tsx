@@ -12,6 +12,7 @@ export default async function Header() {
                 {user?.imageUrl ?
                     <Image
                         fill
+                        className="object-cover"
                         src={user?.imageUrl}
                         alt="UserProfile" /> :
                     <User className="text-slate-400" />}
