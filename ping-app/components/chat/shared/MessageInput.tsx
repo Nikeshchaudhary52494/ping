@@ -1,12 +1,13 @@
 'use client';
 
-import { Image, SendHorizonal, X } from 'lucide-react';
+import { Image as ImageIcon, SendHorizonal, X } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import React, { useRef, useState, ChangeEvent, FormEvent } from 'react';
 import { toast } from '@/app/hooks/use-toast';
 import { useUploadThing } from '@/lib/uploadthing';
 import { useMessage } from '@/components/providers/messageProvider';
 import axiosInstance from '@/lib/axiosConfig';
+import Image from 'next/image';
 
 interface MessageInputProps {
     senderId: string;
@@ -93,7 +94,7 @@ export default function MessageInput({
             {imagePreview && (
                 <div className="flex items-center gap-2 mb-3">
                     <div className="relative">
-                        <img
+                        <Image
                             src={imagePreview}
                             alt="Preview"
                             className="object-cover w-20 h-20 border rounded-lg border-zinc-700"
@@ -124,7 +125,7 @@ export default function MessageInput({
                     className={`flex items-center justify-center w-10 h-10 rounded-full bg-slate-700/20 ${imagePreview ? 'text-emerald-500' : 'text-zinc-400'}`}
                     onClick={() => fileInputRef.current?.click()}
                 >
-                    <Image size={20} />
+                    <ImageIcon size={20} />
                 </button>
                 <input
                     type="text"

@@ -24,7 +24,7 @@ const SocketContext = createContext<SocketContextType>({
 export const SocketProvider = ({ children }: { children: ReactNode }) => {
     const [socket, setSocket] = useState<Socket | null>(null);
     const [isConnected, setIsConnected] = useState(false);
-    const [onlineUsers, setOnlineUsers] = useState([]);
+    const [_, setOnlineUsers] = useState([]);
 
     const { user } = useUser();
 
@@ -62,7 +62,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
                 setSocket(null);
             }
         }
-    }, [user]);
+    }, [user, socket]);
 
     return (
         <SocketContext.Provider value={{ socket, isConnected }}>

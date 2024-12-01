@@ -15,7 +15,7 @@ export default function SettingsSidebar() {
             <p className="px-4 text-3xl font-extrabold">Setiings</p>
             <Separator className="h-[1px] bg-zinc-300 dark:bg-zinc-700 rounded-md w-full" />
             {
-                settingsTabs.map((item) => {
+                settingsTabs.map((item, index) => {
                     const Icon = item.icon;
                     const isActive =
                         (pathname.includes(item.route) && item.route.length > 1) ||
@@ -23,7 +23,7 @@ export default function SettingsSidebar() {
                     return (
                         <button
                             className={`px-4 py-2 flex gap-2 text-slate-400 ${isActive ? 'bg-[#252B2E]  text-white' : 'hover:bg-[#252B2E] hover:bg-opacity-40'}`}
-
+                            key={index}
                             onClick={() => handleClick(item.route)}
                         >
                             <Icon size={20} strokeWidth={2} />

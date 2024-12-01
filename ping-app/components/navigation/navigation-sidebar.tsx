@@ -1,6 +1,5 @@
 "use client"
 
-import { FC } from 'react';
 import NavigationAction from './navigation-action';
 import { Separator } from '../ui/separator';
 import { ModeToggle } from '../mode-toggle';
@@ -8,9 +7,8 @@ import ActionTooltip from '../action-tooltip';
 import { navigationTabs } from '@/lib/tabLinks';
 import { usePathname, useRouter } from 'next/navigation';
 
-interface navigationSidebarProps { }
+export default function NavigationSidebar() {
 
-const NavigationSidebar: FC<navigationSidebarProps> = async ({ }) => {
     const pathname = usePathname();
     const router = useRouter();
     const handleClick = (route: string) => {
@@ -51,5 +49,3 @@ const NavigationSidebar: FC<navigationSidebarProps> = async ({ }) => {
         </div>
     );
 };
-
-export default NavigationSidebar;
