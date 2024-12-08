@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
     ReactNode,
@@ -7,24 +7,36 @@ import {
     useEffect,
     useState,
 } from 'react';
-
 import { io, Socket } from 'socket.io-client';
 import { useUser } from './userProvider';
-
-type SocketContextType = {
-    socket: Socket | null;
-    isConnected: boolean;
-};
+import { SocketContextType, CallData } from '@/types/socket';
+import { useSocketEvents } from '@/app/hooks/useSocketEvents';
+import { User } from '@prisma/client';
 
 const SocketContext = createContext<SocketContextType>({
     socket: null,
     isConnected: false,
+    onlineUsers: [],
+    typingUsers: {},
+    currentCall: null,
+    calling: "",
+    setCalling: () => { },
+    setCurrentCall: () => { },
+    setIsCallAccepted: () => { },
+    isCallAccepted: false,
+    showCallScreen: false,
+    setShowCallScreen: () => { }
 });
 
 export const SocketProvider = ({ children }: { children: ReactNode }) => {
     const [socket, setSocket] = useState<Socket | null>(null);
     const [isConnected, setIsConnected] = useState(false);
-    const [_, setOnlineUsers] = useState([]);
+    const [onlineUsers, setOnlineUsers] = useState<User[]>([]);
+    const [typingUsers, setTypingUsers] = useState<Record<string, boolean>>({});
+    const [currentCall, setCurrentCall] = useState<CallData | null>(null);
+    const [isCallAccepted, setIsCallAccepted] = useState(false);
+    const [showCallScreen, setShowCallScreen] = useState(false);
+    const [calling, setCalling] = useState("");
 
     const { user } = useUser();
 
@@ -35,45 +47,61 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
                 {
                     path: "/socket.io",
                     query: {
-                        userId: user?.id,
+                        userId: user.id,
                     },
-                });
-
-            socketInstance.on('connect', () => {
-                setIsConnected(true);
-            });
-
-            socketInstance.on('disconnect', () => {
-                setIsConnected(false);
-            });
+                    transports: ['websocket'],
+                    reconnection: true,
+                    reconnectionAttempts: 5,
+                    reconnectionDelay: 1000,
+                }
+            );
 
             setSocket(socketInstance);
 
-            socketInstance.on("getOnlineUsers", (users) => {
-                setOnlineUsers(users);
-            });
-
             return () => {
                 socketInstance.disconnect();
+                setSocket(null);
             };
-        } else if (socket) {
-            socket.close();
-            setSocket(null);
         }
-
     }, [user]);
 
+    useSocketEvents(
+        socket,
+        setIsConnected,
+        setOnlineUsers,
+        setTypingUsers,
+        setCurrentCall,
+        setCalling,
+        setIsCallAccepted,
+        setShowCallScreen
+    );
+
+    const value = {
+        socket,
+        isConnected,
+        onlineUsers,
+        typingUsers,
+        currentCall,
+        setCurrentCall,
+        calling,
+        setCalling,
+        isCallAccepted,
+        setIsCallAccepted,
+        showCallScreen,
+        setShowCallScreen,
+    };
+
     return (
-        <SocketContext.Provider value={{ socket, isConnected }}>
+        <SocketContext.Provider value={value}>
             {children}
         </SocketContext.Provider>
     );
 };
 
-export const useSocket = () => {
+export const useSocketContext = () => {
     const context = useContext(SocketContext);
     if (!context) {
-        throw new Error('useSocket must be used within a SocketProvider');
+        throw new Error('useSocketContext must be used within a SocketProvider');
     }
     return context;
 };

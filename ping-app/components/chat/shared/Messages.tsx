@@ -2,9 +2,9 @@
 
 import { useEffect, useRef } from "react";
 import MessageItem from "./MessageItem";
-import { useSocket } from "@/components/providers/socketProvider";
 import { Message } from "@prisma/client";
 import { useMessage } from "@/components/providers/messageProvider";
+import { useSocketContext } from "@/components/providers/socketProvider";
 
 interface MessagesProps {
     messages: Message[];
@@ -15,11 +15,13 @@ interface MessagesProps {
 export default function Messages({
     userId, messages: initialMessages
 }: MessagesProps) {
-    
-    const { socket, isConnected } = useSocket();
+
+    const { currentCall } = useSocketContext();
+    const { socket, isConnected } = useSocketContext();
     const { messages, setMessages, addMessage } = useMessage();
     const messageEndRef = useRef<HTMLDivElement | null>(null);
-    console.log(initialMessages);
+
+    console.log(currentCall);
     useEffect(() => {
         setMessages(initialMessages);
     }, [setMessages, initialMessages])
@@ -43,9 +45,9 @@ export default function Messages({
     return (
         <div className="flex flex-col space-y-2">
             {messages && messages.map(({ content, senderId, fileUrl }, index) => (
-                <div 
-                key={index}
-                className={`chat  ${userId === senderId ? `chat-end` : `chat-start`}`}>
+                <div
+                    key={index}
+                    className={`chat  ${userId === senderId ? `chat-end` : `chat-start`}`}>
                     <MessageItem
                         content={content!}
                         fileUrl={fileUrl!}

@@ -1,7 +1,5 @@
+import Call from "@/components/call/Call";
+
 export default function Calls() {
-    return (
-        <div>
-            calls
-        </div>
-    )
+    return <Call />
 }

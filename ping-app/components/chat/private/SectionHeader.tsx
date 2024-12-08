@@ -1,19 +1,16 @@
 import { getUser } from "@/actions/user/getUser";
 import { db } from "@/lib/db";
-import { User } from "lucide-react";
-import Image from "next/image";
+import { HeaderProfile } from "./HeaderProfile";
+import { ActionButtons } from "./ActionButtons";
 
 interface SectionHeaderProps {
     params: {
         privateChatId?: string;
-        groupChatId?: string
+        groupChatId?: string;
     }
 }
 
-export default async function SectionHeader({
-    params
-}: SectionHeaderProps) {
-
+export default async function SectionHeader({ params }: SectionHeaderProps) {
     const privateChat = await db.chat.findUnique({
         where: {
             id: params.privateChatId?.toString(),
@@ -25,47 +22,24 @@ export default async function SectionHeader({
 
     const { user } = await getUser();
 
-    const secondPerson = privateChat?.members.find(
-        (members) => members.id !== user?.id
-    );
-
-
-
-    if (!secondPerson) {
-        return <div className="w-full flex gap-2 items-center border-l-[1px] h-full border-slate-200 border-opacity-10  bg-[#1E1F22]">
-            <div className="relative flex mx-3 h-[48px] w-[48px] bg-[#252B2E] rounded-full overflow-hidden items-center justify-center">
-                {user?.imageUrl ?
-                    <Image
-                        fill
-                        className="object-cover"
-                        src={user.imageUrl}
-                        alt={user.displayName || "Profile Image"}
-                    /> :
-                    <User className="text-slate-400" />
-                }
-            </div>
-            <div className="flex flex-col">
-                <span className="font-medium">{user?.displayName + " (YOU)"}</span>
-            </div>
-        </div>
+    if (!user) {
+        return null;
     }
 
+    const secondPerson = privateChat?.members?.find(
+        (member) => member.id !== user.id
+    );
+
     return (
-        <div className="w-full flex gap-2 items-center border-l-[1px] h-full border-slate-200 border-opacity-10  bg-[#1E1F22]">
-            <div className="relative flex mx-3 h-[48px] w-[48px] bg-[#252B2E] rounded-full overflow-hidden items-center justify-center">
-                {secondPerson.imageUrl ?
-                    <Image
-                        fill
-                        src={secondPerson.imageUrl}
-                        alt={secondPerson.displayName || "Profile Image"}
-                    /> :
-                    <User className="text-slate-400" />
-                }
-            </div>
-            <div className="flex flex-col">
-                <span className="font-medium">{secondPerson.displayName}</span>
-                <span className="text-xs text-slate-400">{`@${secondPerson.username}`}</span>
-            </div>
+        <div className="w-full flex items-center justify-between px-4 border-l-[1px] h-full border-slate-200 border-opacity-10 bg-[#1E1F22]">
+            <HeaderProfile
+                user={secondPerson || user}
+                isCurrentUser={!secondPerson}
+            />
+            <ActionButtons
+                currentUserId={user.id}
+                recipientId={secondPerson?.id!}
+            />
         </div>
     );
 }
