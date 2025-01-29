@@ -19,6 +19,7 @@ export function ActionButtons({ recipientId, currentUserId }: ActionButtonsProps
         setCurrentCall,
         callState,
         setCallState,
+        onlineUsers
     } = useSocketContext();
     const { toast } = useToast();
     const router = useRouter();
@@ -49,6 +50,9 @@ export function ActionButtons({ recipientId, currentUserId }: ActionButtonsProps
         });
     }, [socket, currentUserId, recipientId, toast]);
 
+    const disabled = callState === "ringing" || !onlineUsers.includes(recipientId)
+
+    if (!recipientId) return null;
 
     return (
         <div className="flex items-center gap-2">
@@ -58,7 +62,7 @@ export function ActionButtons({ recipientId, currentUserId }: ActionButtonsProps
                     size="icon"
                     className="text-slate-200 hover:text-white hover:bg-slate-700"
                     onClick={() => initiateCall('video')}
-                    disabled={callState === "ringing"}
+                    disabled={disabled}
                 >
                     <Video className="w-5 h-5" />
                 </Button>
@@ -67,15 +71,19 @@ export function ActionButtons({ recipientId, currentUserId }: ActionButtonsProps
                 <Button
                     variant="ghost"
                     size="icon"
-                    className="text-slate-200 hover:text-white hover:bg-slate-700"
+                    className="text-slate-200 cursor-wait hover:text-white hover:bg-slate-700"
                     onClick={() => initiateCall('voice')}
-                    disabled={callState === "ringing"}
+                    disabled={disabled}
                 >
                     <Phone className="w-5 h-5" />
                 </Button>
             </ActionTooltip>
             <ActionTooltip label="More options">
-                <Button variant="ghost" size="icon" className="text-slate-200 hover:text-white hover:bg-slate-700">
+                <Button
+                    disabled
+                    variant="ghost"
+                    size="icon"
+                    className="text-slate-200 cursor-wait hover:text-white hover:bg-slate-700">
                     <MoreVertical className="w-5 h-5" />
                 </Button>
             </ActionTooltip>

@@ -9,6 +9,7 @@ interface FriendListItemProps {
     displayName: string;
     currentProfileId: string;
     isActive: boolean;
+    isOnline: boolean;
 }
 
 export default function FriendListItem({
@@ -17,6 +18,7 @@ export default function FriendListItem({
     friendId,
     currentProfileId,
     isActive,
+    isOnline
 }: FriendListItemProps) {
     const router = useRouter();
 
@@ -28,7 +30,7 @@ export default function FriendListItem({
     return (
         <div
             onClick={() => onClick(friendId, currentProfileId)}
-            className="flex gap-2 w-full relative hover:bg-[#252B2E] p-2 cursor-pointer"
+            className={`flex gap-2 w-full relative hover:bg-[#2d3538] p-2 cursor-pointer ${isActive && `bg-[#252B2E]`}`}
         >
             <div className="relative mx-3">
                 <div className="relative flex h-[48px] w-[48px] bg-[#252B2E] items-center justify-center rounded-full overflow-hidden">
@@ -44,7 +46,7 @@ export default function FriendListItem({
                     )}
 
                 </div>
-                {isActive && (
+                {isOnline && (
                     <div className="bg-green-500 rounded-full h-3 w-3 absolute bottom-0 right-0 border-2 border-[#252B2E]" />
                 )}
             </div>
