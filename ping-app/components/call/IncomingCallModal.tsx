@@ -2,7 +2,7 @@ import { useSocketContext } from "../providers/socketProvider";
 import { UserAvatar } from "../user/UserAvatar";
 import ActionButton from "./ActionButtons";
 import { User } from "@prisma/client";
-import CallNotification from "./callNotification";
+import CallNotification from "./CallNotification";
 
 type IncomingTabProps = {
     user: User
