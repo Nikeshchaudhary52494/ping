@@ -19,7 +19,7 @@ const SocketContext = createContext<SocketContextType | undefined>(undefined);
 export const SocketProvider = ({ children }: { children: ReactNode }) => {
     const [socket, setSocket] = useState<Socket | null>(null);
     const [isConnected, setIsConnected] = useState(false);
-    const [onlineUsers, setOnlineUsers] = useState<User[]>([]);
+    const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
     const [typingUsers, setTypingUsers] = useState<Record<string, boolean>>({});
     const [currentCall, setCurrentCall] = useState<CallData | null>(null);
     const [callState, setCallState] = useState<CallState>("idle");
@@ -29,8 +29,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
 
     const { user } = useUser();
 
-    console.log({ peerConnectionRef, user: user?.displayName });
-
+    console.log({ onlineUsers });
     useEffect(() => {
         if (user) {
             const socketInstance = io(

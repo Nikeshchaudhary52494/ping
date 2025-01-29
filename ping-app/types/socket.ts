@@ -21,21 +21,14 @@ export type CallState =
 export interface SocketContextType {
     socket: Socket | null;
     isConnected: boolean;
-    onlineUsers: User[];
+    onlineUsers: string[];
     typingUsers: Record<string, boolean>;
     currentCall: CallData | null;
-    // calling: string,
-    // isCallAccepted: boolean
-    // showCallScreen: boolean,
 
     setCurrentCall: (currentCall: CallData | null) => void;
-    // setCalling: (data: string) => void,
-    // setIsCallAccepted: (data: boolean) => void,
-    // setShowCallScreen: (data: boolean) => void,
     callState: CallState,
     setCallState: (state: CallState) => void
-    // localStream: MediaStream | null,
-    // setLocalStream: (stream: MediaStream | null) => void,
+
     localStreamRef: React.MutableRefObject<MediaStream | null>
     remoteStream: MediaStream | null,
     setRemoteStream: (stream: MediaStream | null) => void,

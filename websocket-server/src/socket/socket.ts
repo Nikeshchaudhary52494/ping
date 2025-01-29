@@ -37,7 +37,7 @@ io.on("connection", (socket: Socket) => {
         console.log("Updated userSocketMap:", userSocketMap);
     }
 
-    io.emit("getOnlineUsers", Object.keys(userSocketMap));
+    io.emit("users:online", Object.keys(userSocketMap));
 
     // Call events
     socket.on("call:initiate", (data) => callService.initiateCall(socket, data));
@@ -87,7 +87,7 @@ io.on("connection", (socket: Socket) => {
     socket.on("disconnect", async () => {
         console.log("User disconnected:", socket.id);
         delete userSocketMap[userId];
-        io.emit("getOnlineUsers", Object.keys(userSocketMap));
+        io.emit("users:online", Object.keys(userSocketMap));
     });
 });
 

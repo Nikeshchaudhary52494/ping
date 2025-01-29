@@ -11,7 +11,7 @@ import { handleAnswer, handleCandidate, handleOffer } from "@/lib/webrtc";
 export const useSocketEvents = (
     socket: Socket | null,
     setIsConnected: (connected: boolean) => void,
-    setOnlineUsers: (users: User[]) => void,
+    setOnlineUsers: (usersId: string[]) => void,
     setTypingUsers: (users: Record<string, boolean>) => void,
     setCurrentCall: (call: CallData | null) => void,
     setCallState: (state: CallState) => void,
@@ -26,7 +26,7 @@ export const useSocketEvents = (
     const handleDisconnect = useCallback(() => setIsConnected(false), [setIsConnected]);
 
     const handleOnlineUsers = useCallback(
-        (users: User[]) => setOnlineUsers(users),
+        (usersId: string[]) => setOnlineUsers(usersId),
         [setOnlineUsers]
     );
 
