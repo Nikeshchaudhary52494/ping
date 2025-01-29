@@ -6,7 +6,6 @@ import ActionTooltip from "@/components/action-tooltip";
 import { useCallback } from "react";
 import { useToast } from "@/app/hooks/use-toast";
 import { useSocketContext } from "@/components/providers/socketProvider";
-import { initializePeerConnection } from "@/lib/webrtc";
 import { useRouter } from "next/navigation";
 
 interface ActionButtonsProps {
@@ -15,19 +14,12 @@ interface ActionButtonsProps {
 }
 
 export function ActionButtons({ recipientId, currentUserId }: ActionButtonsProps) {
+
     const { socket,
-        // setCalling,
-        // calling,
-        currentCall,
         setCurrentCall,
-        // setIsCallAccepted,
-        // setShowCallScreen,
         callState,
         setCallState,
-        // localStream,
-        localStreamRef,
-        setRemoteStream,
-        peerConnectionRef, } = useSocketContext();
+    } = useSocketContext();
     const { toast } = useToast();
     const router = useRouter();
 
@@ -48,7 +40,7 @@ export function ActionButtons({ recipientId, currentUserId }: ActionButtonsProps
         })
         setCallState("ringing")
 
-        router.push("/calls")
+        if (type === "video") router.push("/calls")
 
         socket.emit('call:initiate', {
             from: currentUserId,

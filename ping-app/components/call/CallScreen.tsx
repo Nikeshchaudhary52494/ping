@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { CallControls } from "./CallControls";
 import { useSocketContext } from "../providers/socketProvider";
 import VideoContainer from "./VideoContainer";
+import CallNotification from "./callNotification";
 
 interface CallScreenProps {
     callType: "video" | "voice";
@@ -46,10 +47,6 @@ export function CallScreen({
         });
     };
 
-    console.log("ksvkfnvknfsk", { remoteStream });
-
-
-
     useEffect(() => {
         const startLocalStream = async () => {
             try {
@@ -73,32 +70,54 @@ export function CallScreen({
         };
     }, [currentCall?.type]);
 
-    console.log({ localStreamRef });
-    console.log({ remoteStream })
-
-    if (callState === "accepted" || callState === "ringing") {
+    if (callState === "accepted" || (callState === "ringing" && currentCall?.type === "video")) {
 
         return (
             <div className="h-full">
+                <CallNotification callState={callState} />
                 {
                     callType === "video"
                         ? (
                             <div className="flex flex-col h-full">
                                 <div className="flex-1 h-20 m-2 rounded-lg">
                                     <div className="flex items-center justify-center h-full mx-auto overflow-hidden rounded-lg w-fit bg-muted">
-                                        <VideoContainer
-                                            className="object-cover h-full aspect-video"
-                                            stream={remoteStream}
-                                            isLocalStream={false}
-                                        />
+                                        {
+                                            callState === "ringing" ?
+                                                (
+                                                    <>
+                                                        <div className="absolute z-10 px-4 py-2 text-center text-white transform -translate-x-1/2 rounded-lg top-20 left-1/2 bg-black/30 backdrop-blur-sm">
+                                                            <h2 className="text-xl font-semibold">{remoteParticipantName}</h2>
+                                                            <p className="text-sm text-gray-300">Ringing...</p>
+                                                        </div>
+
+                                                        < VideoContainer
+                                                            className="object-cover h-full aspect-video"
+                                                            stream={localStreamRef.current}
+                                                            isLocalStream={true}
+                                                        />
+                                                    </>
+
+                                                ) : (
+                                                    < VideoContainer
+                                                        className="object-cover h-full aspect-video"
+                                                        stream={remoteStream}
+                                                        isLocalStream={false}
+                                                    />
+                                                )
+                                        }
                                     </div>
-                                    <div className="absolute w-32 h-48 overflow-hidden rounded-lg shadow-lg top-4 right-4 bg-accent">
-                                        <VideoContainer
-                                            className="object-cover h-full"
-                                            stream={localStreamRef.current}
-                                            isLocalStream={true}
-                                        />
-                                    </div>
+                                    {
+                                        callState === "accepted" && (<div className="absolute w-32 h-48 overflow-hidden rounded-lg shadow-lg top-4 right-4 bg-accent">
+
+                                            <VideoContainer
+                                                className="object-cover h-full"
+                                                stream={localStreamRef.current}
+                                                isLocalStream={true}
+                                            />
+
+                                        </div>
+                                        )
+                                    }
                                 </div>
                                 <CallControls
                                     localStream={localStreamRef}

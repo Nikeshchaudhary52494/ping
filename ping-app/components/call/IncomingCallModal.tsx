@@ -2,6 +2,7 @@ import { useSocketContext } from "../providers/socketProvider";
 import { UserAvatar } from "../user/UserAvatar";
 import ActionButton from "./ActionButtons";
 import { User } from "@prisma/client";
+import CallNotification from "./callNotification";
 
 type IncomingTabProps = {
     user: User
@@ -13,14 +14,15 @@ export default function IncomingCallModal({
     type
 }: IncomingTabProps) {
 
-    const { currentCall, setCurrentCall } = useSocketContext();
-    console.log(currentCall);
+    const { currentCall, setCurrentCall, callState } = useSocketContext();
+
     if (!currentCall) return null;
 
     const onReject = () => { setCurrentCall(null) };
 
     return (
         <div className="flex absolute bottom-0 right-0 w-[300px] bg-secondary p-6 m-4 flex-col items-center gap-4 rounded-xl shadow-lg">
+            <CallNotification callState={callState} />
             <p className="text-lg font-semibold text-gray-300">Incoming Call</p>
 
             <div className="flex flex-col items-center gap-2">

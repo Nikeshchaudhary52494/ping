@@ -24,7 +24,6 @@ export function CallControls({
     onEndCall,
     localStream
 }: CallControlsProps) {
-
     const [isCameraOn, setIsCameraOn] = useState(true);
     const [isMicOn, setIsMicOn] = useState(true);
     const [isSpeakerOn, setIsSpeakerOn] = useState(true);
@@ -32,33 +31,62 @@ export function CallControls({
     useEffect(() => {
         if (localStream.current) {
             const videoTrack = localStream.current.getVideoTracks()[0];
-            setIsCameraOn(videoTrack.enabled);
-
             const audioTrack = localStream.current.getAudioTracks()[0];
-            setIsMicOn(audioTrack.enabled);
+
+            if (callType === "video" && videoTrack) {
+                setIsCameraOn(videoTrack.enabled);
+            }
+            if (audioTrack) {
+                setIsMicOn(audioTrack.enabled);
+            }
         }
-    }, [localStream])
+    }, [callType, localStream.current]);
 
     const toggleCamera = useCallback(() => {
         if (localStream.current) {
             const videoTrack = localStream.current.getVideoTracks()[0];
-            videoTrack.enabled = !videoTrack.enabled
-            setIsMicOn(videoTrack.enabled);
+            if (videoTrack) {
+                videoTrack.enabled = !videoTrack.enabled;
+                setIsCameraOn(videoTrack.enabled);
+            }
         }
-    }, [localStream]);
+    }, []);
 
     const toggleMic = useCallback(() => {
         if (localStream.current) {
             const audioTrack = localStream.current.getAudioTracks()[0];
-            audioTrack.enabled = !audioTrack.enabled
-            setIsCameraOn(audioTrack.enabled);
+            if (audioTrack) {
+                audioTrack.enabled = !audioTrack.enabled;
+                setIsMicOn(audioTrack.enabled);
+            }
         }
-    }, [localStream]);
+    }, []);
 
-    const toggleSpeaker = () => setIsSpeakerOn(!isSpeakerOn);
-    const switchCamera = () => {
-        // Implementation for switching between front/back camera
-        console.log("Switching camera");
+    const toggleSpeaker = () => setIsSpeakerOn(prev => !prev);
+
+    const switchCamera = async () => {
+        if (!localStream.current) return;
+
+        const videoTracks = localStream.current.getVideoTracks();
+        if (videoTracks.length === 0) return;
+
+        const currentTrack = videoTracks[0];
+        const constraints = currentTrack.getConstraints();
+
+        // Toggle between front and back camera
+        const newFacingMode = constraints.facingMode === "user" ? "environment" : "user";
+
+        try {
+            const newStream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: newFacingMode },
+                audio: true,
+            });
+
+            localStream.current.getTracks().forEach(track => track.stop());
+            localStream.current = newStream;
+        } catch (error) {
+            console.error("Error switching camera:", error);
+        }
     };
 
     return (

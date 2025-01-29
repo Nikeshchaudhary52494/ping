@@ -44,4 +44,16 @@ export default function CurrentCallHandler() {
             />
         } return null;
     }
-} 
+
+    if (currentCall.type === "voice") {
+        if (currentCall.from === user?.id && callState === "incoming") {
+            return <IncomingCall
+                type={currentCall.type}
+                user={user!}
+            />
+        }
+        if (callState === "ringing") {
+            return <MakeCall user={user!} />
+        }
+    }
+}
