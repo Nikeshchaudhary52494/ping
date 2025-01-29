@@ -4,25 +4,30 @@ import { MdCall, MdCallEnd } from "react-icons/md";
 import { FaVideo } from "react-icons/fa";
 import { useSocketContext } from "../providers/socketProvider";
 import { useRouter } from "next/navigation";
+import { handleCallAccepted } from "@/lib/webrtc";
 
 
 interface ActionButtonProps {
-    type: "voice" | "video"
-    incomingUserId: string
+    type: "voice" | "video";
+    incomingUserId: string;
     onReject: () => void;
+    remoteUserId: string;
 };
 
 export default function ActionButton({
     type,
     onReject,
-    incomingUserId
+    incomingUserId,
+    remoteUserId
 }: ActionButtonProps) {
 
     const {
         socket,
         currentCall,
-        setIsCallAccepted,
-        setShowCallScreen
+        localStreamRef,
+        setCallState,
+        setRemoteStream,
+        peerConnectionRef,
     } = useSocketContext();
 
     const router = useRouter();
@@ -30,8 +35,16 @@ export default function ActionButton({
         socket?.emit("call:accept", {
             ...currentCall
         })
-        setIsCallAccepted(true);
-        setShowCallScreen(true);
+
+        handleCallAccepted({
+            localStream: localStreamRef,
+            socket,
+            remoteUserId,
+            setRemoteStream,
+            pc: peerConnectionRef
+        }
+        );
+        setCallState("accepted")
         router.push("/calls")
     }
 

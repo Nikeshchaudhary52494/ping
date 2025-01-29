@@ -35,6 +35,7 @@ export default function IncomingCallModal({
                 </div>
             </div>
             <ActionButton
+                remoteUserId={currentCall.from}
                 incomingUserId={user?.id}
                 onReject={onReject}
                 type={type}

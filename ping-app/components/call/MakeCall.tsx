@@ -13,8 +13,8 @@ export default function MakeCall({
 
 }: IncomingTabProps) {
 
-    const { socket, setCalling } = useSocketContext();
-    const onEnd = () => { setCalling("") };
+    const { socket, setCallState } = useSocketContext();
+    const onEnd = () => { setCallState("ended") };
 
     return (
         <div className="flex absolute bottom-0 right-0 w-[300px] bg-secondary p-6 m-4 flex-col items-center gap-4 rounded-xl shadow-lg">

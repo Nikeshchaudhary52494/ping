@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, MutableRefObject } from "react";
 import { Socket } from "socket.io-client";
-import { CallData } from "@/types/socket";
+import { CallData, CallState } from "@/types/socket";
 import { User } from "@prisma/client";
 import { useToast } from "./use-toast";
 import { useRouter } from "next/navigation";
+import { handleAnswer, handleCandidate, handleOffer } from "@/lib/webrtc";
 
 export const useSocketEvents = (
     socket: Socket | null,
@@ -13,14 +14,14 @@ export const useSocketEvents = (
     setOnlineUsers: (users: User[]) => void,
     setTypingUsers: (users: Record<string, boolean>) => void,
     setCurrentCall: (call: CallData | null) => void,
-    setCalling: (data: string) => void,
-    setIscallAccepted: (data: boolean) => void,
-    setShowCallScreen: (data: boolean) => void
+    setCallState: (state: CallState) => void,
+    localStreamRef: MutableRefObject<MediaStream | null>,
+    peerConnectionRef: MutableRefObject<RTCPeerConnection | null>,
+    setRemoteStream: (stream: MediaStream) => void
 ) => {
     const { toast } = useToast();
     const router = useRouter();
 
-    // Modular event handlers
     const handleConnect = useCallback(() => setIsConnected(true), [setIsConnected]);
     const handleDisconnect = useCallback(() => setIsConnected(false), [setIsConnected]);
 
@@ -41,24 +42,19 @@ export const useSocketEvents = (
     );
 
     const handleIncomingCall = useCallback(
-        (data: CallData) => setCurrentCall(data),
-        [setCurrentCall]
+        (data: CallData) => {
+            setCurrentCall(data);
+            setCallState("incoming")
+        },
+        [setCallState, setCurrentCall]
     );
 
-    const handleCallAccepted = useCallback(
-        (data: CallData) => {
-            setCurrentCall({
-                from: data.to,
-                to: data.from,
-                roomId: data.roomId,
-                type: data.type,
-            });
-            setIscallAccepted(true);
-            setShowCallScreen(true);
-            setCalling("");
-            router.push("/calls");
-        },
-        [setCurrentCall, setIscallAccepted, setShowCallScreen, setCalling, router]
+    const handleCallAccepted = useCallback((data: CallData) => {
+        setCurrentCall(data);
+        setCallState("accepted");
+        router.push("/calls");
+    },
+        [setCallState, router, setCurrentCall]
     );
 
     const handleCallRejected = useCallback(() => {
@@ -67,19 +63,19 @@ export const useSocketEvents = (
             description: "The user rejected your call",
             variant: "destructive",
         });
+        setCallState("rejected");
         setCurrentCall(null);
-        setCalling("");
-    }, [setCurrentCall, setCalling, toast]);
+    }, [setCurrentCall, toast, setCallState]);
 
     const handleCallEnded = useCallback(() => {
-        setShowCallScreen(false);
+        setCallState("ended");
         toast({
             title: "Call Ended",
             description: "The call has ended",
         });
         setCurrentCall(null);
-        setIscallAccepted(false);
-    }, [setShowCallScreen, toast, setCurrentCall, setIscallAccepted]);
+        // setIscallAccepted(false);
+    }, [toast, setCurrentCall, setCallState]);
 
     const handleUserOffline = useCallback(() => {
         toast({
@@ -93,6 +89,18 @@ export const useSocketEvents = (
     const handleCallCancelled = useCallback(() => {
         setCurrentCall(null);
     }, [setCurrentCall]);
+
+    const onOffer = (data: { sdp: RTCSessionDescriptionInit, from: string }) => {
+        handleOffer({ data, pc: peerConnectionRef, socket, localStream: localStreamRef, setRemoteStream });
+    };
+
+    const onAnswer = (data: { sdp: RTCSessionDescriptionInit }) => {
+        handleAnswer({ data, pc: peerConnectionRef as MutableRefObject<RTCPeerConnection>, setRemoteStream });
+    };
+
+    const onCandidate = (data: { candidate: RTCIceCandidateInit }) => {
+        handleCandidate({ data, pc: peerConnectionRef as MutableRefObject<RTCPeerConnection> });
+    };
 
     useEffect(() => {
         if (!socket) return;
@@ -108,6 +116,9 @@ export const useSocketEvents = (
         socket.on("call:ended", handleCallEnded);
         socket.on("call:userOfline", handleUserOffline);
         socket.on("call:cancelled", handleCallCancelled);
+        socket.on("webrtc:offer", onOffer);
+        socket.on("webrtc:answer", onAnswer);
+        socket.on("webrtc:candidate", onCandidate);
 
         // Cleanup on unmount
         return () => {
@@ -121,6 +132,9 @@ export const useSocketEvents = (
             socket.off("call:ended", handleCallEnded);
             socket.off("call:userOfline", handleUserOffline);
             socket.off("call:cancelled", handleCallCancelled);
+            socket.off("webrtc:offer", onOffer);
+            socket.off("webrtc:answer", onAnswer);
+            socket.off("webrtc:candidate", onCandidate);
         };
     }, [
         socket,

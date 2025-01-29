@@ -9,36 +9,39 @@ import MakeCall from "../call/MakeCall";
 
 export default function CurrentCallHandler() {
     const [user, setUser] = useState<User | null>(null);
-    const { currentCall, calling, isCallAccepted } = useSocketContext();
+    const { currentCall, callState } = useSocketContext();
+    console.log({ callState, currentCall });
 
     useEffect(() => {
         const fetchUser = async () => {
-            if (currentCall?.from) {
+            if (currentCall && callState === "incoming") {
                 const fetchedUser = await getUserById(currentCall.from);
                 setUser(fetchedUser);
             }
         };
 
         fetchUser();
-    }, [currentCall?.from]);
+    }, [currentCall, callState]);
 
     useEffect(() => {
         const fetchUser = async () => {
-            if (calling) {
-                const fetchedUser = await getUserById(calling);
+            if (currentCall && callState == "ringing") {
+                const fetchedUser = await getUserById(currentCall.to);
                 setUser(fetchedUser);
             }
         };
 
         fetchUser();
-    }, [calling]);
+    }, [currentCall, callState]);
 
-    if (!currentCall && !calling) return null;
+    if (!currentCall) return null;
 
-    if (!calling && !isCallAccepted) return <IncomingCall
-        type={currentCall?.type!}
-        user={user!}
-    />
-
-    return !isCallAccepted && <MakeCall user={user!} />
+    if (currentCall.type === "video") {
+        if (currentCall.from === user?.id && callState === "incoming") {
+            return <IncomingCall
+                type={currentCall.type}
+                user={user!}
+            />
+        } return null;
+    }
 } 

@@ -14,11 +14,11 @@ export default async function MainLayout({
     if (!user?.onboarded) redirect("/onboarding");
 
     return (
-        <div className="h-full">
-            <div className="hidden md:flex h-full w-[72px] z-30 flex-col fixed inset-y-0">
+        <div className="h-full flex">
+            <aside className="self-start h-full">
                 <NavigationSidebar />
-            </div>
-            <main className="md:pl-[72px] h-full">
+            </aside>
+            <main className="flex-1">
                 {children}
             </main>
         </div>

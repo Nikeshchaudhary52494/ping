@@ -6,6 +6,8 @@ import ActionTooltip from "@/components/action-tooltip";
 import { useCallback } from "react";
 import { useToast } from "@/app/hooks/use-toast";
 import { useSocketContext } from "@/components/providers/socketProvider";
+import { initializePeerConnection } from "@/lib/webrtc";
+import { useRouter } from "next/navigation";
 
 interface ActionButtonsProps {
     recipientId: string;
@@ -13,8 +15,21 @@ interface ActionButtonsProps {
 }
 
 export function ActionButtons({ recipientId, currentUserId }: ActionButtonsProps) {
-    const { socket, setCalling, calling, currentCall } = useSocketContext();
+    const { socket,
+        // setCalling,
+        // calling,
+        currentCall,
+        setCurrentCall,
+        // setIsCallAccepted,
+        // setShowCallScreen,
+        callState,
+        setCallState,
+        // localStream,
+        localStreamRef,
+        setRemoteStream,
+        peerConnectionRef, } = useSocketContext();
     const { toast } = useToast();
+    const router = useRouter();
 
     const initiateCall = useCallback((type: 'video' | 'voice') => {
         if (!socket) {
@@ -26,15 +41,22 @@ export function ActionButtons({ recipientId, currentUserId }: ActionButtonsProps
             return;
         }
 
+        setCurrentCall({
+            from: currentUserId,
+            to: recipientId,
+            type,
+        })
+        setCallState("ringing")
+
+        router.push("/calls")
+
         socket.emit('call:initiate', {
             from: currentUserId,
             to: recipientId,
             type,
         });
-        setCalling(recipientId);
-    }, [socket, currentUserId, recipientId, toast, setCalling]);
+    }, [socket, currentUserId, recipientId, toast]);
 
-    const isOnCall = (calling || currentCall) ? true : false;
 
     return (
         <div className="flex items-center gap-2">
@@ -44,7 +66,7 @@ export function ActionButtons({ recipientId, currentUserId }: ActionButtonsProps
                     size="icon"
                     className="text-slate-200 hover:text-white hover:bg-slate-700"
                     onClick={() => initiateCall('video')}
-                    disabled={isOnCall}
+                    disabled={callState === "ringing"}
                 >
                     <Video className="w-5 h-5" />
                 </Button>
@@ -55,7 +77,7 @@ export function ActionButtons({ recipientId, currentUserId }: ActionButtonsProps
                     size="icon"
                     className="text-slate-200 hover:text-white hover:bg-slate-700"
                     onClick={() => initiateCall('voice')}
-                    disabled={isOnCall}
+                    disabled={callState === "ringing"}
                 >
                     <Phone className="w-5 h-5" />
                 </Button>

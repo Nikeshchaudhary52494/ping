@@ -24,6 +24,7 @@ export default function Call() {
         <CallScreen
             callType={currentCall?.type!}
             remoteParticipantName={user?.displayName!}
+            remoteUserId={user?.id!}
         />
     )
 }

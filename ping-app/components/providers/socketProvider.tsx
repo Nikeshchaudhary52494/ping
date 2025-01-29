@@ -5,28 +5,16 @@ import {
     createContext,
     useContext,
     useEffect,
+    useRef,
     useState,
 } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { useUser } from './userProvider';
-import { SocketContextType, CallData } from '@/types/socket';
+import { SocketContextType, CallData, CallState } from '@/types/socket';
 import { useSocketEvents } from '@/app/hooks/useSocketEvents';
 import { User } from '@prisma/client';
 
-const SocketContext = createContext<SocketContextType>({
-    socket: null,
-    isConnected: false,
-    onlineUsers: [],
-    typingUsers: {},
-    currentCall: null,
-    calling: "",
-    setCalling: () => { },
-    setCurrentCall: () => { },
-    setIsCallAccepted: () => { },
-    isCallAccepted: false,
-    showCallScreen: false,
-    setShowCallScreen: () => { }
-});
+const SocketContext = createContext<SocketContextType | undefined>(undefined);
 
 export const SocketProvider = ({ children }: { children: ReactNode }) => {
     const [socket, setSocket] = useState<Socket | null>(null);
@@ -34,11 +22,14 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
     const [onlineUsers, setOnlineUsers] = useState<User[]>([]);
     const [typingUsers, setTypingUsers] = useState<Record<string, boolean>>({});
     const [currentCall, setCurrentCall] = useState<CallData | null>(null);
-    const [isCallAccepted, setIsCallAccepted] = useState(false);
-    const [showCallScreen, setShowCallScreen] = useState(false);
-    const [calling, setCalling] = useState("");
+    const [callState, setCallState] = useState<CallState>("idle");
+    const localStreamRef = useRef<MediaStream | null>(null);
+    const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
+    const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
 
     const { user } = useUser();
+
+    console.log({ peerConnectionRef, user: user?.displayName });
 
     useEffect(() => {
         if (user) {
@@ -71,9 +62,10 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
         setOnlineUsers,
         setTypingUsers,
         setCurrentCall,
-        setCalling,
-        setIsCallAccepted,
-        setShowCallScreen
+        setCallState,
+        localStreamRef,
+        peerConnectionRef,
+        setRemoteStream
     );
 
     const value = {
@@ -83,12 +75,12 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
         typingUsers,
         currentCall,
         setCurrentCall,
-        calling,
-        setCalling,
-        isCallAccepted,
-        setIsCallAccepted,
-        showCallScreen,
-        setShowCallScreen,
+        callState,
+        setCallState,
+        localStreamRef,
+        remoteStream,
+        setRemoteStream,
+        peerConnectionRef
     };
 
     return (
