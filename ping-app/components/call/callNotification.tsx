@@ -1,37 +1,35 @@
 import { CallState } from "@/types/socket";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useMemo } from "react";
 
-
-export default function CallNotification({ callState }: {
-    callState: CallState
-}) {
+export default function CallNotification({ callState }: { callState: CallState }) {
     const audioRef = useRef<HTMLAudioElement | null>(null);
 
-    // Map call states to corresponding audio files
-    const soundMap: Record<string, string> = {
+    const soundMap: Partial<Record<CallState, string>> = useMemo(() => ({
         ringing: "/ringing.mp3",
         incoming: "/incoming.mp3",
         linebusy: "/linebusy.mp3",
         ended: "/ended.mp3",
-    };
+    }), []);
 
     useEffect(() => {
-        if (soundMap[callState]) {
+        const soundUrl = soundMap[callState];
+
+        if (soundUrl) {
             if (!audioRef.current) {
-                audioRef.current = new Audio(soundMap[callState]);
-                audioRef.current.loop = callState === "ringing" || callState === "incoming"; // Loop only for ringing & outgoing
+                audioRef.current = new Audio(soundUrl);
+                audioRef.current.loop = callState === "ringing" || callState === "incoming";
             }
             audioRef.current.play();
         } else {
             audioRef.current?.pause();
-            audioRef.current = null; // Reset when call ends
+            audioRef.current = null;
         }
 
         return () => {
             audioRef.current?.pause();
             audioRef.current = null;
         };
-    }, [callState]);
+    }, [callState, soundMap]);
 
     return null;
-};
+}

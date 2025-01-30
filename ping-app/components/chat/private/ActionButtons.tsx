@@ -48,7 +48,7 @@ export function ActionButtons({ recipientId, currentUserId }: ActionButtonsProps
             to: recipientId,
             type,
         });
-    }, [socket, currentUserId, recipientId, toast]);
+    }, [socket, currentUserId, recipientId, toast, router, setCallState, setCurrentCall]);
 
     const disabled = callState === "ringing" || !onlineUsers.includes(recipientId)
 

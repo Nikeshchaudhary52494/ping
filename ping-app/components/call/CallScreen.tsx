@@ -71,7 +71,7 @@ export function CallScreen({
                 localStreamRef.current = null;
             }
         };
-    }, [currentCall, callType]);
+    }, [currentCall, callType, localStreamRef, callState]);
 
     if (callState === "accepted" || (callState === "ringing" && currentCall?.type === "video")) {
 

@@ -26,7 +26,7 @@ export default function ActionButton({
         currentCall,
         localStreamRef,
         setCallState,
-        setRemoteStream,
+        remoteStreamRef,
         peerConnectionRef,
     } = useSocketContext();
 
@@ -40,7 +40,7 @@ export default function ActionButton({
             localStream: localStreamRef,
             socket,
             remoteUserId,
-            setRemoteStream,
+            remoteStreamRef,
             pc: peerConnectionRef
         }
         );

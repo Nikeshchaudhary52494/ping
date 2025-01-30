@@ -160,5 +160,8 @@ export const useSocketEvents = (
         handleCallEnded,
         handleUserOffline,
         handleCallCancelled,
+        onAnswer,
+        onCandidate,
+        onOffer
     ]);
 };
