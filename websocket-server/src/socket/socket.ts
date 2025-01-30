@@ -9,7 +9,7 @@ const app = express();
 
 const server = http.createServer(app);
 
-const hostedUrl = "http://localhost:3000";
+const hostedUrl = process.env.FRONTEND_URL || "http://localhost:3000";
 
 const io = new Server(server, {
     cors: {
