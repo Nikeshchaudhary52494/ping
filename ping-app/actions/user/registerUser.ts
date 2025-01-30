@@ -24,7 +24,6 @@ export const registerUser = async (formData: FormData) => {
         });
 
         if (existingUser) {
-            console.log("Email already in use");
             return { success: false, message: "Email already in use." };
         }
 

@@ -10,7 +10,6 @@ import OutgoingCall from "../call/OutgoingCall";
 export default function CurrentCallHandler() {
     const [user, setUser] = useState<User | null>(null);
     const { currentCall, callState } = useSocketContext();
-    console.log({ callState, currentCall });
 
     useEffect(() => {
         const fetchUser = async () => {

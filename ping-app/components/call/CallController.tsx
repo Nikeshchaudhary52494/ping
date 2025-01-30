@@ -1,6 +1,6 @@
 "use client";
 
-import { MutableRefObject, useEffect, useState } from "react";
+import { MutableRefObject, useCallback, useEffect, useState } from "react";
 import {
     Camera,
     CameraOff,
@@ -40,7 +40,7 @@ export default function CallController({
         }
     }, [callType, localStream]);
 
-    const toggleCamera = () => {
+    const toggleCamera = useCallback(() => {
         if (localStream.current) {
             const videoTrack = localStream.current.getVideoTracks()[0];
             if (videoTrack) {
@@ -48,9 +48,9 @@ export default function CallController({
                 setIsCameraOn(videoTrack.enabled);
             }
         }
-    };
+    }, [localStream]);
 
-    const toggleMic = () => {
+    const toggleMic = useCallback(() => {
         if (localStream.current) {
             const audioTrack = localStream.current.getAudioTracks()[0];
             if (audioTrack) {
@@ -58,7 +58,7 @@ export default function CallController({
                 setIsMicOn(audioTrack.enabled);
             }
         }
-    };
+    }, [localStream]);
 
     const toggleSpeaker = () => {
         if (remoteStream.current) {

@@ -1,6 +1,4 @@
 "use client";
-
-import { useEffect } from "react";
 import { useSocketContext } from "../providers/socketProvider";
 import CallAlert from "./CallAlert";
 import VideoCallHandler from "./VideoCallHandler";
@@ -30,7 +28,19 @@ export default function CallView({
     } = useSocketContext();
 
     const handleEndCall = () => {
-        setCallState("ended");
+        if (callState === "ringing") {
+            setCallState("dropped");
+            socket?.emit("call:drop", {
+                to: remoteUserId,
+            });
+        } else {
+            setCallState("ended");
+            socket?.emit("call:end", {
+                roomId: currentCall?.roomId,
+                from: currentCall?.from,
+                to: remoteUserId,
+            });
+        }
 
         if (peerConnectionRef.current) {
             peerConnectionRef.current.close();
@@ -39,42 +49,11 @@ export default function CallView({
 
         localStreamRef.current?.getTracks().forEach((track) => track.stop());
         localStreamRef.current = null;
-
-        socket?.emit("call:end", {
-            roomId: currentCall?.roomId,
-            from: currentCall?.from,
-            to: remoteUserId,
-        });
     };
-
-    useEffect(() => {
-        if (!currentCall || callState == "ended" || callState == "rejected") return;
-
-        const startLocalStream = async () => {
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({
-                    video: callType === "video",
-                    audio: true,
-                });
-                localStreamRef.current = stream;
-
-            } catch (error) {
-                console.error("Failed to access media devices:", error);
-            }
-        };
-
-        startLocalStream();
-
-        return () => {
-            if (localStreamRef.current) {
-                localStreamRef.current.getTracks().forEach((track) => track.stop());
-                localStreamRef.current = null;
-            }
-        };
-    }, [currentCall, callType, localStreamRef, callState]);
 
     if (callState === "accepted" || (callState === "ringing" && currentCall?.type === "video")) {
 
+        console.log("videoref", { localStreamRef, remoteStreamRef });
 
         return (
             <div className="h-full">
@@ -93,14 +72,14 @@ export default function CallView({
                                         </div>
                                         <VideoCallHandler
                                             className="object-cover h-full aspect-video"
-                                            stream={localStreamRef.current}
+                                            stream={localStreamRef}
                                             isLocalStream={true}
                                         />
                                     </>
                                 ) : (
                                     <VideoCallHandler
                                         className="object-cover h-full aspect-video"
-                                        stream={remoteStreamRef.current}
+                                        stream={remoteStreamRef}
                                         isLocalStream={false}
                                     />
                                 )}
@@ -109,7 +88,7 @@ export default function CallView({
                                 <div className="absolute w-32 h-48 overflow-hidden rounded-lg shadow-lg top-4 right-4 bg-accent">
                                     <VideoCallHandler
                                         className="object-cover h-full"
-                                        stream={localStreamRef.current}
+                                        stream={localStreamRef}
                                         isLocalStream={true}
                                     />
                                 </div>

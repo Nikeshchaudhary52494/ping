@@ -19,18 +19,24 @@ export function ActionButtons({ recipientId, currentUserId }: ActionButtonsProps
         setCurrentCall,
         callState,
         setCallState,
-        onlineUsers
+        onlineUsers,
+        getMediaStream
     } = useSocketContext();
     const { toast } = useToast();
     const router = useRouter();
 
-    const initiateCall = useCallback((type: 'video' | 'voice') => {
+    const initiateCall = useCallback(async (type: 'video' | 'voice') => {
         if (!socket) {
             toast({
                 title: "Connection Error",
                 description: "Unable to connect to call service",
                 variant: "destructive",
             });
+            return;
+        }
+        const stream = await getMediaStream();
+        if (!stream) {
+            console.error("No stream Available while initiating call");
             return;
         }
 
@@ -48,7 +54,16 @@ export function ActionButtons({ recipientId, currentUserId }: ActionButtonsProps
             to: recipientId,
             type,
         });
-    }, [socket, currentUserId, recipientId, toast, router, setCallState, setCurrentCall]);
+    }, [
+        socket,
+        currentUserId,
+        recipientId,
+        toast,
+        router,
+        setCallState,
+        setCurrentCall,
+        getMediaStream
+    ]);
 
     const disabled = callState === "ringing" || !onlineUsers.includes(recipientId)
 
@@ -71,7 +86,7 @@ export function ActionButtons({ recipientId, currentUserId }: ActionButtonsProps
                 <Button
                     variant="ghost"
                     size="icon"
-                    className="text-slate-200 cursor-wait hover:text-white hover:bg-slate-700"
+                    className="text-slate-200 hover:text-white hover:bg-slate-700"
                     onClick={() => initiateCall('voice')}
                     disabled={disabled}
                 >
@@ -83,7 +98,7 @@ export function ActionButtons({ recipientId, currentUserId }: ActionButtonsProps
                     disabled
                     variant="ghost"
                     size="icon"
-                    className="text-slate-200 cursor-wait hover:text-white hover:bg-slate-700">
+                    className="text-slate-200 hover:text-white hover:bg-slate-700">
                     <MoreVertical className="w-5 h-5" />
                 </Button>
             </ActionTooltip>

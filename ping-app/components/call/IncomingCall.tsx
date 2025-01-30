@@ -14,11 +14,19 @@ export default function IncomingCall({
     type
 }: IncomingCallProps) {
 
-    const { currentCall, setCurrentCall, callState } = useSocketContext();
+    const {
+        currentCall,
+        setCurrentCall,
+        callState,
+        setCallState
+    } = useSocketContext();
 
     if (!currentCall) return null;
 
-    const onReject = () => { setCurrentCall(null) };
+    const onReject = () => {
+        setCurrentCall(null);
+        setCallState("rejected");
+    };
 
     return (
         <div className="flex absolute bottom-0 right-0 w-[300px] bg-secondary p-6 m-4 flex-col items-center gap-4 rounded-xl shadow-lg">

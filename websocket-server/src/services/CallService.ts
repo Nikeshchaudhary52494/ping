@@ -110,18 +110,18 @@ export class CallService {
     /**
      * Handles call cancellation by the caller.
      */
-    public cancelCall(socket: Socket, data: CallData) {
+    public dropCall(socket: Socket, data: CallData) {
         const receiverSocketId = this.getUserSocketId(data.to);
 
         if (receiverSocketId) {
-            this.sendToSocket(receiverSocketId, 'call:cancelled', data);
+            this.sendToSocket(receiverSocketId, 'call:dropped', data);
         }
 
         if (data.roomId) {
             this.activeRooms.delete(data.roomId);
         }
 
-        this.log('Call cancelled', { roomId: data.roomId, data });
+        this.log('Call dropped', { roomId: data.roomId, data });
     }
 
     /**

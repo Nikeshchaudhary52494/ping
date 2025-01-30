@@ -73,6 +73,13 @@ export const useSocketEvents = (
             description: "The call has ended",
         });
         setCurrentCall(null);
+        if (peerConnectionRef.current) {
+            peerConnectionRef.current.close();
+            peerConnectionRef.current = null;
+        }
+
+        localStreamRef.current?.getTracks().forEach((track) => track.stop());
+        localStreamRef.current = null;
     }, [toast, setCurrentCall, setCallState]);
 
     const handleUserOffline = useCallback(() => {
@@ -84,9 +91,10 @@ export const useSocketEvents = (
         setCurrentCall(null);
     }, [setCurrentCall, toast]);
 
-    const handleCallCancelled = useCallback(() => {
+    const handleCallDropped = useCallback(() => {
+        setCallState("dropped")
         setCurrentCall(null);
-    }, [setCurrentCall]);
+    }, [setCurrentCall, setCallState]);
 
     const onOffer = useCallback((data: { sdp: RTCSessionDescriptionInit; from: string }) => {
         handleOffer({
@@ -127,7 +135,7 @@ export const useSocketEvents = (
         socket.on("call:rejected", handleCallRejected);
         socket.on("call:ended", handleCallEnded);
         socket.on("call:userOfline", handleUserOffline);
-        socket.on("call:cancelled", handleCallCancelled);
+        socket.on("call:dropped", handleCallDropped);
         socket.on("webrtc:offer", onOffer);
         socket.on("webrtc:answer", onAnswer);
         socket.on("webrtc:candidate", onCandidate);
@@ -143,7 +151,7 @@ export const useSocketEvents = (
             socket.off("call:rejected", handleCallRejected);
             socket.off("call:ended", handleCallEnded);
             socket.off("call:userOfline", handleUserOffline);
-            socket.off("call:cancelled", handleCallCancelled);
+            socket.off("call:dropped", handleCallDropped);
             socket.off("webrtc:offer", onOffer);
             socket.off("webrtc:answer", onAnswer);
             socket.off("webrtc:candidate", onCandidate);
@@ -159,7 +167,7 @@ export const useSocketEvents = (
         handleCallRejected,
         handleCallEnded,
         handleUserOffline,
-        handleCallCancelled,
+        handleCallDropped,
         onAnswer,
         onCandidate,
         onOffer

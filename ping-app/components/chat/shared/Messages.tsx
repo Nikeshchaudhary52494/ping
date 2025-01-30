@@ -16,12 +16,10 @@ export default function Messages({
     userId, messages: initialMessages
 }: MessagesProps) {
 
-    const { currentCall } = useSocketContext();
-    const { socket, isConnected } = useSocketContext();
+    const { socket } = useSocketContext();
     const { messages, setMessages, addMessage } = useMessage();
     const messageEndRef = useRef<HTMLDivElement | null>(null);
 
-    console.log(currentCall);
     useEffect(() => {
         setMessages(initialMessages);
     }, [setMessages, initialMessages])

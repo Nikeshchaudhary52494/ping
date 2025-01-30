@@ -44,11 +44,10 @@ io.on("connection", (socket: Socket) => {
     socket.on("call:accept", (data) => callService.acceptCall(socket, data));
     socket.on("call:reject", (data) => callService.rejectCall(socket, data));
     socket.on("call:end", (data) => callService.endCall(socket, data));
-    socket.on("call:cancel", (data) => callService.cancelCall(socket, data));
+    socket.on("call:drop", (data) => callService.dropCall(socket, data));
 
     // WebRTC signaling events
     socket.on("webrtc:offer", (data) => {
-        console.log("offer called");
         const receiverSocketId = getReceiverSocketId(data.to);
         console.log(receiverSocketId);
         if (receiverSocketId) {
@@ -61,7 +60,6 @@ io.on("connection", (socket: Socket) => {
     });
 
     socket.on("webrtc:answer", (data) => {
-        console.log("answer called");
         const receiverSocketId = getReceiverSocketId(data.to);
         if (receiverSocketId) {
             io.to(receiverSocketId).emit("webrtc:answer", {
@@ -73,7 +71,6 @@ io.on("connection", (socket: Socket) => {
     });
 
     socket.on("webrtc:candidate", (data) => {
-        console.log("candidate called");
         const receiverSocketId = getReceiverSocketId(data.to);
         if (receiverSocketId) {
             io.to(receiverSocketId).emit("webrtc:candidate", {

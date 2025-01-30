@@ -16,6 +16,7 @@ export type CallState =
     | 'accepted'
     | 'ended'
     | 'rejected'
+    | 'dropped'
 
 export interface SocketContextType {
     socket: Socket | null;
@@ -31,4 +32,5 @@ export interface SocketContextType {
     localStreamRef: React.MutableRefObject<MediaStream | null>
     remoteStreamRef: React.MutableRefObject<MediaStream | null>
     peerConnectionRef: React.MutableRefObject<RTCPeerConnection | null>
+    getMediaStream: (faceMode?: string) => Promise<MediaStream | null>
 }

@@ -3,6 +3,7 @@
 import {
     ReactNode,
     createContext,
+    useCallback,
     useContext,
     useEffect,
     useRef,
@@ -28,7 +29,28 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
 
     const { user } = useUser();
 
-    console.log({ onlineUsers });
+    const getMediaStream = useCallback(async (faceMode?: string) => {
+        if (localStreamRef.current) {
+            return localStreamRef.current
+        }
+
+        try {
+            const devices = await navigator.mediaDevices.enumerateDevices();
+            const videoDevices = devices.filter(device => device.kind === "videoinput");
+            const stream = await navigator.mediaDevices.getUserMedia({
+                audio: true,
+                video: {
+                    facingMode: videoDevices.length > 0 ? faceMode : undefined
+                }
+            })
+            localStreamRef.current = stream;
+            return stream;
+        } catch (error) {
+            console.error("failed to get stream", error)
+            return null;
+        }
+    }, [localStreamRef])
+
     useEffect(() => {
         if (user) {
             const socketInstance = io(
@@ -77,7 +99,8 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
         setCallState,
         localStreamRef,
         remoteStreamRef,
-        peerConnectionRef
+        peerConnectionRef,
+        getMediaStream,
     };
 
     return (

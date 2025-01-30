@@ -13,7 +13,12 @@ export default function OutgoingCall({
 }: OutgoingCallProps) {
 
     const { socket, setCallState } = useSocketContext();
-    const onEnd = () => { setCallState("ended") };
+    const onEnd = () => {
+        socket?.emit('call:drop', {
+            to: user?.id,
+        });
+        setCallState("dropped");
+    };
 
     return (
         <div className="flex absolute bottom-0 right-0 w-[300px] bg-secondary p-6 m-4 flex-col items-center gap-4 rounded-xl shadow-lg">
@@ -40,12 +45,7 @@ export default function OutgoingCall({
 
             <div className="flex justify-center w-full gap-6 mt-4">
                 <button
-                    onClick={() => {
-                        onEnd();
-                        socket?.emit('call:cancel', {
-                            to: user?.id,
-                        });
-                    }}
+                    onClick={onEnd}
                     className="flex items-center justify-center text-white transition-transform rounded-full shadow-lg w-14 h-14 bg-gradient-to-br from-red-500 to-red-600 hover:scale-110"
                     aria-label="Reject Call"
                 >
