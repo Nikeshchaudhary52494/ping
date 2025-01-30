@@ -23,7 +23,7 @@ export function CallScreen({
         socket,
         currentCall,
         localStreamRef,
-        remoteStream,
+        remoteStreamRef,
         peerConnectionRef,
         callState,
         setCallState
@@ -48,7 +48,7 @@ export function CallScreen({
     };
 
     useEffect(() => {
-        if (!currentCall) return;
+        if (!currentCall || callState == "ended" || callState == "rejected") return;
 
         const startLocalStream = async () => {
             try {
@@ -66,11 +66,17 @@ export function CallScreen({
         startLocalStream();
 
         return () => {
-            localStreamRef.current?.getTracks().forEach((track) => track.stop());
+            if (localStreamRef.current) {
+                localStreamRef.current.getTracks().forEach((track) => track.stop());
+                localStreamRef.current = null;
+            }
         };
     }, [currentCall, callType]);
 
     if (callState === "accepted" || (callState === "ringing" && currentCall?.type === "video")) {
+
+        console.log('********', { remoteStreamRef, localStreamRef })
+
         return (
             <div className="h-full">
 
@@ -95,7 +101,7 @@ export function CallScreen({
                                 ) : (
                                     <VideoContainer
                                         className="object-cover h-full aspect-video"
-                                        stream={remoteStream}
+                                        stream={remoteStreamRef.current}
                                         isLocalStream={false}
                                     />
                                 )}
@@ -112,7 +118,7 @@ export function CallScreen({
                         </div>
 
                         <CallControls
-                            remoteStream={remoteStream}
+                            remoteStream={remoteStreamRef}
                             localStream={localStreamRef}
                             callType={callType}
                             onEndCall={handleEndCall}
@@ -133,10 +139,10 @@ export function CallScreen({
                             </div>
                         </div>
                         {callType === "voice" && callState === "accepted" && (
-                            <AudioContainer stream={remoteStream} />
+                            <AudioContainer stream={remoteStreamRef.current} />
                         )}
                         <CallControls
-                            remoteStream={remoteStream}
+                            remoteStream={remoteStreamRef}
                             localStream={localStreamRef}
                             callType={callType}
                             onEndCall={handleEndCall}

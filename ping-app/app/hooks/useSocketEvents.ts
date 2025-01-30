@@ -3,7 +3,6 @@
 import { useEffect, useCallback, MutableRefObject } from "react";
 import { Socket } from "socket.io-client";
 import { CallData, CallState } from "@/types/socket";
-import { User } from "@prisma/client";
 import { useToast } from "./use-toast";
 import { useRouter } from "next/navigation";
 import { handleAnswer, handleCandidate, handleOffer } from "@/lib/webrtc";
@@ -16,8 +15,8 @@ export const useSocketEvents = (
     setCurrentCall: (call: CallData | null) => void,
     setCallState: (state: CallState) => void,
     localStreamRef: MutableRefObject<MediaStream | null>,
+    remoteStreamRef: MutableRefObject<MediaStream | null>,
     peerConnectionRef: MutableRefObject<RTCPeerConnection | null>,
-    setRemoteStream: (stream: MediaStream) => void
 ) => {
     const { toast } = useToast();
     const router = useRouter();
@@ -74,7 +73,6 @@ export const useSocketEvents = (
             description: "The call has ended",
         });
         setCurrentCall(null);
-        // setIscallAccepted(false);
     }, [toast, setCurrentCall, setCallState]);
 
     const handleUserOffline = useCallback(() => {
@@ -90,17 +88,31 @@ export const useSocketEvents = (
         setCurrentCall(null);
     }, [setCurrentCall]);
 
-    const onOffer = (data: { sdp: RTCSessionDescriptionInit, from: string }) => {
-        handleOffer({ data, pc: peerConnectionRef, socket, localStream: localStreamRef, setRemoteStream });
-    };
+    const onOffer = useCallback((data: { sdp: RTCSessionDescriptionInit; from: string }) => {
+        handleOffer({
+            data,
+            pc: peerConnectionRef,
+            socket,
+            localStream: localStreamRef,
+            remoteStreamRef
+        });
+    }, [peerConnectionRef, socket, localStreamRef, remoteStreamRef]);
 
-    const onAnswer = (data: { sdp: RTCSessionDescriptionInit }) => {
-        handleAnswer({ data, pc: peerConnectionRef as MutableRefObject<RTCPeerConnection>, setRemoteStream });
-    };
+    const onAnswer = useCallback((data: { sdp: RTCSessionDescriptionInit }) => {
+        handleAnswer({
+            data,
+            pc: peerConnectionRef as MutableRefObject<RTCPeerConnection>,
+            remoteStreamRef
+        });
+    }, [peerConnectionRef, remoteStreamRef]);
 
-    const onCandidate = (data: { candidate: RTCIceCandidateInit }) => {
-        handleCandidate({ data, pc: peerConnectionRef as MutableRefObject<RTCPeerConnection> });
-    };
+    const onCandidate = useCallback((data: { candidate: RTCIceCandidateInit }) => {
+        handleCandidate({
+            data,
+            pc: peerConnectionRef as MutableRefObject<RTCPeerConnection>
+        });
+    }, [peerConnectionRef]);
+
 
     useEffect(() => {
         if (!socket) return;

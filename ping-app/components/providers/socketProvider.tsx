@@ -12,7 +12,6 @@ import { io, Socket } from 'socket.io-client';
 import { useUser } from './userProvider';
 import { SocketContextType, CallData, CallState } from '@/types/socket';
 import { useSocketEvents } from '@/app/hooks/useSocketEvents';
-import { User } from '@prisma/client';
 
 const SocketContext = createContext<SocketContextType | undefined>(undefined);
 
@@ -24,7 +23,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
     const [currentCall, setCurrentCall] = useState<CallData | null>(null);
     const [callState, setCallState] = useState<CallState>("idle");
     const localStreamRef = useRef<MediaStream | null>(null);
-    const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
+    const remoteStreamRef = useRef<MediaStream | null>(null);
     const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
 
     const { user } = useUser();
@@ -63,8 +62,8 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
         setCurrentCall,
         setCallState,
         localStreamRef,
+        remoteStreamRef,
         peerConnectionRef,
-        setRemoteStream
     );
 
     const value = {
@@ -77,8 +76,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
         callState,
         setCallState,
         localStreamRef,
-        remoteStream,
-        setRemoteStream,
+        remoteStreamRef,
         peerConnectionRef
     };
 

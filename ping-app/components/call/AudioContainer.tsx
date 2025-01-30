@@ -12,7 +12,7 @@ const AudioContainer: React.FC<AudioContainerProps> = ({ stream }) => {
             audioRef.current.srcObject = stream;
             audioRef.current.play().catch(error => console.error("Audio play failed:", error));
         }
-    }, [stream]);
+    }, [stream, audioRef.current]);
 
     return <audio ref={audioRef} autoPlay playsInline />;
 };

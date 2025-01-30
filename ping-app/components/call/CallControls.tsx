@@ -16,7 +16,7 @@ import { CallButton } from "./CallButton";
 interface CallControlsProps {
     callType: "video" | "voice";
     localStream: MutableRefObject<MediaStream | null>;
-    remoteStream: MediaStream | null;
+    remoteStream: MutableRefObject<MediaStream | null>;
     onEndCall: () => void;
 }
 
@@ -61,8 +61,8 @@ export function CallControls({
     };
 
     const toggleSpeaker = () => {
-        if (remoteStream) {
-            const audioTracks = remoteStream.getAudioTracks();
+        if (remoteStream.current) {
+            const audioTracks = remoteStream.current.getAudioTracks();
             audioTracks.forEach((track) => (track.enabled = !track.enabled));
             setIsSpeakerOn((prev) => !prev);
         }

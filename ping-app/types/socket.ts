@@ -1,6 +1,5 @@
 "use client";
 
-import { User } from '@prisma/client';
 import { Socket } from 'socket.io-client';
 
 export interface CallData {
@@ -30,7 +29,6 @@ export interface SocketContextType {
     setCallState: (state: CallState) => void
 
     localStreamRef: React.MutableRefObject<MediaStream | null>
-    remoteStream: MediaStream | null,
-    setRemoteStream: (stream: MediaStream | null) => void,
+    remoteStreamRef: React.MutableRefObject<MediaStream | null>
     peerConnectionRef: React.MutableRefObject<RTCPeerConnection | null>
 }

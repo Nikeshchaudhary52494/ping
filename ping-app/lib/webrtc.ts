@@ -5,7 +5,7 @@ interface InitializePeerConnectionProps {
     stream: MediaStream | null;
     remoteUserId: string;
     socket: Socket | null;
-    setRemoteStream: (stream: MediaStream) => void;
+    remoteStreamRef: MutableRefObject<MediaStream | null>;
 }
 
 // Initialize a new RTCPeerConnection
@@ -13,7 +13,7 @@ export const initializePeerConnection = ({
     stream,
     remoteUserId,
     socket,
-    setRemoteStream
+    remoteStreamRef,
 }: InitializePeerConnectionProps): RTCPeerConnection => {
     const pc = new RTCPeerConnection({
         iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
@@ -38,8 +38,8 @@ export const initializePeerConnection = ({
     // Handle remote tracks
     pc.ontrack = (event) => {
         console.log("Remote track received:", event.streams[0]);
-        if (event.streams[0]) {
-            setRemoteStream(event.streams[0]);
+        if (event.streams[0] && remoteStreamRef) {
+            remoteStreamRef.current = event.streams[0];
         }
     };
 
@@ -51,13 +51,13 @@ export const handleCallAccepted = async ({
     localStream,
     socket,
     remoteUserId,
-    setRemoteStream,
+    remoteStreamRef,
     pc,
 }: {
     localStream: MutableRefObject<MediaStream | null>;
     socket: Socket | null;
     remoteUserId: string;
-    setRemoteStream: (stream: MediaStream) => void;
+    remoteStreamRef: MutableRefObject<MediaStream | null>;
     pc: MutableRefObject<RTCPeerConnection | null>;
 }): Promise<void> => {
     try {
@@ -68,7 +68,7 @@ export const handleCallAccepted = async ({
                 stream: localStream.current,
                 remoteUserId,
                 socket,
-                setRemoteStream
+                remoteStreamRef
             });
         }
 
@@ -89,13 +89,13 @@ export const handleOffer = async ({
     pc,
     socket,
     localStream,
-    setRemoteStream,
+    remoteStreamRef,
 }: {
     data: { sdp: RTCSessionDescriptionInit; from: string };
     pc: MutableRefObject<RTCPeerConnection | null>;
     socket: Socket | null;
     localStream: MutableRefObject<MediaStream | null>;
-    setRemoteStream: (stream: MediaStream) => void;
+    remoteStreamRef: MutableRefObject<MediaStream | null>;
 }): Promise<void> => {
     try {
         console.log("Received offer from caller:", data);
@@ -105,7 +105,7 @@ export const handleOffer = async ({
                 stream: localStream.current,
                 remoteUserId: data.from,
                 socket,
-                setRemoteStream
+                remoteStreamRef
             });
         }
 
@@ -127,11 +127,11 @@ export const handleOffer = async ({
 export const handleAnswer = async ({
     data,
     pc,
-    setRemoteStream
+    remoteStreamRef
 }: {
     data: { sdp: RTCSessionDescriptionInit };
     pc: MutableRefObject<RTCPeerConnection>;
-    setRemoteStream: (stream: MediaStream) => void
+    remoteStreamRef: MutableRefObject<MediaStream | null>;
 }): Promise<void> => {
     try {
         console.log("Received answer from receiver:", data);
@@ -152,7 +152,7 @@ export const handleAnswer = async ({
         pc.current.ontrack = (event) => {
             console.log("Remote track received:", event.streams[0]);
             if (event.streams[0]) {
-                setRemoteStream(event.streams[0]);
+                remoteStreamRef.current = event.streams[0];
             }
         };
     } catch (error) {
