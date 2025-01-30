@@ -1,7 +1,7 @@
 import { CallState } from "@/types/socket";
 import { useEffect, useRef, useMemo } from "react";
 
-export default function CallNotification({ callState }: { callState: CallState }) {
+export default function CallAlert({ callState }: { callState: CallState }) {
     const audioRef = useRef<HTMLAudioElement | null>(null);
 
     const soundMap: Partial<Record<CallState, string>> = useMemo(() => ({

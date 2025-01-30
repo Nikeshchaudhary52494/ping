@@ -1,18 +1,18 @@
 import { useSocketContext } from "../providers/socketProvider";
 import { UserAvatar } from "../user/UserAvatar";
-import ActionButton from "./ActionButtons";
 import { User } from "@prisma/client";
-import CallNotification from "./CallNotification";
+import CallAlert from "./CallAlert";
+import CallActionButton from "./CallActionButtons";
 
-type IncomingTabProps = {
+type IncomingCallProps = {
     user: User
     type: "voice" | "video"
 };
 
-export default function IncomingCallModal({
+export default function IncomingCall({
     user,
     type
-}: IncomingTabProps) {
+}: IncomingCallProps) {
 
     const { currentCall, setCurrentCall, callState } = useSocketContext();
 
@@ -22,7 +22,7 @@ export default function IncomingCallModal({
 
     return (
         <div className="flex absolute bottom-0 right-0 w-[300px] bg-secondary p-6 m-4 flex-col items-center gap-4 rounded-xl shadow-lg">
-            <CallNotification callState={callState} />
+            <CallAlert callState={callState} />
             <p className="text-lg font-semibold text-gray-300">Incoming Call</p>
 
             <div className="flex flex-col items-center gap-2">
@@ -36,7 +36,7 @@ export default function IncomingCallModal({
                     <p className="text-sm text-gray-400">{user?.username}</p>
                 </div>
             </div>
-            <ActionButton
+            <CallActionButton
                 remoteUserId={currentCall.from}
                 incomingUserId={user?.id}
                 onReject={onReject}

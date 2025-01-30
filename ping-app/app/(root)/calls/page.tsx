@@ -1,5 +1,5 @@
-import Call from "@/components/call/Call";
+import CallScreen from "@/components/call/CallScreen";
 
 export default function Calls() {
-    return <Call />
+    return <CallScreen />
 }

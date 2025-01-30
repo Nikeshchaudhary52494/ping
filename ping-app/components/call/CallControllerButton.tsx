@@ -4,19 +4,19 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { LucideIcon } from "lucide-react";
 
-interface CallButtonProps {
+interface CallControllerButtonProps {
   icon: LucideIcon;
   onClick: () => void;
   variant?: "default" | "destructive";
   active?: boolean;
 }
 
-export function CallButton({
+export default function CallControllerButton({
   icon: Icon,
   onClick,
   variant = "default",
   active = true,
-}: CallButtonProps) {
+}: CallControllerButtonProps) {
   return (
     <Button
       variant={variant}

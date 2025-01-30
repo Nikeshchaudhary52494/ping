@@ -1,10 +1,13 @@
 import { useEffect, useRef } from "react";
 
-interface AudioContainerProps {
+interface AudioCallHandlerProps {
     stream: MediaStream | null;
 }
 
-const AudioContainer: React.FC<AudioContainerProps> = ({ stream }) => {
+export default function AudioCallHandler({
+    stream
+}: AudioCallHandlerProps) {
+
     const audioRef = useRef<HTMLAudioElement | null>(null);
 
     useEffect(() => {
@@ -16,5 +19,3 @@ const AudioContainer: React.FC<AudioContainerProps> = ({ stream }) => {
 
     return <audio ref={audioRef} autoPlay playsInline />;
 };
-
-export default AudioContainer;

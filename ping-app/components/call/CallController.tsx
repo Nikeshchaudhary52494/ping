@@ -11,21 +11,21 @@ import {
     Volume2,
     VolumeX,
 } from "lucide-react";
-import { CallButton } from "./CallButton";
+import CallControllerButton from "./CallControllerButton";
 
-interface CallControlsProps {
+interface CallControllerProps {
     callType: "video" | "voice";
     localStream: MutableRefObject<MediaStream | null>;
     remoteStream: MutableRefObject<MediaStream | null>;
     onEndCall: () => void;
 }
 
-export function CallControls({
+export default function CallController({
     callType,
     onEndCall,
     localStream,
     remoteStream,
-}: CallControlsProps) {
+}: CallControllerProps) {
     const [isCameraOn, setIsCameraOn] = useState(true);
     const [isMicOn, setIsMicOn] = useState(true);
     const [isSpeakerOn, setIsSpeakerOn] = useState(true);
@@ -104,31 +104,31 @@ export function CallControls({
         <div className="flex justify-center gap-6 p-4 bg-background/95">
             {callType === "video" && (
                 <>
-                    <CallButton
+                    <CallControllerButton
                         icon={isCameraOn ? Camera : CameraOff}
                         onClick={toggleCamera}
                         active={isCameraOn}
                     />
 
-                    <CallButton
+                    <CallControllerButton
                         icon={RefreshCw}
                         onClick={switchCamera}
                     />
                 </>
             )}
-            <CallButton
+            <CallControllerButton
                 icon={isMicOn ? Mic : MicOff}
                 onClick={toggleMic}
                 active={isMicOn}
             />
 
-            <CallButton
+            <CallControllerButton
                 icon={isSpeakerOn ? Volume2 : VolumeX}
                 onClick={toggleSpeaker}
                 active={isSpeakerOn}
             />
 
-            <CallButton
+            <CallControllerButton
                 icon={Phone}
                 onClick={onEndCall}
                 variant="destructive"

@@ -7,19 +7,19 @@ import { useRouter } from "next/navigation";
 import { handleCallAccepted } from "@/lib/webrtc";
 
 
-interface ActionButtonProps {
+interface CallActionButtonProps {
     type: "voice" | "video";
     incomingUserId: string;
     onReject: () => void;
     remoteUserId: string;
 };
 
-export default function ActionButton({
+export default function CallActionButton({
     type,
     onReject,
     incomingUserId,
     remoteUserId
-}: ActionButtonProps) {
+}: CallActionButtonProps) {
 
     const {
         socket,

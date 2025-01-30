@@ -1,17 +1,17 @@
 import { useEffect, useRef } from "react";
 import clsx from "clsx";
 
-interface VideoContainerProps {
+interface VideoCallHandlerProps {
     stream: MediaStream | null;
     isLocalStream: boolean;
     className?: string;
 }
 
-export default function VideoContainer({
+export default function VideoCallHandler({
     stream,
     isLocalStream,
     className = "",
-}: VideoContainerProps) {
+}: VideoCallHandlerProps) {
     const videoRef = useRef<HTMLVideoElement>(null);
 
     useEffect(() => {

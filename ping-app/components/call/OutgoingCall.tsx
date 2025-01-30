@@ -4,14 +4,13 @@ import Image from "next/image";
 import { User } from "@prisma/client";
 import { useSocketContext } from "../providers/socketProvider";
 
-type IncomingTabProps = {
+type OutgoingCallProps = {
     user?: User
 };
 
-export default function MakeCall({
+export default function OutgoingCall({
     user,
-
-}: IncomingTabProps) {
+}: OutgoingCallProps) {
 
     const { socket, setCallState } = useSocketContext();
     const onEnd = () => { setCallState("ended") };

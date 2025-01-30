@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import IncomingCall from "../call/IncomingCallModal";
 import { useSocketContext } from "./socketProvider";
 import { User } from "@prisma/client";
 import { getUserById } from "@/actions/user/getUserById";
-import MakeCall from "../call/MakeCall";
+import IncomingCall from "../call/IncomingCall";
+import OutgoingCall from "../call/OutgoingCall";
 
 export default function CurrentCallHandler() {
     const [user, setUser] = useState<User | null>(null);
@@ -53,7 +53,7 @@ export default function CurrentCallHandler() {
             />
         }
         if (callState === "ringing") {
-            return <MakeCall user={user!} />
+            return <OutgoingCall user={user!} />
         }
     }
 }
