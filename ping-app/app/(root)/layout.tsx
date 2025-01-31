@@ -1,4 +1,5 @@
 import { getUser } from '@/actions/user/getUser';
+import Bottombar from '@/components/navigation/Bottombar';
 import NavigationSidebar from '@/components/navigation/navigation-sidebar';
 import { redirect } from 'next/navigation';
 import { ReactNode } from 'react';
@@ -14,13 +15,16 @@ export default async function MainLayout({
     if (!user?.onboarded) redirect("/onboarding");
 
     return (
-        <div className="h-full flex">
-            <aside className="self-start h-full">
+        <div className="flex flex-col h-full sm:flex-row min-w-[300px] min-h-[300px] overflow-clip">
+            <aside className="self-start hidden h-full sm:block">
                 <NavigationSidebar />
             </aside>
             <main className="flex-1">
                 {children}
             </main>
+            <div className="w-full sm:hidden">
+                <Bottombar />
+            </div>
         </div>
     );
 };

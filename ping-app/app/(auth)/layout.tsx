@@ -20,7 +20,7 @@ export default async function RootLayout({
 
     return (
         <div className="flex bg-[#020817] h-full">
-            <div className="relative w-1/3">
+            <div className="relative hidden w-1/3 sm:block">
                 <Image
                     fill
                     src={"/Messages-cuate.svg"}
@@ -28,7 +28,7 @@ export default async function RootLayout({
                     className="object-contain"
                 />
             </div>
-            <div className="flex items-center justify-center w-2/3">
+            <div className="flex items-center justify-center w-full px-4 sm:px-0 sm:w-2/3">
                 {children}
             </div>
         </div>

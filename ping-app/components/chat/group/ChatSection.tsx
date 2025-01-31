@@ -27,13 +27,13 @@ export default async function Chatsection({
     })
 
     return (
-        <div className="h-full flex flex-col">
+        <div className="flex flex-col h-full">
             <div className="h-16">
                 <SectionHeader params={params} />
 
             </div>
 
-            <div className="flex-1 overflow-y-auto p-2">
+            <div className="flex-1 p-2 overflow-y-auto">
                 <ChatMessages
                     chatId={chat?.id!}
                     messages={chat?.messages!}
@@ -42,7 +42,7 @@ export default async function Chatsection({
                 />
             </div>
 
-            <div className="p-3 bg-[#1E1F22] border-l-[1px] border-slate-200 border-opacity-10 ">
+            <div className="p-3 bg-[#1E1F22] sm:border-l-[1px] border-slate-200 border-opacity-10 ">
                 <MessageInput
                     senderId={user?.id!}
                 />

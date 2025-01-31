@@ -5,6 +5,7 @@ import MessageItem from "./MessageItem";
 import { Message } from "@prisma/client";
 import { useMessage } from "@/components/providers/messageProvider";
 import { useSocketContext } from "@/components/providers/socketProvider";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 interface MessagesProps {
     messages: Message[];
@@ -41,7 +42,7 @@ export default function Messages({
     }, [messages]);
 
     return (
-        <div className="flex flex-col space-y-2">
+        <div className="flex flex-col h-full space-y-2">
             {messages && messages.map(({ content, senderId, fileUrl }, index) => (
                 <div
                     key={index}

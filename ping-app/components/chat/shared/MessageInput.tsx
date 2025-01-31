@@ -122,7 +122,7 @@ export default function MessageInput({
                 />
                 <button
                     type="button"
-                    className={`flex items-center justify-center w-10 h-10 rounded-full bg-slate-700/20 ${imagePreview ? 'text-emerald-500' : 'text-zinc-400'}`}
+                    className={`flex items-center justify-center p-2 rounded-full bg-slate-700/20 ${imagePreview ? 'text-emerald-500' : 'text-zinc-400'}`}
                     onClick={() => fileInputRef.current?.click()}
                 >
                     <ImageIcon size={20} />

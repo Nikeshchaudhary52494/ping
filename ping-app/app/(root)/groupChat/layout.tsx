@@ -1,22 +1,28 @@
 import { ReactNode } from 'react';
-import * as motion from "framer-motion/client"
-import Sidebar from '@/components/chat/group/Sidebar';
+import SeconadaryLayout from './secondaryLayout';
+import { getUser } from '@/actions/user/getUser';
+import { db } from '@/lib/db';
 
 interface GroupChatLayoutProps {
     children: ReactNode;
 }
 
-export default function GroupChatLayout({ children }: GroupChatLayoutProps) {
+export default async function GroupChatLayout({ children }: GroupChatLayoutProps) {
+    const { user } = await getUser();
+    const myGroup = await db.groupChat.findMany({
+        where: {
+            members: {
+                some: {
+                    id: user?.id
+                }
+            }
+        }
+    });
     return (
-        <div className="h-full">
-            <motion.div
-                initial={{ x: -100 }}
-                animate={{ x: 0 }}
-                transition={{ duration: 0.2 }}
-                className="fixed inset-y-0 z-20 flex-col hidden w-64 h-full md:flex">
-                <Sidebar />
-            </motion.div>
-            <main className="h-full md:pl-64">{children}</main>
-        </div>
+        <SeconadaryLayout
+            CurrentuserId={user?.id!}
+            groupChatData={myGroup} >
+            {children}
+        </SeconadaryLayout>
     );
 };

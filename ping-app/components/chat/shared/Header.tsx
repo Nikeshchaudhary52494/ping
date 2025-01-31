@@ -1,9 +1,9 @@
-import { getUser } from "@/actions/user/getUser";
+import { useUser } from "@/components/providers/userProvider";
 import { User } from "lucide-react";
 import Image from "next/image";
 
-export default async function Header() {
-    const { user } = await getUser();
+export default function Header() {
+    const { user } = useUser()
     return (
         <div className="flex w-full gap-2 p-2 border-b-[1px] border-slate-200 border-opacity-10">
             <div

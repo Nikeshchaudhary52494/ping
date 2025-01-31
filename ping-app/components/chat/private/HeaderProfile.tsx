@@ -13,14 +13,14 @@ interface HeaderProfileProps {
 
 export function HeaderProfile({ user, isCurrentUser }: HeaderProfileProps) {
     return (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center md:gap-2">
             <div className="mx-3">
                 <UserAvatar
                     imageUrl={user.imageUrl}
                     displayName={user.displayName}
                 />
             </div>
-            <div className="flex flex-col">
+            <div className="flex flex-col text-xs">
                 <span className="font-medium">
                     {user.displayName}
                     {isCurrentUser && " (YOU)"}

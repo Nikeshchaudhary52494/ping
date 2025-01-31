@@ -31,7 +31,7 @@ export default async function SectionHeader({ params }: SectionHeaderProps) {
     );
 
     return (
-        <div className="w-full flex items-center justify-between px-4 border-l-[1px] h-full border-slate-200 border-opacity-10 bg-[#1E1F22]">
+        <div className="w-full flex items-center justify-between px-4 sm:border-l-[1px] h-full border-slate-200 border-opacity-10 bg-[#1E1F22]">
             <HeaderProfile
                 user={secondPerson || user}
                 isCurrentUser={!secondPerson}

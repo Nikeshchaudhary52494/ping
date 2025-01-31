@@ -7,7 +7,7 @@ interface chatsProps {
     }
 }
 
-export default async function chats({ params }: chatsProps) {
+export default function Page({ params }: chatsProps) {
     return (
         <div className="h-full">
             <Chatsection params={params} />
