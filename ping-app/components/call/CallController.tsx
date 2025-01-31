@@ -15,8 +15,8 @@ import CallControllerButton from "./CallControllerButton";
 
 interface CallControllerProps {
     callType: "video" | "voice";
-    localStream: MutableRefObject<MediaStream | null>;
-    remoteStream: MutableRefObject<MediaStream | null>;
+    localStream: MediaStream | null;
+    remoteStream: MediaStream | null;
     onEndCall: () => void;
 }
 
@@ -31,9 +31,9 @@ export default function CallController({
     const [isSpeakerOn, setIsSpeakerOn] = useState(true);
 
     useEffect(() => {
-        if (localStream.current) {
-            const videoTrack = localStream.current.getVideoTracks()[0];
-            const audioTrack = localStream.current.getAudioTracks()[0];
+        if (localStream) {
+            const videoTrack = localStream.getVideoTracks()[0];
+            const audioTrack = localStream.getAudioTracks()[0];
 
             if (callType === "video" && videoTrack) setIsCameraOn(videoTrack.enabled);
             if (audioTrack) setIsMicOn(audioTrack.enabled);
@@ -41,8 +41,8 @@ export default function CallController({
     }, [callType, localStream]);
 
     const toggleCamera = useCallback(() => {
-        if (localStream.current) {
-            const videoTrack = localStream.current.getVideoTracks()[0];
+        if (localStream) {
+            const videoTrack = localStream.getVideoTracks()[0];
             if (videoTrack) {
                 videoTrack.enabled = !videoTrack.enabled;
                 setIsCameraOn(videoTrack.enabled);
@@ -51,8 +51,8 @@ export default function CallController({
     }, [localStream]);
 
     const toggleMic = useCallback(() => {
-        if (localStream.current) {
-            const audioTrack = localStream.current.getAudioTracks()[0];
+        if (localStream) {
+            const audioTrack = localStream.getAudioTracks()[0];
             if (audioTrack) {
                 audioTrack.enabled = !audioTrack.enabled;
                 setIsMicOn(audioTrack.enabled);
@@ -61,15 +61,15 @@ export default function CallController({
     }, [localStream]);
 
     const toggleSpeaker = () => {
-        if (remoteStream.current) {
-            const audioTracks = remoteStream.current.getAudioTracks();
+        if (remoteStream) {
+            const audioTracks = remoteStream.getAudioTracks();
             audioTracks.forEach((track) => (track.enabled = !track.enabled));
             setIsSpeakerOn((prev) => !prev);
         }
     };
 
     const switchCamera = async () => {
-        if (!localStream.current) return;
+        if (!localStream) return;
 
         try {
             const devices = await navigator.mediaDevices.enumerateDevices();
@@ -80,7 +80,7 @@ export default function CallController({
                 return;
             }
 
-            const currentFacingMode = localStream.current
+            const currentFacingMode = localStream
                 .getVideoTracks()[0]
                 .getSettings().facingMode;
 
@@ -91,17 +91,17 @@ export default function CallController({
                 audio: true,
             });
 
-            const oldTracks = localStream.current.getTracks();
+            const oldTracks = localStream.getTracks();
             oldTracks.forEach((track) => track.stop());
 
-            localStream.current = newStream;
+            localStream = newStream;
         } catch (error) {
             console.error("Error switching camera:", error);
         }
     };
 
     return (
-        <div className="flex justify-center gap-6 p-4 bg-background/95">
+        <div className="flex justify-center gap-6 border-l-[1px] border-slate-200 border-opacity-10 p-4 bg-[#1E1F22]">
             {callType === "video" && (
                 <>
                     <CallControllerButton

@@ -5,8 +5,6 @@ import { FaVideo } from "react-icons/fa";
 import { useSocketContext } from "../providers/socketProvider";
 import { useRouter } from "next/navigation";
 import { handleCallAccepted } from "@/lib/webrtc";
-import { useCallback } from "react";
-import { Stream } from "stream";
 
 
 interface CallActionButtonProps {
@@ -26,9 +24,8 @@ export default function CallActionButton({
     const {
         socket,
         currentCall,
-        localStreamRef,
         setCallState,
-        remoteStreamRef,
+        setRemoteStream,
         peerConnectionRef,
         getMediaStream,
     } = useSocketContext();
@@ -36,7 +33,7 @@ export default function CallActionButton({
     const router = useRouter();
     const onAccept = async () => {
 
-        const stream = await getMediaStream();
+        const stream = await getMediaStream(currentCall?.type!);
         console.log("call accepted", { stream })
         if (!stream) {
             console.error("Unable to accept call");
@@ -44,10 +41,10 @@ export default function CallActionButton({
         }
 
         handleCallAccepted({
-            localStream: localStreamRef,
+            localStream: stream,
             socket,
             remoteUserId,
-            remoteStreamRef,
+            setRemoteStream,
             pc: peerConnectionRef
         });
 

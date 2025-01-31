@@ -34,7 +34,7 @@ export function ActionButtons({ recipientId, currentUserId }: ActionButtonsProps
             });
             return;
         }
-        const stream = await getMediaStream();
+        const stream = await getMediaStream(type);
         if (!stream) {
             console.error("No stream Available while initiating call");
             return;

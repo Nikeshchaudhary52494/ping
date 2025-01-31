@@ -29,8 +29,10 @@ export interface SocketContextType {
     callState: CallState,
     setCallState: (state: CallState) => void
 
-    localStreamRef: React.MutableRefObject<MediaStream | null>
-    remoteStreamRef: React.MutableRefObject<MediaStream | null>
+    localStream: MediaStream | null
+    remoteStream: MediaStream | null
+    setRemoteStream: (stream: MediaStream | null) => void
+    setLocalStream: (stream: MediaStream | null) => void
     peerConnectionRef: React.MutableRefObject<RTCPeerConnection | null>
-    getMediaStream: (faceMode?: string) => Promise<MediaStream | null>
+    getMediaStream: (calltype: "video" | "voice") => Promise<MediaStream | null>
 }

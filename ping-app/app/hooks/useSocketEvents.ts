@@ -14,8 +14,10 @@ export const useSocketEvents = (
     setTypingUsers: (users: Record<string, boolean>) => void,
     setCurrentCall: (call: CallData | null) => void,
     setCallState: (state: CallState) => void,
-    localStreamRef: MutableRefObject<MediaStream | null>,
-    remoteStreamRef: MutableRefObject<MediaStream | null>,
+    localStream: MediaStream | null,
+    setLocalStream: (stream: MediaStream | null) => void,
+    remoteStream: MediaStream | null,
+    setRemoteStream: (stream: MediaStream | null) => void,
     peerConnectionRef: MutableRefObject<RTCPeerConnection | null>,
 ) => {
     const { toast } = useToast();
@@ -78,9 +80,9 @@ export const useSocketEvents = (
             peerConnectionRef.current = null;
         }
 
-        localStreamRef.current?.getTracks().forEach((track) => track.stop());
-        localStreamRef.current = null;
-    }, [toast, setCurrentCall, setCallState]);
+        localStream?.getTracks().forEach((track) => track.stop());
+        setLocalStream(null);
+    }, [toast, setCurrentCall, setCallState, localStream, peerConnectionRef]);
 
     const handleUserOffline = useCallback(() => {
         toast({
@@ -101,18 +103,18 @@ export const useSocketEvents = (
             data,
             pc: peerConnectionRef,
             socket,
-            localStream: localStreamRef,
-            remoteStreamRef
+            localStream: localStream,
+            setRemoteStream
         });
-    }, [peerConnectionRef, socket, localStreamRef, remoteStreamRef]);
+    }, [peerConnectionRef, socket, localStream, setRemoteStream]);
 
     const onAnswer = useCallback((data: { sdp: RTCSessionDescriptionInit }) => {
         handleAnswer({
             data,
             pc: peerConnectionRef as MutableRefObject<RTCPeerConnection>,
-            remoteStreamRef
+            setRemoteStream
         });
-    }, [peerConnectionRef, remoteStreamRef]);
+    }, [peerConnectionRef, setRemoteStream]);
 
     const onCandidate = useCallback((data: { candidate: RTCIceCandidateInit }) => {
         handleCandidate({

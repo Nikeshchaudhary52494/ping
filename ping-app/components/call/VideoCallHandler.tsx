@@ -1,8 +1,8 @@
-import { MutableRefObject, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import clsx from "clsx";
 
 interface VideoCallHandlerProps {
-    stream: MutableRefObject<MediaStream | null>;
+    stream: MediaStream | null;
     isLocalStream: boolean;
     className?: string;
 }
@@ -15,17 +15,12 @@ export default function VideoCallHandler({
     const videoRef = useRef<HTMLVideoElement>(null);
 
     useEffect(() => {
-        const video = videoRef.current;
-        if (video && stream.current) {
-            video.srcObject = stream.current;
-            video.style.transform = 'scaleX(-1)';
-
-            // Ensure the video plays after setting srcObject
-            video.onloadedmetadata = () => {
-                video.play().catch(error => console.error("Error playing video:", error));
-            };
+        if (videoRef.current && stream) {
+            videoRef.current.srcObject = stream;
         }
-    }, [stream.current]);
+    }, [stream]);
+
+    console.log({ stream, isLocalStream, active: stream?.active })
 
     return (
         <video

@@ -23,33 +23,29 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
     const [typingUsers, setTypingUsers] = useState<Record<string, boolean>>({});
     const [currentCall, setCurrentCall] = useState<CallData | null>(null);
     const [callState, setCallState] = useState<CallState>("idle");
-    const localStreamRef = useRef<MediaStream | null>(null);
-    const remoteStreamRef = useRef<MediaStream | null>(null);
+    const [localStream, setLocalStream] = useState<MediaStream | null>(null);
+    const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
     const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
 
     const { user } = useUser();
 
-    const getMediaStream = useCallback(async (faceMode?: string) => {
-        if (localStreamRef.current) {
-            return localStreamRef.current
+    const getMediaStream = useCallback(async (calltype: "voice" | "video") => {
+        if (localStream) {
+            return localStream
         }
 
         try {
-            const devices = await navigator.mediaDevices.enumerateDevices();
-            const videoDevices = devices.filter(device => device.kind === "videoinput");
             const stream = await navigator.mediaDevices.getUserMedia({
                 audio: true,
-                video: {
-                    facingMode: videoDevices.length > 0 ? faceMode : undefined
-                }
+                video: calltype == "video"
             })
-            localStreamRef.current = stream;
+            setLocalStream(stream);
             return stream;
         } catch (error) {
             console.error("failed to get stream", error)
             return null;
         }
-    }, [localStreamRef])
+    }, [localStream])
 
     useEffect(() => {
         if (user) {
@@ -83,8 +79,10 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
         setTypingUsers,
         setCurrentCall,
         setCallState,
-        localStreamRef,
-        remoteStreamRef,
+        localStream,
+        setLocalStream,
+        remoteStream,
+        setRemoteStream,
         peerConnectionRef,
     );
 
@@ -97,8 +95,10 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
         setCurrentCall,
         callState,
         setCallState,
-        localStreamRef,
-        remoteStreamRef,
+        localStream,
+        remoteStream,
+        setRemoteStream,
+        setLocalStream,
         peerConnectionRef,
         getMediaStream,
     };

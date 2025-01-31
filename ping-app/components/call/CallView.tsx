@@ -20,8 +20,9 @@ export default function CallView({
     const {
         socket,
         currentCall,
-        localStreamRef,
-        remoteStreamRef,
+        localStream,
+        setLocalStream,
+        remoteStream,
         peerConnectionRef,
         callState,
         setCallState
@@ -47,13 +48,13 @@ export default function CallView({
             peerConnectionRef.current = null;
         }
 
-        localStreamRef.current?.getTracks().forEach((track) => track.stop());
-        localStreamRef.current = null;
+        localStream?.getTracks().forEach((track) => track.stop());
+        setLocalStream(null);
     };
 
     if (callState === "accepted" || (callState === "ringing" && currentCall?.type === "video")) {
 
-        console.log("videoref", { localStreamRef, remoteStreamRef });
+        console.log("videoref", { localStream, remoteStream });
 
         return (
             <div className="h-full">
@@ -63,7 +64,7 @@ export default function CallView({
                 {callType === "video" ? (
                     <div className="flex flex-col h-full">
                         <div className="flex-1 h-20 m-2 rounded-lg">
-                            <div className="flex items-center justify-center h-full mx-auto overflow-hidden rounded-lg w-fit bg-muted">
+                            <div className="flex items-center justify-center h-full mx-auto overflow-hidden bg-transparent rounded-lg w-fit">
                                 {callState === "ringing" ? (
                                     <>
                                         <div className="absolute z-10 px-4 py-2 text-center text-white transform -translate-x-1/2 rounded-lg top-20 left-1/2 bg-black/30 backdrop-blur-sm">
@@ -72,23 +73,23 @@ export default function CallView({
                                         </div>
                                         <VideoCallHandler
                                             className="object-cover h-full aspect-video"
-                                            stream={localStreamRef}
+                                            stream={localStream}
                                             isLocalStream={true}
                                         />
                                     </>
                                 ) : (
                                     <VideoCallHandler
                                         className="object-cover h-full aspect-video"
-                                        stream={remoteStreamRef}
+                                        stream={remoteStream}
                                         isLocalStream={false}
                                     />
                                 )}
                             </div>
                             {callState === "accepted" && (
-                                <div className="absolute w-32 h-48 overflow-hidden rounded-lg shadow-lg top-4 right-4 bg-accent">
+                                <div className="absolute w-32 h-48 overflow-hidden rounded-lg shadow-lg top-4 right-4 bg-[#1E1F22]">
                                     <VideoCallHandler
                                         className="object-cover h-full"
-                                        stream={localStreamRef}
+                                        stream={localStream}
                                         isLocalStream={true}
                                     />
                                 </div>
@@ -96,8 +97,8 @@ export default function CallView({
                         </div>
 
                         <CallController
-                            remoteStream={remoteStreamRef}
-                            localStream={localStreamRef}
+                            remoteStream={remoteStream}
+                            localStream={localStream}
                             callType={callType}
                             onEndCall={handleEndCall}
                         />
@@ -117,11 +118,11 @@ export default function CallView({
                             </div>
                         </div>
                         {callType === "voice" && callState === "accepted" && (
-                            <AudioCallHandler stream={remoteStreamRef.current} />
+                            <AudioCallHandler stream={remoteStream} />
                         )}
                         <CallController
-                            remoteStream={remoteStreamRef}
-                            localStream={localStreamRef}
+                            remoteStream={remoteStream}
+                            localStream={localStream}
                             callType={callType}
                             onEndCall={handleEndCall}
                         />
