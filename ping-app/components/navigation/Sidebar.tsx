@@ -1,13 +1,13 @@
 "use client"
 
-import NavigationAction from './navigation-action';
 import { Separator } from '../ui/separator';
 import { ModeToggle } from '../mode-toggle';
 import ActionTooltip from '../action-tooltip';
 import { navigationTabs } from '@/lib/tabLinks';
 import { usePathname, useRouter } from 'next/navigation';
+import ActionButton from './ActionButton';
 
-export default function NavigationSidebar() {
+export default function Sidebar() {
 
     const pathname = usePathname();
     const router = useRouter();
@@ -44,7 +44,7 @@ export default function NavigationSidebar() {
             </div>
             <Separator className="h-[2px] bg-zinc-300 dark:bg-zinc-700 rounded-md w-10 mx-auto" />
             <div className="flex flex-col items-center pb-3 mt-auto gap-y-4">
-                <NavigationAction />
+                <ActionButton />
             </div>
         </div>
     );

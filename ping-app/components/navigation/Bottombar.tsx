@@ -24,7 +24,7 @@ export default function Bottombar() {
                         pathname === item.route;
                     if (item.label == "Settings") return null;
                     return (
-                        <div className='flex flex-col items-center'>
+                        <div key={item.label} className='flex flex-col items-center'>
                             <button
                                 className={`p-2 text-slate-400 ${isActive ? 'bg-[#48A6C3] text-white rounded-full' : 'hover:bg-[#48A6C3] hover:bg-opacity-20 rounded-full'}`}
                                 onClick={() => handleClick(item.route)}

@@ -1,6 +1,6 @@
 import { getUser } from '@/actions/user/getUser';
 import Bottombar from '@/components/navigation/Bottombar';
-import NavigationSidebar from '@/components/navigation/navigation-sidebar';
+import Sidebar from '@/components/navigation/Sidebar';
 import { redirect } from 'next/navigation';
 import { ReactNode } from 'react';
 
@@ -17,7 +17,7 @@ export default async function MainLayout({
     return (
         <div className="flex flex-col h-full sm:flex-row min-w-[300px] min-h-[300px] overflow-clip">
             <aside className="self-start hidden h-full sm:block">
-                <NavigationSidebar />
+                <Sidebar />
             </aside>
             <main className="flex-1">
                 {children}

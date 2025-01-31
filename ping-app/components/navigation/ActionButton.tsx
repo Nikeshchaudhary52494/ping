@@ -11,7 +11,7 @@ import {
 import ActionTooltip from '../action-tooltip';
 import CreateGroupForm from '../chat/group/CreateGroupForm';
 
-export default function NavigationAction() {
+export default function ActionButton() {
     return (
         <div>
             <ActionTooltip side="right" align="center" label="Add">

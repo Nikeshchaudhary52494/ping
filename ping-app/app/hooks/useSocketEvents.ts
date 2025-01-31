@@ -82,7 +82,7 @@ export const useSocketEvents = (
 
         localStream?.getTracks().forEach((track) => track.stop());
         setLocalStream(null);
-    }, [toast, setCurrentCall, setCallState, localStream, peerConnectionRef]);
+    }, [toast, setCurrentCall, setCallState, localStream, peerConnectionRef, setLocalStream]);
 
     const handleUserOffline = useCallback(() => {
         toast({
