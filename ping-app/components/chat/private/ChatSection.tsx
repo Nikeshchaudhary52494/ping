@@ -6,8 +6,7 @@ import MessageInput from "../shared/MessageInput";
 
 interface ChatSectionProps {
     params: {
-        privateChatId?: string;
-        groupChatId?: string
+        privateChatId: string;
     }
 }
 

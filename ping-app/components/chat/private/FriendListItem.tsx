@@ -1,58 +1,58 @@
-import { getOrCreatePrivateChatId } from "@/actions/chat/privateChat/getOrCreatePrivateChatId";
-import { User } from "lucide-react";
-import Image from "next/image";
+import { UserAvatar } from "@/components/user/UserAvatar";
 import { useRouter } from "next/navigation";
+import { useMemo } from "react";
 
 interface FriendListItemProps {
     imageUrl: string;
-    friendId: string;
     displayName: string;
     currentProfileId: string;
     isActive: boolean;
     isOnline: boolean;
+    privateChatId: string;
+    lastMessage?: {
+        createdAt: Date;
+        updatedAt: Date;
+        content: string | null;
+        isDeleted: boolean;
+    };
 }
 
 export default function FriendListItem({
     imageUrl,
     displayName,
-    friendId,
-    currentProfileId,
     isActive,
-    isOnline
+    isOnline,
+    privateChatId,
+    lastMessage,
 }: FriendListItemProps) {
+
     const router = useRouter();
 
-    const onClick = async (memberOne: string, memberTwo: string) => {
-        const privateChatId = await getOrCreatePrivateChatId(memberOne, memberTwo);
-        router.push(`/privateChat/${privateChatId}`);
-    };
+    // Format last message timestamp
+    const formattedTime = useMemo(() => {
+        return lastMessage?.createdAt
+            ? new Intl.DateTimeFormat("en-US", {
+                hour: "numeric",
+                minute: "numeric",
+                hour12: true,
+            }).format(new Date(lastMessage.createdAt))
+            : "";
+    }, [lastMessage?.createdAt]);
 
     return (
         <div
-            onClick={() => onClick(friendId, currentProfileId)}
+            onClick={() => router.push(`/privateChat/${privateChatId}`)}
             className={`flex gap-2 w-full relative hover:bg-[#2d3538] p-2 cursor-pointer ${isActive && `bg-[#252B2E]`}`}
         >
-            <div className="relative mx-3">
-                <div className="relative flex h-[48px] w-[48px] bg-[#252B2E] items-center justify-center rounded-full overflow-hidden">
-                    {imageUrl ? (
-                        <Image
-                            fill
-                            className="object-cover"
-                            src={imageUrl}
-                            alt="UserProfile"
-                        />
-                    ) : (
-                        <User className="text-slate-400" />
-                    )}
-
+            <UserAvatar imageUrl={imageUrl} isOnline={isOnline} className="mx-3" />
+            <div className="flex flex-col justify-between w-full">
+                <div className="flex justify-between">
+                    <span className="text-sm truncate">{displayName}</span>
+                    <p className="text-xs text-slate-400">{formattedTime}</p>
                 </div>
-                {isOnline && (
-                    <div className="bg-green-500 rounded-full h-3 w-3 absolute bottom-0 right-0 border-2 border-[#252B2E]" />
-                )}
-            </div>
-
-            <div className="flex flex-col">
-                <span className="text-sm">{displayName}</span>
+                <p className="mb-2 text-xs truncate max-w-40 text-slate-400">
+                    {lastMessage?.content || "No messages yet"}
+                </p>
             </div>
         </div>
     );

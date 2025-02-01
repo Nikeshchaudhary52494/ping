@@ -16,7 +16,7 @@ export default async function MainLayout({
 
     return (
         <div className="flex flex-col h-full sm:flex-row min-w-[300px] min-h-[300px] overflow-clip">
-            <aside className="self-start hidden h-full sm:block">
+            <aside className="self-start z-10 hidden h-full sm:block">
                 <Sidebar />
             </aside>
             <main className="flex-1">

@@ -5,7 +5,6 @@ import MessageItem from "./MessageItem";
 import { Message } from "@prisma/client";
 import { useMessage } from "@/components/providers/messageProvider";
 import { useSocketContext } from "@/components/providers/socketProvider";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 interface MessagesProps {
     messages: Message[];
@@ -43,7 +42,7 @@ export default function Messages({
 
     return (
         <div className="flex flex-col h-full space-y-2">
-            {messages && messages.map(({ content, senderId, fileUrl }, index) => (
+            {messages && messages.map(({ content, senderId, fileUrl, status, createdAt }, index) => (
                 <div
                     key={index}
                     className={`chat  ${userId === senderId ? `chat-end` : `chat-start`}`}>
@@ -51,6 +50,8 @@ export default function Messages({
                         content={content!}
                         fileUrl={fileUrl!}
                         isMine={userId === senderId}
+                        status={status}
+                        createdAt={createdAt}
                     />
                 </div>
             ))}

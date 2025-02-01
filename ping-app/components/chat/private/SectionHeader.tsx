@@ -5,8 +5,7 @@ import { ActionButtons } from "./ActionButtons";
 
 interface SectionHeaderProps {
     params: {
-        privateChatId?: string;
-        groupChatId?: string;
+        privateChatId: string;
     }
 }
 

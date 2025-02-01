@@ -3,54 +3,58 @@
 import FriendListItem from "./FriendListItem";
 import { useSocketContext } from "@/components/providers/socketProvider";
 import { useUser } from "@/components/providers/userProvider";
-import { User } from "@prisma/client";
+import { PrivateChat } from "@/types/prisma";
 import { useParams } from "next/navigation";
 
 interface FriendsListProps {
-    friendList: any;
+    privateChats: PrivateChat[]
 }
 
-export default function FriendList({ friendList }: FriendsListProps) {
+export default function FriendList({
+    privateChats
+}: FriendsListProps) {
+
     const { user } = useUser();
     const { onlineUsers } = useSocketContext();
     const params = useParams();
 
-    const chatId = params?.privateChatId as string;
+    const paramChatId = params?.privateChatId as string;
 
-    // Extract all friends from chats excluding the current user
-    const friends = friendList?.chats?.flatMap((chat: any) =>
-        chat.members.filter((friend: User) => friend.id !== user?.id)
-    ) || [];
+    const sortedPrivateChats = privateChats.sort((a, b) => {
+        const lastMessageA = a.messages.length > 0 ? a.messages[a.messages.length - 1].createdAt : new Date(0);
+        const lastMessageB = b.messages.length > 0 ? b.messages[b.messages.length - 1].createdAt : new Date(0);
 
-    const activeChat = friendList?.chats?.find((chat: any) => chat.id === chatId);
-    const activeFriend = activeChat?.members.find(
-        (friend: User) => friend.id !== user?.id
-    );
+        return new Date(lastMessageB).getTime() - new Date(lastMessageA).getTime();
+    });
 
     return (
         <div className="h-full">
             <p className="p-2">Messages</p>
             <div className="flex flex-col mt-2">
-
-                <FriendListItem
-                    currentProfileId={user?.id!}
-                    friendId={user?.id!}
-                    displayName={`${user?.displayName} (YOU)`}
-                    imageUrl={user?.imageUrl!}
-                    isOnline={false}
-                    isActive={activeChat && !activeFriend}
-                />
-
-                {friends.map((friend: User) => (
-                    <FriendListItem
-                        key={friend.id}
-                        currentProfileId={user?.id!}
-                        friendId={friend.id}
-                        displayName={friend.displayName}
-                        imageUrl={friend.imageUrl!}
-                        isOnline={onlineUsers.includes(friend.id)}
-                        isActive={activeFriend?.id === friend.id}
-                    />
+                {sortedPrivateChats.map(({ id, members, messages, type }) => (
+                    type == "PRIVATE" ? (
+                        <FriendListItem
+                            key={id}
+                            currentProfileId={user?.id!}
+                            displayName={members[0].displayName}
+                            imageUrl={members[0].imageUrl!}
+                            isOnline={onlineUsers.includes(members[0].id)}
+                            isActive={paramChatId == id}
+                            privateChatId={id}
+                            lastMessage={messages[0]}
+                        />
+                    ) : (
+                        <FriendListItem
+                            key={id}
+                            currentProfileId={user?.id!}
+                            displayName={user?.displayName! + "(YOU)"}
+                            imageUrl={user?.imageUrl!}
+                            isOnline={false}
+                            isActive={paramChatId == id}
+                            privateChatId={id}
+                            lastMessage={messages[0]}
+                        />
+                    )
                 ))}
             </div>
         </div>

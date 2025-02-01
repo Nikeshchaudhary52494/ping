@@ -28,11 +28,7 @@ export default async function Chatsection({
 
     return (
         <div className="flex flex-col h-full">
-            <div className="h-16">
-                <SectionHeader params={params} />
-
-            </div>
-
+            <SectionHeader params={params} />
             <div className="flex-1 p-2 overflow-y-auto">
                 <ChatMessages
                     chatId={chat?.id!}

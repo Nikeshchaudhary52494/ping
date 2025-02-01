@@ -1,5 +1,3 @@
-'use client';
-
 import { SearchIcon, User } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import {
@@ -17,7 +15,7 @@ import { GroupChat } from '@prisma/client';
 interface SearchbarProps {
     CurrentuserId: string,
     type: 'Group' | 'Private',
-    privateChatData?: {
+    searchData?: {
         id: string,
         username: string | null
         displayName: string,
@@ -28,7 +26,7 @@ interface SearchbarProps {
 
 export default function Searchbar({
     groupChatData,
-    privateChatData,
+    searchData,
     CurrentuserId,
     type
 }: SearchbarProps) {
@@ -73,7 +71,7 @@ export default function Searchbar({
                 <CommandInput placeholder="Search all channels and members" />
                 <CommandList>
                     <CommandEmpty>No Result Found</CommandEmpty>
-                    {type === 'Private' ? privateChatData?.map(({ displayName, imageUrl, username, id: userId }) => (
+                    {type === 'Private' ? searchData?.map(({ displayName, imageUrl, username, id: userId }) => (
                         <CommandItem
                             className='cursor-pointer'
                             key={username}
@@ -109,11 +107,11 @@ export default function Searchbar({
                                 <div
                                     className="relative flex mx-3 h-[48px] w-[48px] bg-[#252B2E] rounded-full overflow-hidden"
                                 >
-                                    <Image 
-                                    layout="fill"
-                                     className='object-contain p-1 bg-white' 
-                                     src={imageUrl || "/group.png"} 
-                                     alt={name} />
+                                    <Image
+                                        layout="fill"
+                                        className='object-contain p-1 bg-white'
+                                        src={imageUrl || "/group.png"}
+                                        alt={name} />
                                 </div>
                                 <div className='flex flex-col'>
                                     <span>

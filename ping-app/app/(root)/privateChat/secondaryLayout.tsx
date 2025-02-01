@@ -1,38 +1,29 @@
 "use client";
 
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode } from "react";
 import * as motion from "framer-motion/client";
 import Sidebar from "@/components/chat/private/Sidebar";
 import { useParams } from "next/navigation";
+import { PrivateChat } from "@/types/prisma";
+import { User } from "@prisma/client";
+import useScreenWidth from "@/app/hooks/useScreenWidth";
 
 interface SeconadaryLayoutProps {
     children: ReactNode;
     CurrentuserId: string;
-    privateChatData?: {
-        id: string;
-        username: string | null;
-        displayName: string;
-        imageUrl: string | null;
-    }[];
-    friendList: any;
+    privateChats: PrivateChat[];
+    searchData: User[]
 }
 
 export default function SeconadaryLayout({
     children,
-    privateChatData,
     CurrentuserId,
-    friendList
+    privateChats,
+    searchData
 }: SeconadaryLayoutProps) {
     const { privateChatId } = useParams();
-    const [screenWidth, setScreenWidth] = useState<number>(0);
 
-    // Handle screen resize
-    useEffect(() => {
-        const handleResize = () => setScreenWidth(window.innerWidth);
-        handleResize();
-        window.addEventListener("resize", handleResize);
-        return () => window.removeEventListener("resize", handleResize);
-    }, []);
+    const screenWidth = useScreenWidth();
 
     if (screenWidth === null) return null;
 
@@ -61,8 +52,8 @@ export default function SeconadaryLayout({
                     <Sidebar
                         isMobileDevice={isMobileDevice}
                         CurrentuserId={CurrentuserId}
-                        friendList={friendList}
-                        privateChatData={privateChatData}
+                        SearchData={searchData}
+                        privateChats={privateChats}
                     />
                 </motion.div>
             )
@@ -75,13 +66,13 @@ export default function SeconadaryLayout({
                     animate={{ x: 0 }}
                     transition={{ duration: 0.5 }}
                     exit={{ x: -400 }}
-                    className="min-w-64"
+                    className="min-w-80"
                 >
                     <Sidebar
                         isMobileDevice={isMobileDevice}
                         CurrentuserId={CurrentuserId}
-                        friendList={friendList}
-                        privateChatData={privateChatData}
+                        SearchData={searchData}
+                        privateChats={privateChats}
                     />
                 </motion.div>
                 <main className="w-full h-full text-center">{children}</main>

@@ -25,6 +25,7 @@ export const sendMessage = async (req: Request, res: Response): Promise<Response
                 fileUrl,
                 senderId,
                 chatId,
+                status: "SENT"
             }
         });
 

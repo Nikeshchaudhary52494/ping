@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 
-import SeconadaryLayout from "./security/secondaryLayout";
+import SeconadaryLayout from "./secondaryLayout";
 
 interface SettingsLayout {
     children: ReactNode;

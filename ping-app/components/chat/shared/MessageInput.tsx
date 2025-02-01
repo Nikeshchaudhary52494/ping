@@ -8,6 +8,7 @@ import { useUploadThing } from '@/lib/uploadthing';
 import { useMessage } from '@/components/providers/messageProvider';
 import axiosInstance from '@/lib/axiosConfig';
 import Image from 'next/image';
+import { Message } from '@prisma/client';
 
 interface MessageInputProps {
     senderId: string;
@@ -19,11 +20,11 @@ export default function MessageInput({
     receiverId
 }: MessageInputProps) {
 
-    const { addMessage } = useMessage();
+    const { addMessage, updateMessage, updateMessageStatus } = useMessage();
     const params = useParams();
     const chatId = params?.privateChatId || params?.groupChatId as string;
 
-    const [content, setContent] = useState<string>('');
+    const [content, setContent] = useState<string | null>(null);
     const [files, setFiles] = useState<File[]>([]);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
 
@@ -50,7 +51,7 @@ export default function MessageInput({
     const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
-        if (!content.trim() && files.length === 0) {
+        if (!content?.trim() && files.length === 0) {
             toast({ description: 'Message or image must not be empty.' });
             return;
         }
@@ -69,6 +70,22 @@ export default function MessageInput({
             }
         }
 
+        const tempMessage: Message = {
+            id: `temp-${Date.now()}`, // Temporary ID
+            content,
+            fileUrl,
+            senderId,
+            chatId: chatId.toString(),
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            isDeleted: false,
+            isEdited: false,
+            isForwarded: false,
+            status: 'PENDING'
+        };
+
+        addMessage(tempMessage);
+
         try {
             setContent('');
             setFiles([]);
@@ -82,12 +99,16 @@ export default function MessageInput({
                 fileUrl,
             });
 
-            addMessage(res.data);
+            // Replace the temporary message with the actual one from the server
+            updateMessage(tempMessage.id, res.data);
         } catch (error) {
             console.error('Failed to send message:', error);
             toast({ description: 'Failed to send message. Please try again later.' });
+            updateMessageStatus(tempMessage.id);
+
         }
     };
+
 
     return (
         <>
@@ -129,7 +150,7 @@ export default function MessageInput({
                 </button>
                 <input
                     type="text"
-                    value={content}
+                    value={content!}
                     onChange={(e) => setContent(e.target.value)}
                     placeholder="Type your message..."
                     className="w-full px-2 bg-transparent outline-none placeholder:text-state-400 placeholder:text-sm"

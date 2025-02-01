@@ -18,7 +18,7 @@ export default function SeconadaryLayout({
     groupChatData
 }: SeconadaryLayoutProps) {
     const { groupChatId } = useParams();
-    const [screenWidth, setScreenWidth] = useState<number>(0);
+    const [screenWidth, setScreenWidth] = useState<number | null>(null);
 
     // Handle screen resize
     useEffect(() => {

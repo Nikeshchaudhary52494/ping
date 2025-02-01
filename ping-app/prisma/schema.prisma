@@ -89,17 +89,26 @@ model GroupChat {
   updatedAt DateTime @updatedAt
 }
 
+enum messageStatus {
+  PENDING
+  FAILED
+  SENT
+  SEEN
+  DELETED
+}
+
 model Message {
-  id          String  @id @default(cuid())
+  id          String        @id @default(cuid())
   content     String?
   fileUrl     String?
-  isDeleted   Boolean @default(false)
-  isEdited    Boolean @default(false)
-  isForwarded Boolean @default(false)
-  sender      User    @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  isDeleted   Boolean       @default(false)
+  isEdited    Boolean       @default(false)
+  isForwarded Boolean       @default(false)
+  status      messageStatus @default(PENDING)
+  sender      User          @relation(fields: [senderId], references: [id], onDelete: Cascade)
   senderId    String
   chatId      String
-  chat        Chat    @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  chat        Chat          @relation(fields: [chatId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
