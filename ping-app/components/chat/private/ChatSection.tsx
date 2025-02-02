@@ -1,55 +1,86 @@
-import { getUser } from "@/actions/user/getUser";
-import ChatSectionHeader from "./SectionHeader";
-import ChatMessages from "../shared/Messages";
-import { db } from "@/lib/db";
+"use client";
+
+import { useEffect, useRef } from "react";
+import { Message, User } from "@prisma/client";
 import MessageInput from "../shared/MessageInput";
+import ChatMessages from "../shared/Messages";
+import SectionHeader from "./SectionHeader";
+import { useUser } from "@/components/providers/userProvider";
+import { useMessage } from "@/components/providers/messageProvider";
+import { Loader2 } from "lucide-react";
+import useChatScroll from "@/app/hooks/useChatScroll";
+import ChatWelcome from "../shared/ChatWelcome";
 
 interface ChatSectionProps {
     params: {
         privateChatId: string;
-    }
+    };
+    initialData: {
+        messages: Message[];
+        nextCursor: string | null;
+    };
+    members: User[];
 }
 
-export default async function ChatSection({
-    params
+export default function ChatSection({
+    params,
+    initialData,
+    members,
 }: ChatSectionProps) {
+    const scrollContainerRef = useRef<HTMLDivElement | null>(null);
+    const { user } = useUser();
+    const receiver = members.find((member) => member.id !== user?.id)
+    const { messages, setMessages } = useMessage();
 
-    const chat = await db.chat.findUnique({
-        where: {
-            id: params.privateChatId
-        },
-        include: {
-            messages: true,
-            members: true
-        }
-    })
+    const { toBottom, isLoading, loadMoreMessages, hasNextMessage, setToBottom }
+        = useChatScroll({
+            nextCursor: initialData.nextCursor,
+            scrollContainerRef, setMessages,
+            privateChatId: params.privateChatId
+        })
 
-    const { user } = await getUser();
-    const secondPerson = chat?.members.find(
-        (members) => members.id !== user?.id
-    );
+    useEffect(() => {
+        setMessages(initialData.messages);
+    }, [initialData.messages, setMessages]);
 
     return (
         <div className="relative flex flex-col h-full">
-            <div className="sticky top-0 z-20 w-full h-[64px] bg-[#1E1F22]">
-                <ChatSectionHeader params={params} />
+            <div className="w-full h-[64px] bg-[#1E1F22]">
+                <SectionHeader members={members} />
             </div>
-
-            <div className="flex-1 p-2 overflow-y-auto">
+            <div
+                ref={scrollContainerRef}
+                className="flex flex-col flex-1 p-2 overflow-y-scroll"
+            >
+                {!hasNextMessage && <ChatWelcome name={receiver?.displayName!} type="private" />}
+                {hasNextMessage && (
+                    <div className="flex justify-center">
+                        {isLoading ? (
+                            <Loader2 className="w-6 h-6 my-4 text-zinc-500 animate-spin" />
+                        ) : (
+                            <button
+                                onClick={() => loadMoreMessages()}
+                                className="my-4 text-xs transition text-zinc-500 hover:text-zinc-600 dark:text-zinc-400 dark:hover:text-zinc-300"
+                            >
+                                Load previous messages
+                            </button>
+                        )}
+                    </div>
+                )}
                 <ChatMessages
-                    chatId={chat?.id!}
-                    messages={chat?.messages!}
+                    messages={messages}
                     userId={user?.id!}
+                    toBottom={toBottom}
+                    setToBottom={setToBottom}
                 />
             </div>
-
-            <div className="sticky bottom-0 z-20 w-full p-3 bg-[#1E1F22] sm:border-l border-slate-200 border-opacity-10">
+            <div className="w-full p-3 bg-[#1E1F22] sm:border-l border-slate-200 border-opacity-10">
                 <MessageInput
                     senderId={user?.id!}
-                    receiverId={secondPerson?.id!}
+                    receiverId={receiver?.id}
+                    setToBottom={setToBottom}
                 />
             </div>
         </div>
-
     );
 }

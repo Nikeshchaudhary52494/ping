@@ -35,7 +35,6 @@ export default function IncomingCall({
 
             <div className="flex flex-col items-center gap-2">
                 <UserAvatar
-                    displayName={user?.displayName}
                     imageUrl={user?.imageUrl}
                     size={100}
                 />

@@ -9,16 +9,20 @@ import { useSocketContext } from "@/components/providers/socketProvider";
 interface MessagesProps {
     messages: Message[];
     userId: string;
-    chatId: string;
+    toBottom: boolean;
+    setToBottom: (set: boolean) => void;
 }
 
 export default function Messages({
-    userId, messages: initialMessages
+    userId,
+    toBottom,
+    messages: initialMessages,
 }: MessagesProps) {
 
     const { socket } = useSocketContext();
     const { messages, setMessages, addMessage } = useMessage();
     const messageEndRef = useRef<HTMLDivElement | null>(null);
+
 
     useEffect(() => {
         setMessages(initialMessages);
@@ -41,7 +45,8 @@ export default function Messages({
     }, [messages]);
 
     return (
-        <div className="flex flex-col h-full space-y-2">
+        <div
+            className="flex flex-col h-full space-y-2">
             {messages && messages.map(({ content, senderId, fileUrl, status, createdAt }, index) => (
                 <div
                     key={index}
@@ -55,7 +60,7 @@ export default function Messages({
                     />
                 </div>
             ))}
-            <div ref={messageEndRef} />
+            <div ref={toBottom ? messageEndRef : null} />
         </div>
     );
 }

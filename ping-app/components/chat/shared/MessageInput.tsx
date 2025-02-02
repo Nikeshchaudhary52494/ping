@@ -13,18 +13,20 @@ import { Message } from '@prisma/client';
 interface MessageInputProps {
     senderId: string;
     receiverId?: string;
+    setToBottom: (set: boolean) => void;
 }
 
 export default function MessageInput({
     senderId,
-    receiverId
+    receiverId,
+    setToBottom
 }: MessageInputProps) {
 
     const { addMessage, updateMessage, updateMessageStatus } = useMessage();
     const params = useParams();
     const chatId = params?.privateChatId || params?.groupChatId as string;
 
-    const [content, setContent] = useState<string | null>(null);
+    const [content, setContent] = useState<string>("");
     const [files, setFiles] = useState<File[]>([]);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
 
@@ -85,6 +87,7 @@ export default function MessageInput({
         };
 
         addMessage(tempMessage);
+        setToBottom(true);
 
         try {
             setContent('');
@@ -98,7 +101,6 @@ export default function MessageInput({
                 receiverId,
                 fileUrl,
             });
-
             // Replace the temporary message with the actual one from the server
             updateMessage(tempMessage.id, res.data);
         } catch (error) {

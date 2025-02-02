@@ -31,16 +31,17 @@ export default async function Chatsection({
             <SectionHeader params={params} />
             <div className="flex-1 p-2 overflow-y-auto">
                 <ChatMessages
-                    chatId={chat?.id!}
                     messages={chat?.messages!}
                     userId={user?.id!}
-
+                    toBottom={true}
+                    setToBottom={() => { }}
                 />
             </div>
 
             <div className="p-3 bg-[#1E1F22] sm:border-l-[1px] border-slate-200 border-opacity-10 ">
                 <MessageInput
                     senderId={user?.id!}
+                    setToBottom={() => { }}
                 />
             </div>
         </div>
