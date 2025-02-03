@@ -50,7 +50,7 @@ export default function Messages({
             {messages && messages.map(({ content, senderId, fileUrl, status, createdAt }, index) => (
                 <div
                     key={index}
-                    className={`chat  ${userId === senderId ? `chat-end` : `chat-start`}`}>
+                    className={`flex pb-4 ${userId === senderId ? `justify-end` : `justify-start`}`}>
                     <MessageItem
                         content={content!}
                         fileUrl={fileUrl!}

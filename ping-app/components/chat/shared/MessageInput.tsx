@@ -116,15 +116,18 @@ export default function MessageInput({
         <>
             {imagePreview && (
                 <div className="flex items-center gap-2 mb-3">
-                    <div className="relative">
-                        <Image
-                            src={imagePreview}
-                            alt="Preview"
-                            className="object-cover w-20 h-20 border rounded-lg border-zinc-700"
-                        />
+                    <div className="relative ">
+                        <div className='relative w-20 h-20 overflow-hidden border rounded-lg border-zinc-700'>
+                            <Image
+                                src={imagePreview}
+                                alt="Preview"
+                                fill
+                                className="object-cover "
+                            />
+                        </div>
                         <button
                             onClick={removeImage}
-                            className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-red-400 flex items-center justify-center"
+                            className="absolute -top-1.5 -right-1.5 p-1 rounded-full hover:bg-red-500 bg-red-400 flex items-center justify-center"
                             type="button"
                         >
                             <X size={10} />

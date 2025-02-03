@@ -55,7 +55,7 @@ export default function MessageItem({
     }, [checkWidth]);
 
     return (
-        <div className={`${fileUrl ? "rounded-md" : "chat-bubble"} ${isMine ? "chat-bubble-primary text-white" : ""}`}>
+        <div className={`${fileUrl ? "rounded-md" : "rounded-xl px-4 py-2"} ${isMine ? "bg-blue-500 rounded-tr-none text-white" : "rounded-tl-none bg-slate-700"}`}>
             {fileUrl && (
                 <div className="relative w-40 h-40">
                     <Image
