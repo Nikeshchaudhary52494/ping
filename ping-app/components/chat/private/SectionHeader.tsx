@@ -1,29 +1,26 @@
 import { HeaderProfile } from "./HeaderProfile";
 import { ActionButtons } from "./ActionButtons";
-import { User } from "@prisma/client";
-import { useUser } from "@/components/providers/userProvider";
+import { UserTab } from "@/types/prisma";
 
 interface SectionHeaderProps {
-    members: User[]
+    receiver: UserTab,
+    CurrectUser: UserTab
 }
 
-export default function SectionHeader({ members }: SectionHeaderProps) {
-
-    const { user } = useUser();
-
-    const secondPerson = members?.find(
-        (member) => member.id !== user?.id
-    );
+export default function SectionHeader({
+    receiver,
+    CurrectUser
+}: SectionHeaderProps) {
 
     return (
         <div className="w-full flex items-center justify-between px-4 sm:border-l-[1px] h-full border-slate-200 border-opacity-10 bg-[#1E1F22]">
             <HeaderProfile
-                user={secondPerson! || user}
-                isCurrentUser={!secondPerson}
+                user={receiver || CurrectUser}
+                isCurrentUser={!receiver}
             />
             <ActionButtons
-                currentUserId={user?.id!}
-                recipientId={secondPerson?.id!}
+                currentUserId={CurrectUser?.id}
+                recipientId={receiver?.id}
             />
         </div>
     );

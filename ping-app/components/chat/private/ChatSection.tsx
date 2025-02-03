@@ -27,6 +27,7 @@ export default function ChatSection({
     initialData,
     members,
 }: ChatSectionProps) {
+
     const scrollContainerRef = useRef<HTMLDivElement | null>(null);
     const { user } = useUser();
     const receiver = members.find((member) => member.id !== user?.id)
@@ -46,7 +47,7 @@ export default function ChatSection({
     return (
         <div className="relative flex flex-col h-full">
             <div className="w-full h-[64px] bg-[#1E1F22]">
-                <SectionHeader members={members} />
+                <SectionHeader receiver={receiver!} CurrectUser={user!} />
             </div>
             <div
                 ref={scrollContainerRef}

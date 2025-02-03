@@ -1,5 +1,8 @@
 import {
     Camera,
+    Copy,
+    Edit,
+    Forward,
     Lock,
     MessageCircle,
     Phone,
@@ -48,3 +51,9 @@ export const settingsTabs = [
         route: "/security"
     },
 ]
+
+export const actionButtons = [
+    { label: "Copy", Icon: Copy },
+    { label: "Edit", Icon: Edit },
+    { label: "Forward", Icon: Forward },
+];

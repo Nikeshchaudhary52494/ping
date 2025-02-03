@@ -46,20 +46,28 @@ export default function Messages({
 
     return (
         <div
-            className="flex flex-col h-full space-y-2">
-            {messages && messages.map(({ content, senderId, fileUrl, status, createdAt }, index) => (
-                <div
-                    key={index}
-                    className={`flex pb-4 ${userId === senderId ? `justify-end` : `justify-start`}`}>
-                    <MessageItem
-                        content={content!}
-                        fileUrl={fileUrl!}
-                        isMine={userId === senderId}
-                        status={status}
-                        createdAt={createdAt}
-                    />
-                </div>
-            ))}
+            className="flex flex-col h-full space-y-1">
+            {messages && messages.map(({ content, senderId, fileUrl, status, createdAt, isDeleted, isEdited }, index) => {
+                const isFirstMessage = index === 0 || messages[index - 1].senderId !== senderId;
+                const isLastMessage = messages[index + 1]?.senderId !== senderId;
+                return (
+                    <div
+                        key={index}
+                        className={`flex ${messages.length - 1 == index && `pb-4`} ${userId === senderId ? `justify-end` : `justify-start`}`}>
+                        <MessageItem
+                            content={content!}
+                            fileUrl={fileUrl!}
+                            isMine={userId === senderId}
+                            status={status}
+                            createdAt={createdAt}
+                            isFirstMessage={isFirstMessage}
+                            isLastMessage={isLastMessage}
+                            isDeleted={isDeleted}
+                            isEdited={isEdited}
+                        />
+                    </div>
+                )
+            })}
             <div ref={toBottom ? messageEndRef : null} />
         </div>
     );

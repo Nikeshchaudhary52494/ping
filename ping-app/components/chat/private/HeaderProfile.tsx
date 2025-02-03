@@ -2,10 +2,10 @@
 
 import { useSocketContext } from "@/components/providers/socketProvider";
 import { UserAvatar } from "@/components/user/UserAvatar";
-import { User } from "@prisma/client";
+import { UserTab } from "@/types/prisma";
 
 interface HeaderProfileProps {
-    user: User
+    user: UserTab
     isCurrentUser?: boolean;
 }
 

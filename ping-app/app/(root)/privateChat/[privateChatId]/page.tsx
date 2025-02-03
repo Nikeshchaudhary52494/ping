@@ -1,32 +1,35 @@
+import { Suspense } from "react";
 import { getPaginatedMessages } from "@/actions/chat/shared/getPaginatedMessages";
-import Chatsection from "@/components/chat/private/ChatSection";
-import { db } from "@/lib/db";
+import { db } from "@/lib/db"
+import ChatSection from "@/components/chat/private/ChatSection";
+import ChatSkeleton from "@/components/skeletons/Chat";
 
-interface chatsProps {
+interface ChatsProps {
     params: {
         privateChatId: string;
-    }
+    };
 }
 
-export default async function Page({ params }: chatsProps) {
-
-    const initialData = await getPaginatedMessages({ privateChatId: params.privateChatId });
-    const privateChat = await db.chat.findUnique({
-        where: {
-            id: params.privateChatId,
-        },
-        select: {
-            members: true
-        }
-    });
+async function ChatContent({ params }: ChatsProps) {
+    const [initialData, privateChat] = await Promise.all([
+        getPaginatedMessages({ privateChatId: params.privateChatId }),
+        db.chat.findUnique({
+            where: { id: params.privateChatId },
+            select: { members: true },
+        }),
+    ]);
 
     return (
-        <div className="h-full">
-            <Chatsection
-                params={params}
-                initialData={initialData}
-                members={privateChat?.members!}
-            />
-        </div>
-    )
+        <ChatSection params={params} initialData={initialData} members={privateChat?.members || []} />
+    );
 }
+
+export default function Page({ params }: ChatsProps) {
+    return (
+        <div className="h-full">
+            <Suspense fallback={< ChatSkeleton />}>
+                <ChatContent params={params} />
+            </Suspense>
+        </div>
+    );
+}  

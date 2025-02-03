@@ -1,8 +1,6 @@
-import { getUser } from "@/actions/user/getUser";
-import { db } from "@/lib/db";
 import { ReactNode } from 'react';
 import SeconadaryLayout from "./secondaryLayout";
-import { getPrivateChats } from "@/actions/chat/privateChat/getPrivateChats";
+import { verifyToken } from '@/lib/jwtUtils';
 
 interface PrivateChatLayoutProps {
     children: ReactNode;
@@ -11,16 +9,9 @@ interface PrivateChatLayoutProps {
 export default async function PrivateChatLayout({
     children
 }: PrivateChatLayoutProps) {
-
-    const { user } = await getUser();
-    const allUsers = await db.user.findMany();
-    const privateChats = await getPrivateChats(user?.id!);
-
+    const data = verifyToken();
     return (
-        <SeconadaryLayout
-            CurrentuserId={user?.id!}
-            privateChats={privateChats}
-            searchData={allUsers}>
+        <SeconadaryLayout CurrentuserId={data?.userId!}>
             {children}
         </ SeconadaryLayout>
     );

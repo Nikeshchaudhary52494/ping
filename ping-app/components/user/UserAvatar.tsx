@@ -17,7 +17,8 @@ export function UserAvatar({
     size = 48,
     className,
     isGroupAvatar,
-    isOnline }: UserAvatarProps) {
+    isOnline = false
+}: UserAvatarProps) {
 
     return (
         <div className={clsx("relative", className)}>

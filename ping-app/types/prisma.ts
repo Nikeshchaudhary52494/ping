@@ -17,3 +17,10 @@ export interface PrivateChat {
         status: messageStatus;
     }[];
 }
+
+export interface UserTab {
+    id: string;
+    displayName: string;
+    username: string | null;
+    imageUrl: string | null;
+}

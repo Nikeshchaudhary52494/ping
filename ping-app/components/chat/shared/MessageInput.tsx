@@ -2,7 +2,7 @@
 
 import { Image as ImageIcon, SendHorizonal, X } from 'lucide-react';
 import { useParams } from 'next/navigation';
-import React, { useRef, useState, ChangeEvent, FormEvent } from 'react';
+import React, { useRef, useState, ChangeEvent, FormEvent, useEffect } from 'react';
 import { toast } from '@/app/hooks/use-toast';
 import { useUploadThing } from '@/lib/uploadthing';
 import { useMessage } from '@/components/providers/messageProvider';
@@ -24,14 +24,20 @@ export default function MessageInput({
 
     const { addMessage, updateMessage, updateMessageStatus } = useMessage();
     const params = useParams();
+    const { startUpload } = useUploadThing("messageFile");
+
     const chatId = params?.privateChatId || params?.groupChatId as string;
 
+    const [imagePreview, setImagePreview] = useState<string | null>(null);
+    const [isFocused, setIsFocused] = useState(false);
     const [content, setContent] = useState<string>("");
     const [files, setFiles] = useState<File[]>([]);
-    const [imagePreview, setImagePreview] = useState<string | null>(null);
 
+    const inputRef = useRef<HTMLInputElement | null>(null);
+    const formRef = useRef<HTMLFormElement | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
-    const { startUpload } = useUploadThing("messageFile");
+
+
 
     const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -111,6 +117,19 @@ export default function MessageInput({
         }
     };
 
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (formRef.current && !formRef.current.contains(event.target as Node)) {
+                setIsFocused(false);
+            }
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
+
 
     return (
         <>
@@ -136,8 +155,10 @@ export default function MessageInput({
                 </div>
             )}
             <form
+                ref={formRef}
                 onSubmit={onSubmit}
-                className="flex bg-[#0D0D0E] p-2 items-center border rounded-full border-l-[1px] border-slate-200 border-opacity-10"
+                className="flex p-2 items-center border rounded-full border-l-[1px] border-slate-200 border-opacity-10"
+                onClick={() => setIsFocused(true)}
             >
                 <input
                     type="file"
@@ -148,24 +169,26 @@ export default function MessageInput({
                 />
                 <button
                     type="button"
-                    className={`flex items-center justify-center p-2 rounded-full bg-slate-700/20 ${imagePreview ? 'text-emerald-500' : 'text-zinc-400'}`}
+                    className={`flex items-center justify-center p-2 rounded-full bg-slate-700/20 ${imagePreview ? "text-emerald-500" : "text-zinc-400"}`}
                     onClick={() => fileInputRef.current?.click()}
                 >
                     <ImageIcon size={20} />
                 </button>
                 <input
                     type="text"
+                    ref={inputRef}
                     value={content!}
                     onChange={(e) => setContent(e.target.value)}
                     placeholder="Type your message..."
                     className="w-full px-2 bg-transparent outline-none placeholder:text-state-400 placeholder:text-sm"
+                    onFocus={() => setIsFocused(true)}
                 />
                 <button
                     type="submit"
-                    className="flex items-center text-slate-400 hover:bg-[#1E1F22] justify-center w-10 h-10 rounded-full"
+                    disabled={!fileInputRef.current?.value && !content}
+                    className="flex items-center disabled:hidden text-slate-400 hover:bg-[#1E1F22] justify-center p-2 rounded-full"
                 >
-                    <SendHorizonal size={20}
-                    />
+                    <SendHorizonal size={20} />
                 </button>
             </form>
         </>

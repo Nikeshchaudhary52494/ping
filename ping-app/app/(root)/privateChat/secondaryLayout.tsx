@@ -4,26 +4,22 @@ import { ReactNode } from "react";
 import * as motion from "framer-motion/client";
 import Sidebar from "@/components/chat/private/Sidebar";
 import { useParams } from "next/navigation";
-import { PrivateChat } from "@/types/prisma";
-import { User } from "@prisma/client";
 import useScreenWidth from "@/app/hooks/useScreenWidth";
+import { useUser } from "@/components/providers/userProvider";
 
 interface SeconadaryLayoutProps {
     children: ReactNode;
     CurrentuserId: string;
-    privateChats: PrivateChat[];
-    searchData: User[]
 }
 
 export default function SeconadaryLayout({
     children,
-    CurrentuserId,
-    privateChats,
-    searchData
+    CurrentuserId
 }: SeconadaryLayoutProps) {
     const { privateChatId } = useParams();
 
     const screenWidth = useScreenWidth();
+    const { user } = useUser();
 
     if (screenWidth === null) return null;
 
@@ -52,8 +48,6 @@ export default function SeconadaryLayout({
                     <Sidebar
                         isMobileDevice={isMobileDevice}
                         CurrentuserId={CurrentuserId}
-                        SearchData={searchData}
-                        privateChats={privateChats}
                     />
                 </motion.div>
             )
@@ -71,8 +65,6 @@ export default function SeconadaryLayout({
                     <Sidebar
                         isMobileDevice={isMobileDevice}
                         CurrentuserId={CurrentuserId}
-                        SearchData={searchData}
-                        privateChats={privateChats}
                     />
                 </motion.div>
                 <main className="w-full h-full text-center">{children}</main>
