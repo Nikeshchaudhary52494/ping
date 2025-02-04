@@ -1,10 +1,10 @@
 "use client";
 
-import FriendListItem from "./FriendListItem";
 import { useSocketContext } from "@/components/providers/socketProvider";
 import { useUser } from "@/components/providers/userProvider";
 import { PrivateChat } from "@/types/prisma";
 import { useParams } from "next/navigation";
+import ChatListItem from "./ChatListItem";
 
 interface FriendsListProps {
     privateChats: PrivateChat[]
@@ -33,25 +33,23 @@ export default function FriendList({
             <div className="flex flex-col mt-2">
                 {sortedPrivateChats.map(({ id, members, messages, type }) => (
                     type == "PRIVATE" ? (
-                        <FriendListItem
+                        <ChatListItem
                             key={id}
-                            currentProfileId={user?.id!}
-                            displayName={members[0].displayName}
+                            name={members[0].displayName}
                             imageUrl={members[0].imageUrl!}
                             isOnline={onlineUsers.includes(members[0].id)}
                             isActive={paramChatId == id}
-                            privateChatId={id}
+                            chatId={id}
                             lastMessage={messages[0]}
                         />
                     ) : (
-                        <FriendListItem
+                        <ChatListItem
                             key={id}
-                            currentProfileId={user?.id!}
-                            displayName={user?.displayName! + "(YOU)"}
+                            name={user?.displayName! + "(YOU)"}
                             imageUrl={user?.imageUrl!}
                             isOnline={false}
                             isActive={paramChatId == id}
-                            privateChatId={id}
+                            chatId={id}
                             lastMessage={messages[0]}
                         />
                     )

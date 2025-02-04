@@ -1,5 +1,5 @@
 import { Settings } from "lucide-react";
-import Header from "../shared/Header";
+import Header from "./Header";
 import { useRouter } from "next/navigation";
 
 interface SidebarHeaderProps {

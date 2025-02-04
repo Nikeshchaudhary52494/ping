@@ -10,24 +10,19 @@ import {
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { getOrCreatePrivateChatId } from '@/actions/chat/privateChat/getOrCreatePrivateChatId';
-import { GroupChat } from '@prisma/client';
+import { GroupSearchData, UserTab } from '@/types/prisma';
 
 interface SearchbarProps {
     CurrentuserId: string,
     type: 'Group' | 'Private',
-    searchData?: {
-        id: string,
-        username: string | null
-        displayName: string,
-        imageUrl: string | null
-    }[];
-    groupChatData?: GroupChat[]
+    privateSearchData?: UserTab[];
+    groupSearchData?: GroupSearchData[];
 }
 
 export default function Searchbar({
-    groupChatData,
-    searchData,
     CurrentuserId,
+    privateSearchData,
+    groupSearchData,
     type
 }: SearchbarProps) {
 
@@ -71,11 +66,11 @@ export default function Searchbar({
                 <CommandInput placeholder="Search all channels and members" />
                 <CommandList>
                     <CommandEmpty>No Result Found</CommandEmpty>
-                    {type === 'Private' ? searchData?.map(({ displayName, imageUrl, username, id: userId }) => (
+                    {type === 'Private' ? privateSearchData?.map(({ displayName, id, imageUrl, username }) => (
                         <CommandItem
                             className='cursor-pointer'
-                            key={username}
-                            onSelect={() => onClick(userId, CurrentuserId)}
+                            key={id}
+                            onSelect={() => onClick(id, CurrentuserId)}
                         >
                             <div
                                 className="relative flex mx-3 h-[48px] w-[48px] bg-[#252B2E] items-center justify-center rounded-full overflow-hidden"
@@ -90,7 +85,7 @@ export default function Searchbar({
                             <div className='flex flex-col'>
                                 <span>
                                     {displayName}
-                                    {CurrentuserId === userId && (
+                                    {CurrentuserId === id && (
                                         <span>{"  "}(YOU)</span>
                                     )}
                                 </span>
@@ -98,7 +93,7 @@ export default function Searchbar({
                             </div>
                         </CommandItem>
                     )) :
-                        groupChatData?.map(({ name, id, imageUrl }) => (
+                        groupSearchData?.map(({ id, imageUrl, name }) => (
                             <CommandItem
                                 className='cursor-pointer'
                                 key={id}

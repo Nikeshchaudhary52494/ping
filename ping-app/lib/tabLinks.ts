@@ -1,5 +1,4 @@
 import {
-    Camera,
     Copy,
     Edit,
     Forward,
@@ -7,6 +6,7 @@ import {
     MessageCircle,
     Phone,
     Settings,
+    Star,
     UserRoundCog,
     UsersRound
 } from "lucide-react";
@@ -26,11 +26,6 @@ export const navigationTabs = [
         icon: Phone,
         label: "Calls",
         route: "/calls"
-    },
-    {
-        icon: Camera,
-        label: "Video calls",
-        route: "/video-calls"
     },
     {
         icon: Settings,

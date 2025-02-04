@@ -20,8 +20,15 @@ import { useUploadThing } from "@/lib/uploadthing";
 import { createGroup } from "@/actions/chat/groupChat/createGroup";
 import { useUser } from "@/components/providers/userProvider";
 import { Textarea } from "@/components/ui/textarea";
+import { toast } from "@/app/hooks/use-toast";
 
-export default function CreateGroupForm() {
+interface CreateGroupFormProps {
+    setIsOpen: (value: boolean) => void;
+}
+
+export default function CreateGroupForm({
+    setIsOpen
+}: CreateGroupFormProps) {
 
     const [files, setFiles] = useState<File[]>([]);
     const { startUpload } = useUploadThing("UserImage");
@@ -55,9 +62,18 @@ export default function CreateGroupForm() {
                     imageUrl: values.imageUrl,
                     name: values.name
                 })
+                toast({
+                    description: "Group created"
+                })
             }
             catch (error) {
-                console.error("Error updating profile:", error);
+                console.error("Error creating form:", error);
+                toast({
+                    description: "Error creating Group",
+                    variant: "destructive"
+                })
+            } finally {
+                setIsOpen(false)
             }
         })
     };

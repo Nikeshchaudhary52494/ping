@@ -1,28 +1,21 @@
 import { ReactNode } from 'react';
-import SeconadaryLayout from './secondaryLayout';
-import { getUser } from '@/actions/user/getUser';
-import { db } from '@/lib/db';
+import { verifyToken } from '@/lib/jwtUtils';
+import SeconadaryLayout from '@/components/chat/secondaryLayout';
 
 interface GroupChatLayoutProps {
     children: ReactNode;
 }
 
-export default async function GroupChatLayout({ children }: GroupChatLayoutProps) {
-    const { user } = await getUser();
-    const myGroup = await db.groupChat.findMany({
-        where: {
-            members: {
-                some: {
-                    id: user?.id
-                }
-            }
-        }
-    });
+export default async function GroupChatLayout({
+    children
+}: GroupChatLayoutProps) {
+
+    const data = verifyToken();
     return (
         <SeconadaryLayout
-            CurrentuserId={user?.id!}
-            groupChatData={myGroup} >
+            type='Group'
+            CurrentuserId={data?.userId!}>
             {children}
-        </SeconadaryLayout>
+        </ SeconadaryLayout>
     );
 };

@@ -2,43 +2,53 @@
 
 import { useEffect, useRef } from "react";
 import { Message, User } from "@prisma/client";
-import MessageInput from "../shared/MessageInput";
-import ChatMessages from "../shared/Messages";
-import SectionHeader from "./SectionHeader";
+import MessageInput from "./MessageInput";
+import ChatMessages from "./Messages";
 import { useUser } from "@/components/providers/userProvider";
 import { useMessage } from "@/components/providers/messageProvider";
 import { Loader2 } from "lucide-react";
 import useChatScroll from "@/app/hooks/useChatScroll";
-import ChatWelcome from "../shared/ChatWelcome";
+import ChatWelcome from "./ChatWelcome";
+import ChatHeader from "./ChatHeader";
+import { GroupChatData } from "@/types/prisma";
 
 interface ChatSectionProps {
-    params: {
-        privateChatId: string;
-    };
     initialData: {
         messages: Message[];
         nextCursor: string | null;
     };
-    members: User[];
+    chatType: "private" | "group";
+    members?: User[]; // Only for private chat
+    groupChatData?: GroupChatData; // Only for group chat
+    privateChatId?: string; // Only for private chat
 }
 
 export default function ChatSection({
-    params,
     initialData,
+    chatType,
     members,
+    groupChatData,
+    privateChatId,
 }: ChatSectionProps) {
-
     const scrollContainerRef = useRef<HTMLDivElement | null>(null);
     const { user } = useUser();
-    const receiver = members.find((member) => member.id !== user?.id)
     const { messages, setMessages } = useMessage();
+
+    const receiver = chatType === "private"
+        ? members?.find((member) => member.id !== user?.id)
+        : null;
+
+    const receiversId = chatType === "group"
+        ? groupChatData?.members.filter((member) => member.id !== user?.id)
+        : [];
 
     const { toBottom, isLoading, loadMoreMessages, hasNextMessage, setToBottom }
         = useChatScroll({
             nextCursor: initialData.nextCursor,
-            scrollContainerRef, setMessages,
-            privateChatId: params.privateChatId
-        })
+            scrollContainerRef,
+            setMessages,
+            privateChatId: privateChatId ?? groupChatData?.chatId!,
+        });
 
     useEffect(() => {
         setMessages(initialData.messages);
@@ -46,14 +56,27 @@ export default function ChatSection({
 
     return (
         <div className="relative flex flex-col h-full">
+            {/* Chat Header */}
             <div className="w-full h-[64px] bg-[#1E1F22]">
-                <SectionHeader receiver={receiver!} CurrectUser={user!} />
+                {chatType === "group" ? (
+                    <ChatHeader
+                        name={groupChatData!.name}
+                        imageUrl={groupChatData!.imageUrl!}
+                        isGroupChat={true}
+                    />
+                ) : (
+                    <ChatHeader currentUser={user!} receiver={receiver!} />
+                )}
             </div>
-            <div
-                ref={scrollContainerRef}
-                className="flex flex-col flex-1 p-2 overflow-y-scroll"
-            >
-                {!hasNextMessage && <ChatWelcome name={receiver?.displayName!} type="private" />}
+
+            {/* Messages */}
+            <div ref={scrollContainerRef} className="flex flex-col flex-1 p-2 overflow-y-scroll">
+                {!hasNextMessage && (
+                    <ChatWelcome
+                        name={chatType === "group" ? groupChatData!.name : receiver?.displayName! || user?.displayName!}
+                        type={chatType}
+                    />
+                )}
                 {hasNextMessage && (
                     <div className="flex justify-center">
                         {isLoading ? (
@@ -75,12 +98,14 @@ export default function ChatSection({
                     setToBottom={setToBottom}
                 />
             </div>
+
+            {/* Message Input */}
             <div className="w-full p-3 bg-[#1E1F22] sm:border-l border-slate-200 border-opacity-10">
-                <MessageInput
-                    senderId={user?.id!}
-                    receiverId={receiver?.id}
-                    setToBottom={setToBottom}
-                />
+                {chatType === "group" ? (
+                    <MessageInput senderId={user?.id!} receiversId={receiversId} setToBottom={setToBottom} />
+                ) : (
+                    <MessageInput senderId={user?.id!} receiverId={receiver?.id} setToBottom={setToBottom} />
+                )}
             </div>
         </div>
     );

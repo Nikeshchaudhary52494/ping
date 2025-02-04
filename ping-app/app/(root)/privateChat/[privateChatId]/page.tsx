@@ -1,8 +1,8 @@
 import { Suspense } from "react";
 import { getPaginatedMessages } from "@/actions/chat/shared/getPaginatedMessages";
 import { db } from "@/lib/db"
-import ChatSection from "@/components/chat/private/ChatSection";
 import ChatSkeleton from "@/components/skeletons/Chat";
+import ChatSection from "@/components/chat/ChatSection";
 
 interface ChatsProps {
     params: {
@@ -20,7 +20,13 @@ async function ChatContent({ params }: ChatsProps) {
     ]);
 
     return (
-        <ChatSection params={params} initialData={initialData} members={privateChat?.members || []} />
+        <ChatSection
+            chatType="private"
+            initialData={initialData}
+            privateChatId={params.privateChatId}
+            members={privateChat?.members!}
+        />
+
     );
 }
 

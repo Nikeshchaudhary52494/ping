@@ -41,7 +41,6 @@ export default function MessageItem({
     isEdited,
 }: MessageItemProps) {
     const containerRef = useRef<HTMLDivElement>(null);
-    const screenWidth = useScreenWidth();
 
     const [imageSize, setImageSize] = useState({ width: 100, height: 100 });
     const [isPopOpen, setPopOpen] = useState(false);
@@ -59,7 +58,6 @@ export default function MessageItem({
         }
     }, [fileUrl]);
 
-    const isMobileDevice = screenWidth! < 640;
 
     // Memoizing formatted time to prevent recalculations on every render
     const formattedTime = useMemo(
@@ -77,7 +75,7 @@ export default function MessageItem({
             <div className={`
                 ${fileUrl ? "rounded-md" : "rounded-[18px] px-[12px] py-[7px] "} 
                 ${isMine ?
-                    `bg-[#3797F0] rounded-r-[4px]
+                    `${status == "FAILED" ? "bg-red-400" : "bg-[#3797F0]"} rounded-r-[4px]
                      ${isFirstMessage && !fileUrl && "rounded-tr-[18px]"} 
                     ${isLastMessage && !fileUrl && "rounded-br-[18px]"}`
                     : `bg-[#262626] rounded-l-[4px] 
@@ -101,7 +99,7 @@ export default function MessageItem({
                         <div
                             ref={containerRef}
                             className={`flex relative w-full gap-2`}>
-                            <p className={`sm:max-w-96 max-w-64 tsxt-sm sm:text-base break-words text-start ${fileUrl ? "p-2" : ""} `}>
+                            <p className={`sm:max-w-[50vw] max-w-[60vw] text-sm sm:text-base break-words text-start ${fileUrl ? "p-2" : ""} `}>
                                 {content}
                             </p>
                         </div>

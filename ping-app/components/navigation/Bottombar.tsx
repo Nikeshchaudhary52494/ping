@@ -2,6 +2,7 @@
 
 import { navigationTabs } from '@/lib/tabLinks';
 import { usePathname, useRouter } from 'next/navigation';
+import ActionButton from './ActionButton';
 
 export default function Bottombar() {
 
@@ -15,7 +16,7 @@ export default function Bottombar() {
         }
     }
     return (
-        <div className='flex items-center border-t-[1px] border-slate-200 border-opacity-10 dark:bg-[#1E1F22] bg-[#E3E5E8] py-3 justify-evenly'>
+        <div className='flex items-center h-full border-t-[1px] border-slate-200 border-opacity-10 dark:bg-[#1E1F22] bg-[#E3E5E8] py-3 justify-evenly'>
             {
                 navigationTabs.map((item) => {
                     const Icon = item.icon;
@@ -37,6 +38,10 @@ export default function Bottombar() {
                     );
                 })
             }
+            <div className='flex flex-col items-center'>
+                <ActionButton size='sm' />
+                <p className="text-xs  text-slate-400">Add</p>
+            </div>
         </div>
     );
 };

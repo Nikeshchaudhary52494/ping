@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import SeconadaryLayout from "./secondaryLayout";
+import SeconadaryLayout from "../../../components/chat/secondaryLayout";
 import { verifyToken } from '@/lib/jwtUtils';
 
 interface PrivateChatLayoutProps {
@@ -11,7 +11,7 @@ export default async function PrivateChatLayout({
 }: PrivateChatLayoutProps) {
     const data = verifyToken();
     return (
-        <SeconadaryLayout CurrentuserId={data?.userId!}>
+        <SeconadaryLayout type='Private' CurrentuserId={data?.userId!}>
             {children}
         </ SeconadaryLayout>
     );

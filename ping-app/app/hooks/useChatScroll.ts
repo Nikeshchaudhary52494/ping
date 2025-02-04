@@ -87,7 +87,7 @@ export default function useChatScroll({
         return () => {
             scrollContainer.removeEventListener("scroll", handleScroll);
         };
-    }, [loadMoreMessages]);
+    }, [loadMoreMessages, scrollContainerRef]);
 
     return { toBottom, isLoading, loadMoreMessages, hasNextMessage, setToBottom };
 }

@@ -1,30 +1,27 @@
 import { UserAvatar } from "@/components/user/UserAvatar";
+import { LastMessage } from "@/types/prisma";
 import { useRouter } from "next/navigation";
 import { useMemo } from "react";
 
-interface FriendListItemProps {
-    imageUrl: string;
-    displayName: string;
-    currentProfileId: string;
-    isActive: boolean;
-    isOnline: boolean;
-    privateChatId: string;
-    lastMessage?: {
-        createdAt: Date;
-        updatedAt: Date;
-        content: string | null;
-        isDeleted: boolean;
-    };
+interface ChatListItemProps {
+    imageUrl: string | null;
+    name: string;
+    chatId: string;
+    isActive?: boolean;
+    isOnline?: boolean;
+    lastMessage?: LastMessage;
+    isGroupChat?: boolean;
 }
 
-export default function FriendListItem({
+export default function ChatListItem({
     imageUrl,
-    displayName,
-    isActive,
-    isOnline,
-    privateChatId,
+    name,
+    chatId,
+    isActive = false,
+    isOnline = false,
     lastMessage,
-}: FriendListItemProps) {
+    isGroupChat = false,
+}: ChatListItemProps) {
 
     const router = useRouter();
 
@@ -41,13 +38,13 @@ export default function FriendListItem({
 
     return (
         <div
-            onClick={() => router.push(`/privateChat/${privateChatId}`)}
-            className={`flex gap-2 w-full relative hover:bg-[#2d3538] p-2 cursor-pointer ${isActive && `bg-[#252B2E]`}`}
+            onClick={() => router.push(isGroupChat ? `/groupChat/${chatId}` : `/privateChat/${chatId}`)}
+            className={`flex gap-2 w-full relative hover:bg-[#2d3538] p-2 cursor-pointer ${isActive ? "bg-[#252B2E]" : ""}`}
         >
-            <UserAvatar imageUrl={imageUrl} isOnline={isOnline} className="mx-3" />
+            <UserAvatar imageUrl={imageUrl} isOnline={isGroupChat ? false : isOnline} className="mx-3" />
             <div className="flex flex-col justify-between w-full">
                 <div className="flex justify-between">
-                    <span className="text-sm truncate">{displayName}</span>
+                    <span className="text-sm truncate">{name}</span>
                     <p className="text-xs text-slate-400">{formattedTime}</p>
                 </div>
                 <p className="mb-2 text-xs truncate max-w-40 text-slate-400">

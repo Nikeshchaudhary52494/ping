@@ -2,17 +2,16 @@
 
 import { db } from "@/lib/db";
 
-export default async function getSearchData() {
+export default async function getGroupSearchData() {
     try {
-        const searchData = await db.user.findMany({
+        const groupSearchData = await db.groupChat.findMany({
             select: {
                 id: true,
                 imageUrl: true,
-                displayName: true,
-                username: true,
+                name: true,
             }
         });
-        return searchData;
+        return groupSearchData;
     } catch (error) {
         console.log("Error getingSeacrhData", error);
     }

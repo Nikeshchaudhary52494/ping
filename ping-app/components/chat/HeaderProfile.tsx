@@ -18,20 +18,20 @@ export function HeaderProfile({
     const isOnline = onlineUsers.includes(user.id);
 
     return (
-        <div className="flex items-center md:gap-2">
+        <div className="flex items-center">
             <div className="mx-3">
                 <UserAvatar
                     imageUrl={user.imageUrl}
                     isOnline={isOnline && !isCurrentUser}
                 />
             </div>
-            <div className="flex flex-col text-xs">
+            <div className="flex text-start flex-col text-xs">
                 <span className="font-medium">
                     {user.displayName}
                     {isCurrentUser && " (YOU)"}
                 </span>
                 {!isCurrentUser && user.username && (
-                    <span className="text-xs text-start text-slate-400">
+                    <span className="text-xs text-slate-400">
                         @{user.username}
                     </span>
                 )}

@@ -14,12 +14,16 @@ interface MessageInputProps {
     senderId: string;
     receiverId?: string;
     setToBottom: (set: boolean) => void;
+    receiversId?: {
+        id: string;
+    }[];
 }
 
 export default function MessageInput({
     senderId,
     receiverId,
-    setToBottom
+    setToBottom,
+    receiversId
 }: MessageInputProps) {
 
     const { addMessage, updateMessage, updateMessageStatus } = useMessage();
@@ -111,7 +115,7 @@ export default function MessageInput({
             updateMessage(tempMessage.id, res.data);
         } catch (error) {
             console.error('Failed to send message:', error);
-            toast({ description: 'Failed to send message. Please try again later.' });
+            toast({ description: 'Failed to send message. Please try again later.', variant: "destructive" });
             updateMessageStatus(tempMessage.id);
 
         }

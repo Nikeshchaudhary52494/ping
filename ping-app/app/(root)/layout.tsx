@@ -3,6 +3,7 @@ import Bottombar from '@/components/navigation/Bottombar';
 import Sidebar from '@/components/navigation/Sidebar';
 import { redirect } from 'next/navigation';
 import { ReactNode } from 'react';
+import * as motion from "framer-motion/client";
 
 export default async function MainLayout({
     children,
@@ -15,16 +16,21 @@ export default async function MainLayout({
     if (!user?.onboarded) redirect("/onboarding");
 
     return (
-        <div className="flex flex-col h-full sm:flex-row min-w-[300px] min-h-[300px] overflow-clip">
-            <aside className="self-start z-10 hidden h-full sm:block">
+        <div className="flex flex-col h-screen sm:flex-row">
+            <aside className="z-10 hidden h-full sm:block">
                 <Sidebar />
             </aside>
-            <main className="flex-1">
+            <main className="flex-1 overflow-y-auto">
                 {children}
             </main>
-            <div className="w-full sm:hidden">
+            <motion.div
+                initial={{ x: -400 }}
+                animate={{ x: 0 }}
+                transition={{ duration: 0.2 }}
+                exit={{ x: -400 }}
+                className="w-full h-20 sm:hidden">
                 <Bottombar />
-            </div>
+            </motion.div>
         </div>
     );
 };
