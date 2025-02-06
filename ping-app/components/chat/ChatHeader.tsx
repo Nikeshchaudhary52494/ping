@@ -20,7 +20,7 @@ export default function ChatHeader({
 }: ChatHeaderProps) {
 
     return (
-        <div className="w-full flex items-center justify-between px-4 sm:border-l-[1px] h-full border-slate-200 border-opacity-10 bg-[#1E1F22]">
+        <div className="w-full flex items-center justify-between px-4 border-secondary-foreground/10 border-l h-full bg-secondary">
             {isGroupChat ? (
                 <div className="flex gap-2 items-center">
                     <UserAvatar imageUrl={imageUrl || ""} isGroupAvatar={true} />

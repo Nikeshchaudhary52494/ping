@@ -4,6 +4,7 @@ import {
     Forward,
     Lock,
     MessageCircle,
+    Palette,
     Phone,
     Settings,
     Star,
@@ -39,6 +40,11 @@ export const settingsTabs = [
         icon: UserRoundCog,
         label: "Profile",
         route: "/profile"
+    },
+    {
+        icon: Palette,
+        label: "Theme",
+        route: "/theme"
     },
     {
         icon: Lock,

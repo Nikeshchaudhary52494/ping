@@ -31,7 +31,7 @@ export function HeaderProfile({
                     {isCurrentUser && " (YOU)"}
                 </span>
                 {!isCurrentUser && user.username && (
-                    <span className="text-xs text-slate-400">
+                    <span className="text-xs text-primary">
                         @{user.username}
                     </span>
                 )}

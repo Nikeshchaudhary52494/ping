@@ -11,6 +11,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { getOrCreatePrivateChatId } from '@/actions/chat/privateChat/getOrCreatePrivateChatId';
 import { GroupSearchData, UserTab } from '@/types/prisma';
+import { UserAvatar } from '../user/UserAvatar';
 
 interface SearchbarProps {
     CurrentuserId: string,
@@ -51,14 +52,14 @@ export default function Searchbar({
     return (
         <>
             <button
-                className="flex items-center w-full px-2 py-2 transition-all border group border-slate-400/50 rounded-xl gap-x-2 hover:bg-zinc-700/10 dark:hover:bg-zinc-700/50"
+                className="flex items-center w-full px-2 py-2 transition-all border-primary hover:bg-background/50 border group rounded-xl gap-x-2"
                 onClick={() => setOpen(!open)}
             >
-                <SearchIcon className="w-4 h-4 text-zinc-500 dark:text-zinc-400" />
-                <p className="text-sm font-semibold transition text-zinc-500 dark:text-zinc-400 group-hover:text-zinc-600 dark:group-hover:text-zinc-300">
+                <SearchIcon className="w-4 h-4" />
+                <p className="text-sm font-semibold transition">
                     Search
                 </p>
-                <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground ml-auto">
+                <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-primary text-primary-foreground px-1.5 font-mono text-[10px] font-medium ml-auto">
                     <span className="text-xs ">⌘</span>K
                 </kbd>
             </button>
@@ -72,16 +73,7 @@ export default function Searchbar({
                             key={id}
                             onSelect={() => onClick(id, CurrentuserId)}
                         >
-                            <div
-                                className="relative flex mx-3 h-[48px] w-[48px] bg-[#252B2E] items-center justify-center rounded-full overflow-hidden"
-                            >
-                                {imageUrl ?
-                                    <Image
-                                        fill
-                                        src={imageUrl}
-                                        alt="UserProfile" /> :
-                                    <User className="text-slate-400" />}
-                            </div>
+                           <UserAvatar imageUrl={imageUrl}/>
                             <div className='flex flex-col'>
                                 <span>
                                     {displayName}
@@ -99,15 +91,7 @@ export default function Searchbar({
                                 key={id}
                                 onSelect={() => { }}
                             >
-                                <div
-                                    className="relative flex mx-3 h-[48px] w-[48px] bg-[#252B2E] rounded-full overflow-hidden"
-                                >
-                                    <Image
-                                        layout="fill"
-                                        className='object-contain p-1 bg-white'
-                                        src={imageUrl || "/group.png"}
-                                        alt={name} />
-                                </div>
+                                <UserAvatar imageUrl={imageUrl} isGroupAvatar={true} />
                                 <div className='flex flex-col'>
                                     <span>
                                         {name}

@@ -140,7 +140,7 @@ export default function MessageInput({
             {imagePreview && (
                 <div className="flex items-center gap-2 mb-3">
                     <div className="relative ">
-                        <div className='relative w-20 h-20 overflow-hidden border rounded-lg border-zinc-700'>
+                        <div className='relative w-20 h-20 overflow-hidden border rounded-lg border-secondary-foreground/20'>
                             <Image
                                 src={imagePreview}
                                 alt="Preview"
@@ -161,7 +161,7 @@ export default function MessageInput({
             <form
                 ref={formRef}
                 onSubmit={onSubmit}
-                className="flex p-2 items-center border rounded-full border-l-[1px] border-slate-200 border-opacity-10"
+                className="flex p-2 items-center border rounded-full border-primary/50"
                 onClick={() => setIsFocused(true)}
             >
                 <input
@@ -173,7 +173,7 @@ export default function MessageInput({
                 />
                 <button
                     type="button"
-                    className={`flex items-center justify-center p-2 rounded-full bg-slate-700/20 ${imagePreview ? "text-emerald-500" : "text-zinc-400"}`}
+                    className={`flex items-center justify-center p-2 rounded-full text-primary-foreground bg-primary ${imagePreview && "text-emerald-500"}`}
                     onClick={() => fileInputRef.current?.click()}
                 >
                     <ImageIcon size={20} />
@@ -184,13 +184,13 @@ export default function MessageInput({
                     value={content!}
                     onChange={(e) => setContent(e.target.value)}
                     placeholder="Type your message..."
-                    className="w-full px-2 bg-transparent outline-none placeholder:text-state-400 placeholder:text-sm"
+                    className="w-full px-2 bg-transparent outline-none placeholder:text-sm"
                     onFocus={() => setIsFocused(true)}
                 />
                 <button
                     type="submit"
                     disabled={!fileInputRef.current?.value && !content}
-                    className="flex items-center disabled:hidden text-slate-400 hover:bg-[#1E1F22] justify-center p-2 rounded-full"
+                    className="flex items-center disabled:hidden text-slate-400 hover:bg-primary/40 hover:text-primary-foreground justify-center p-2 rounded-full"
                 >
                     <SendHorizonal size={20} />
                 </button>

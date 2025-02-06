@@ -19,7 +19,7 @@ export default async function RootLayout({
     if (user) redirect("/")
 
     return (
-        <div className="flex bg-[#020817] h-full">
+        <div className="flex bg-secondary h-full">
             <div className="relative hidden w-1/3 sm:block">
                 <Image
                     fill

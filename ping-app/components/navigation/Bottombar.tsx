@@ -16,7 +16,7 @@ export default function Bottombar() {
         }
     }
     return (
-        <div className='flex items-center h-full border-t-[1px] border-slate-200 border-opacity-10 dark:bg-[#1E1F22] bg-[#E3E5E8] py-3 justify-evenly'>
+        <div className='flex items-center h-full text-primary border-t border-secondary-foreground/10 bg-secondary py-3 justify-evenly'>
             {
                 navigationTabs.map((item) => {
                     const Icon = item.icon;
@@ -27,12 +27,12 @@ export default function Bottombar() {
                     return (
                         <div key={item.label} className='flex flex-col items-center'>
                             <button
-                                className={`p-2 text-slate-400 ${isActive ? 'bg-[#48A6C3] text-white rounded-full' : 'hover:bg-[#48A6C3] hover:bg-opacity-20 rounded-full'}`}
+                                className={`p-2 rounded-full ${isActive && 'bg-primary text-primary-foreground'}`}
                                 onClick={() => handleClick(item.route)}
                             >
                                 <Icon size={18} strokeWidth={2} />
                             </button>
-                            <p className={`text-xs  text-slate-400  ${isActive && 'text-[#48A6C3]'}`}>{item.label}</p>
+                            <p className={`text-xs ${isActive && 'text-primary'}`}>{item.label}</p>
                         </div>
 
                     );

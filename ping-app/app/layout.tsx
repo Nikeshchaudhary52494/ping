@@ -2,12 +2,13 @@ import type { Metadata } from "next";
 import { Open_Sans } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
-import { ThemeProvider } from "@/components/providers/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
 import { SocketProvider } from "@/components/providers/socketProvider";
 import UserProvider from "@/components/providers/userProvider";
 import { MessageProvider } from "@/components/providers/messageProvider";
 import CurrentCallHandler from "@/components/providers/CurrentCallHandler";
+import { ThemeProvider as NextThemesProvider } from "next-themes";
+import ThemeDataProvider from "@/components/providers/theme-data-provider";
 
 const font = Open_Sans({ subsets: ["latin"] });
 
@@ -23,22 +24,22 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={cn(font.className, "bg-white dark:bg-[#0D0D0E]")}>
-        <ThemeProvider
+      <body className={cn(font.className, "bg-background")}>
+        <NextThemesProvider
           attribute="class"
           defaultTheme="dark"
           enableSystem
-          storageKey="discord-theme"
+          disableTransitionOnChange
         >
           <UserProvider>
             <SocketProvider>
               <MessageProvider>
-                {children}
+                <ThemeDataProvider>{children}</ThemeDataProvider>
                 <CurrentCallHandler />
               </MessageProvider>
             </SocketProvider>
           </UserProvider>
-        </ThemeProvider>
+        </NextThemesProvider>
         <Toaster />
       </body>
     </html>

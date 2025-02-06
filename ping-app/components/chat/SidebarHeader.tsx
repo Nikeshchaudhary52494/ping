@@ -17,7 +17,7 @@ export default function SidebarHeader({
             {
                 isMobileDevice ?
                     <div className="flex items-center justify-between w-full px-4 py-2 mt-4">
-                        <h1 className="text-lg font-bold">PING</h1>
+                        <h1 className="text-lg text-primary font-bold">PING</h1>
                         <Settings
                             size={18}
                             onClick={() => router.push("/settings")}

@@ -80,11 +80,11 @@ export default function SignIn() {
     return (
         <div className="w-full max-w-sm space-y-4">
             <div className="space-y-2">
-                <h1 className="text-3xl font-bold">Ping</h1>
-                <p className="text-xs text-slate-400">Connecting friends</p>
+                <h1 className="text-3xl text-primary font-bold">Ping</h1>
+                <p className="text-xs text-secondary-foreground/40">Connecting friends</p>
                 <h2 className="text-3xl">Sign in</h2>
                 <div
-                    className="flex w-full gap-2 p-2 font-bold text-yellow-200 duration-200 rounded-lg cursor-pointer bg-yellow-950/50"
+                    className="flex w-full gap-2 p-2 font-bold text-yellow-400 duration-200 rounded-lg cursor-pointer bg-yellow-950/50"
                     onClick={handleGuestLogin}
                 >
                     <ShieldQuestion />

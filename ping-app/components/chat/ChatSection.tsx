@@ -57,7 +57,7 @@ export default function ChatSection({
     return (
         <div className="relative flex flex-col h-full">
             {/* Chat Header */}
-            <div className="w-full h-[64px] bg-[#1E1F22]">
+            <div className="w-full h-[64px]">
                 {chatType === "group" ? (
                     <ChatHeader
                         name={groupChatData!.name}
@@ -80,11 +80,11 @@ export default function ChatSection({
                 {hasNextMessage && (
                     <div className="flex justify-center">
                         {isLoading ? (
-                            <Loader2 className="w-6 h-6 my-4 text-zinc-500 animate-spin" />
+                            <Loader2 className="w-6 h-6 my-4 text-primary animate-spin" />
                         ) : (
                             <button
                                 onClick={() => loadMoreMessages()}
-                                className="my-4 text-xs transition text-zinc-500 hover:text-zinc-600 dark:text-zinc-400 dark:hover:text-zinc-300"
+                                className="my-4 text-xs"
                             >
                                 Load previous messages
                             </button>
@@ -100,7 +100,7 @@ export default function ChatSection({
             </div>
 
             {/* Message Input */}
-            <div className="w-full p-3 bg-[#1E1F22] sm:border-l border-slate-200 border-opacity-10">
+            <div className="w-full p-3 bg-secondary sm:border-l border-secondary-foreground/10">
                 {chatType === "group" ? (
                     <MessageInput senderId={user?.id!} receiversId={receiversId} setToBottom={setToBottom} />
                 ) : (

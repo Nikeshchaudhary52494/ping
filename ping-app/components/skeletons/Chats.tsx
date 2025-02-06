@@ -1,8 +1,8 @@
 import { Skeleton } from "@/components/ui/skeleton";
 
-export default function Friends() {
+export default function Chats() {
     return (
-        <div className="flex flex-col h-full p-4 space-y-4 bg-[#1E1F22] ">
+        <div className="flex flex-col h-full p-4 space-y-4">
             <div className="flex items-center space-x-4 h-14">
                 <Skeleton className="w-12 h-12 rounded-full" />
                 <div className="space-y-2">

@@ -75,10 +75,10 @@ export default function MessageItem({
             <div className={`
                 ${fileUrl ? "rounded-md" : "rounded-[18px] px-[12px] py-[7px] "} 
                 ${isMine ?
-                    `${status == "FAILED" ? "bg-red-400" : "bg-[#3797F0]"} rounded-r-[4px]
+                    `${status == "FAILED" ? "bg-red-400" : "bg-primary text-primary-foreground"} rounded-r-[4px]
                      ${isFirstMessage && !fileUrl && "rounded-tr-[18px]"} 
                     ${isLastMessage && !fileUrl && "rounded-br-[18px]"}`
-                    : `bg-[#262626] rounded-l-[4px] 
+                    : `bg-secondary rounded-l-[4px] 
                     ${isFirstMessage && !fileUrl && "rounded-tl-[18px]"}
                     ${isLastMessage && !fileUrl && "rounded-bl-[18px]"}
                 `}`} >
@@ -114,10 +114,10 @@ export default function MessageItem({
                                 <PopoverTrigger asChild>
                                     <EllipsisVertical
                                         onClick={() => setPopOpen((prev) => !prev)}
-                                        className="w-4 h-4 ml-auto transition cursor-pointer text-zinc-500 hover:text-zinc-600 dark:hover:text-zinc-300"
+                                        className="w-4 h-4 ml-auto transition cursor-pointer text-foreground/50 hover:text-foreground"
                                     />
                                 </PopoverTrigger>
-                                <PopoverContent className="w-44 rounded-[18px] p-1 absolute gap-1 flex flex-col bg-[#262626] -top-60 border-zinc-700 -left-44">
+                                <PopoverContent className="w-44 rounded-[18px] p-1 absolute gap-1 flex flex-col -top-60 -left-44">
                                     <p className="p-1 px-4 text-sm">{formattedTime}</p>
                                     <Separator className="separator" />
 
@@ -130,7 +130,7 @@ export default function MessageItem({
 
                                     <Separator className="separator" />
 
-                                    <Button size="sm" className="flex justify-between w-full font-semibold bg-transparent hover:bg-zinc-700 text-red-500 rounded-[16px]">
+                                    <Button size="sm" className="flex justify-between w-full font-semibold bg-transparent hover:bg-secondary text-red-500 rounded-[16px]">
                                         <p>Delete</p>
                                         <Trash2 size={18} />
                                     </Button>
@@ -141,14 +141,14 @@ export default function MessageItem({
                         <ActionTooltip label="reply">
                             <Reply
                                 onClick={() => { }}
-                                className="w-4 h-4 ml-auto transition cursor-pointer text-zinc-500 hover:text-zinc-600 dark:hover:text-zinc-300"
+                                className="w-4 h-4 ml-auto transition cursor-pointer text-foreground/50 hover:text-foreground"
                             />
                         </ActionTooltip>
 
                         <ActionTooltip label="smile">
                             <Smile
                                 onClick={() => { }}
-                                className="w-4 h-4 ml-auto transition cursor-pointer text-zinc-500 hover:text-zinc-600 dark:hover:text-zinc-300"
+                                className="w-4 h-4 ml-auto transition cursor-pointer text-foreground/50 hover:text-foreground"
                             />
                         </ActionTooltip>
                     </div>

@@ -3,7 +3,7 @@
 import { ReactNode, useEffect, useState } from "react";
 import * as motion from "framer-motion/client";
 import { usePathname } from "next/navigation";
-import SettingsSidebar from "@/components/settings/settings-sidebar";
+import SettingsSidebar from "@/components/settings/Sidebar";
 
 interface SeconadaryLayoutProps {
     children: ReactNode;
@@ -62,11 +62,11 @@ export default function SeconadaryLayout({
                     animate={{ x: 0 }}
                     transition={{ duration: 0.5 }}
                     exit={{ x: -400 }}
-                    className="min-w-64"
+                    className="min-w-80"
                 >
                     <SettingsSidebar />
                 </motion.div>
-                <main className="w-full h-full text-center">{children}</main>
+                <main className="w-full h-full">{children}</main>
             </div>
         )
     }

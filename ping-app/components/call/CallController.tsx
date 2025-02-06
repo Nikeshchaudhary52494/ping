@@ -101,7 +101,7 @@ export default function CallController({
     };
 
     return (
-        <div className="flex justify-center gap-6 border-l-[1px] border-slate-200 border-opacity-10 p-4 bg-[#1E1F22]">
+        <div className="flex justify-center gap-6 border-l border-secondary-foreground/10 p-4 bg-secondary">
             {callType === "video" && (
                 <>
                     <CallControllerButton

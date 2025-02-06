@@ -1,6 +1,6 @@
 import Searchbar from "./Searchbar";
 import SidebarHeader from "./SidebarHeader";
-import FriendsSkeleton from "../skeletons/Friends";
+import FriendsSkeleton from "../skeletons/Chats";
 import Profile from "@/components/skeletons/Profile";
 import { useEffect, useState } from "react";
 import { getPrivateChats } from "@/actions/chat/privateChat/getPrivateChats";
@@ -52,7 +52,7 @@ export default function Sidebar({ CurrentuserId, isMobileDevice, type }: Sidebar
     }, [type, CurrentuserId]);
 
     return (
-        <div className="space-y-4 flex sm:border-l-[1px] border-slate-200 border-opacity-10 flex-col items-center h-full text-primary w-full dark:bg-[#1E1F22] bg-[#E3E5E8]">
+        <div className="space-y-4 flex sm:border-l-[1px] border-secondary-foreground/10 border-opacity-10 flex-col items-center h-full w-full bg-secondary">
             {isLoading && !isMobileDevice ?
                 <Profile /> :
                 <SidebarHeader

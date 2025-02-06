@@ -111,8 +111,8 @@ export default function CreateGroupForm({
                             name='imageUrl'
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel className="">
-                                        <div className="relative flex h-20 w-20 bg-[#252B2E] items-center justify-center rounded-full overflow-hidden">
+                                    <FormLabel>
+                                        <div className="relative flex h-20 w-20 bg-secondary items-center justify-center rounded-full overflow-hidden">
                                             {field.value ? (
                                                 <Image
                                                     fill
@@ -122,12 +122,12 @@ export default function CreateGroupForm({
                                                     alt='profile_icon'
                                                 />
                                             ) : (
-                                                <Camera size={40} className="text-slate-400" />
+                                                <Camera size={40} />
                                             )}
                                         </div>
                                     </FormLabel>
                                     <div className="flex flex-col space-y-2">
-                                        <FormControl className='flex-1 text-gray-200'>
+                                        <FormControl className='flex-1'>
                                             <Input
                                                 type='file'
                                                 accept='image/*'
@@ -170,7 +170,7 @@ export default function CreateGroupForm({
                         )}
                     />
                     <Button
-                        className="bg-[#34b27b] p-6 w-full font-bold"
+                        className="bg-primary p-6 w-full font-bold"
                         type="submit"
                         disabled={isPending}>
                         {isPending ? "Creating.." : "Create group"}

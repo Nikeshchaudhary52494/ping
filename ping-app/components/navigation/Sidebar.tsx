@@ -1,11 +1,11 @@
 "use client"
 
 import { Separator } from '../ui/separator';
-import { ModeToggle } from '../mode-toggle';
 import ActionTooltip from '../action-tooltip';
 import { navigationTabs } from '@/lib/tabLinks';
 import { usePathname, useRouter } from 'next/navigation';
 import ActionButton from './ActionButton';
+import { ThemeModeToggle } from '../theme/ModeToggle';
 
 export default function Sidebar() {
 
@@ -19,8 +19,8 @@ export default function Sidebar() {
         }
     }
     return (
-        <div className="space-y-4 flex flex-col items-center h-full text-primary w-full dark:bg-[#1E1F22] bg-[#E3E5E8] py-3">
-            <ModeToggle />
+        <div className="space-y-4 flex flex-col items-center h-full text-primary w-full bg-secondary py-3">
+          <ThemeModeToggle onNavBar={true}/>
             <div className='flex flex-col items-center justify-center flex-1 gap-5 '>
                 {
                     navigationTabs.map((item) => {
@@ -31,7 +31,7 @@ export default function Sidebar() {
                         return (
                             <ActionTooltip key={item.label} side="right" align="center" label={item.label}>
                                 <button
-                                    className={`p-3 text-slate-400 ${isActive ? 'bg-[#48A6C3] text-white rounded-full' : 'hover:bg-[#48A6C3] hover:bg-opacity-20 rounded-full'}`}
+                                    className={`p-3 rounded-full ${isActive ? 'bg-primary text-primary-foreground' : 'hover:bg-primary/40 hover:bg-opacity-20'}`}
                                     onClick={() => handleClick(item.route)}
                                 >
                                     <Icon size={20} strokeWidth={2} />
@@ -42,7 +42,7 @@ export default function Sidebar() {
                     })
                 }
             </div>
-            <Separator className="h-[2px] bg-zinc-300 dark:bg-zinc-700 rounded-md w-10 mx-auto" />
+            <Separator className="h-[2px] w-20 bg-primary rounded-md" />
             <div className="flex flex-col items-center pb-3 mt-auto gap-y-4">
                 <ActionButton />
             </div>
