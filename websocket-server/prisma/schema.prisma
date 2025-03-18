@@ -16,6 +16,7 @@ model User {
   username    String? @unique
   bio         String  @default("New user to ping!!")
   imageUrl    String?
+  publicKey   String
 
   messages        Message[]
   chats           Chat[]         @relation("ChatMemberships")
@@ -98,17 +99,18 @@ enum messageStatus {
 }
 
 model Message {
-  id          String        @id @default(cuid())
-  content     String?
-  fileUrl     String?
-  isDeleted   Boolean       @default(false)
-  isEdited    Boolean       @default(false)
-  isForwarded Boolean       @default(false)
-  status      messageStatus @default(PENDING)
-  sender      User          @relation(fields: [senderId], references: [id], onDelete: Cascade)
-  senderId    String
-  chatId      String
-  chat        Chat          @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  id               String        @id @default(cuid())
+  encryptedContent String?
+  nonce            String
+  fileUrl          String?
+  isDeleted        Boolean       @default(false)
+  isEdited         Boolean       @default(false)
+  isForwarded      Boolean       @default(false)
+  status           messageStatus @default(PENDING)
+  sender           User          @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  senderId         String
+  chatId           String
+  chat             Chat          @relation(fields: [chatId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

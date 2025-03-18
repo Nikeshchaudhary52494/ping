@@ -11,7 +11,8 @@ export interface PrivateChat {
     messages: {
         createdAt: Date;
         updatedAt: Date;
-        content: string | null;
+        nonce: string;
+        encryptedContent: string | null;
         fileUrl: string | null;
         isDeleted: boolean;
         status: messageStatus;
@@ -37,7 +38,8 @@ export interface UserGroups {
     chat: {
         id: string;
         messages: {
-            content: string | null;
+            nonce: string;
+            encryptedContent: string | null;
             createdAt: Date;
             updatedAt: Date;
             fileUrl: string | null;
@@ -58,8 +60,23 @@ export interface GroupChatData {
 
 export interface LastMessage {
     createdAt: Date;
-    content: string | null;
+    nonce: string;
+    encryptedContent: string | null;
     isDeleted: boolean;
     fileUrl: string | null;
     updatedAt: Date;
+}
+
+export interface DecryptedMessages {
+    id: string;
+    createdAt: Date;
+    updatedAt: Date;
+    senderId: string;
+    content: string | null;
+    fileUrl: string | null;
+    isDeleted: boolean;
+    isEdited: boolean;
+    isForwarded: boolean;
+    status: messageStatus;
+    chatId: string;
 }

@@ -31,14 +31,16 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <UserProvider>
-            <SocketProvider>
-              <MessageProvider>
-                <ThemeDataProvider>{children}</ThemeDataProvider>
-                <CurrentCallHandler />
-              </MessageProvider>
-            </SocketProvider>
-          </UserProvider>
+          <ThemeDataProvider>
+            <UserProvider>
+              <SocketProvider>
+                <MessageProvider>
+                  {children}
+                  <CurrentCallHandler />
+                </MessageProvider>
+              </SocketProvider>
+            </UserProvider>
+          </ThemeDataProvider>
         </NextThemesProvider>
         <Toaster />
       </body>

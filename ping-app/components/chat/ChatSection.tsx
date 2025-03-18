@@ -11,6 +11,8 @@ import useChatScroll from "@/app/hooks/useChatScroll";
 import ChatWelcome from "./ChatWelcome";
 import ChatHeader from "./ChatHeader";
 import { GroupChatData } from "@/types/prisma";
+import getUserPublicKey from "@/actions/user/getUserPublicKey";
+import { decryptPrivateMessage } from "@/lib/crypto";
 
 interface ChatSectionProps {
     initialData: {
@@ -51,8 +53,51 @@ export default function ChatSection({
         });
 
     useEffect(() => {
-        setMessages(initialData.messages);
-    }, [initialData.messages, setMessages]);
+        if (!user) return;
+
+        async function setDecryptedMessages() {
+            const currentUserPrivateKey = localStorage.getItem("pingPrivateKey");
+            const currentUserPublicKey = localStorage.getItem("pingPublicKey");
+
+            if (!currentUserPrivateKey || !currentUserPublicKey) {
+                console.error("No key pair found in local storage for current user.");
+                return;
+            }
+
+            const decryptedChats = await Promise.all(
+                initialData.messages.map(async (msg) => {
+                    const receiverPublicKey = await getUserPublicKey(receiver?.id!);
+
+                    if (!receiverPublicKey) {
+                        console.error(`Failed to fetch public key for user ${msg.senderId}`);
+                        return { ...msg, content: null };
+                    }
+                    let decryptedText;
+
+                    if (msg.senderId === user?.id) {
+                        decryptedText = await decryptPrivateMessage(
+                            msg.encryptedContent!,
+                            msg.nonce,
+                            receiverPublicKey,
+                            currentUserPrivateKey,
+                        );
+                    } else {
+                        decryptedText = await decryptPrivateMessage(
+                            msg.encryptedContent!,
+                            msg.nonce,
+                            receiverPublicKey,
+                            currentUserPrivateKey
+                        );
+                    }
+                    return { ...msg, content: decryptedText };
+                })
+            );
+
+            setMessages(decryptedChats);
+        }
+
+        setDecryptedMessages();
+    }, [initialData.messages, user?.id]);
 
     return (
         <div className="relative flex flex-col h-full">

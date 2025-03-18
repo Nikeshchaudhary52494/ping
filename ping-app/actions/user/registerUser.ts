@@ -5,7 +5,7 @@ import bcrypt from "bcryptjs";
 import { registerUserSchema } from "@/lib/validationSchemas";
 import { generateToken, setAuthCookie } from "@/lib/jwtUtils";
 
-export const registerUser = async (formData: FormData) => {
+export const registerUser = async (formData: FormData, publicKey: string) => {
     try {
         const parsedData = registerUserSchema.safeParse({
             displayName: formData.get("displayName"),
@@ -34,6 +34,7 @@ export const registerUser = async (formData: FormData) => {
                 displayName,
                 email,
                 password: hashedPassword,
+                publicKey
             },
         });
 

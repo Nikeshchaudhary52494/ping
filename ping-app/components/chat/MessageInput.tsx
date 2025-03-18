@@ -8,7 +8,9 @@ import { useUploadThing } from '@/lib/uploadthing';
 import { useMessage } from '@/components/providers/messageProvider';
 import axiosInstance from '@/lib/axiosConfig';
 import Image from 'next/image';
-import { Message } from '@prisma/client';
+import getUserPublicKey from '@/actions/user/getUserPublicKey';
+import { DecryptedMessages } from '@/types/prisma';
+import { encryptPrivateMessage } from '@/lib/crypto';
 
 interface MessageInputProps {
     senderId: string;
@@ -41,7 +43,27 @@ export default function MessageInput({
     const formRef = useRef<HTMLFormElement | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
+    const [senderPrivateKey, setSenderPrivateKey] = useState("");
+    const [receiverPublicKey, setReceiverPublicKey] = useState("");
 
+    useEffect(() => {
+        async function loadKeys() {
+            const storedPrivateKey = localStorage.getItem("pingPrivateKey");
+
+            if (storedPrivateKey) {
+                setSenderPrivateKey(storedPrivateKey);
+            } else {
+                console.error("No encryption keys found! Ensure they are set during onboarding.");
+            }
+            if (receiverId) {
+                const receiverPublicKey = await getUserPublicKey(receiverId);
+                setReceiverPublicKey(receiverPublicKey!);
+
+            }
+        }
+
+        loadKeys();
+    }, [receiverId, senderId]);
 
     const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -68,6 +90,12 @@ export default function MessageInput({
             return;
         }
 
+        if (!receiverPublicKey) {
+            console.error("reciver Public key not available");
+            return;
+        }
+
+        const encrypted = await encryptPrivateMessage(content, receiverPublicKey, senderPrivateKey);
         let fileUrl = null;
         if (files.length > 0) {
             try {
@@ -82,7 +110,7 @@ export default function MessageInput({
             }
         }
 
-        const tempMessage: Message = {
+        const tempMessage: DecryptedMessages = {
             id: `temp-${Date.now()}`, // Temporary ID
             content,
             fileUrl,
@@ -106,13 +134,15 @@ export default function MessageInput({
             if (fileInputRef.current) fileInputRef.current.value = '';
 
             const res = await axiosInstance.post(`/api/message/send/${chatId}`, {
-                content,
+                encryptedContent: encrypted.encryptedMessage,
+                nonce: encrypted.nonce,
                 senderId,
                 receiverId,
                 fileUrl,
             });
             // Replace the temporary message with the actual one from the server
-            updateMessage(tempMessage.id, res.data);
+            updateMessage(tempMessage.id, { ...res.data, content });
+            console.log("response data", res.data);
         } catch (error) {
             console.error('Failed to send message:', error);
             toast({ description: 'Failed to send message. Please try again later.', variant: "destructive" });

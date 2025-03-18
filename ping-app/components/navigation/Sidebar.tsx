@@ -20,7 +20,7 @@ export default function Sidebar() {
     }
     return (
         <div className="space-y-4 flex flex-col items-center h-full text-primary w-full bg-secondary py-3">
-          <ThemeModeToggle onNavBar={true}/>
+            <ThemeModeToggle onNavBar={true} />
             <div className='flex flex-col items-center justify-center flex-1 gap-5 '>
                 {
                     navigationTabs.map((item) => {

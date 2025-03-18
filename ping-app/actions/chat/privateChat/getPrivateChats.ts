@@ -30,7 +30,8 @@ export const getPrivateChats = async (userId: string) => {
                     select: {
                         status: true,
                         fileUrl: true,
-                        content: true,
+                        encryptedContent: true,
+                        nonce: true,
                         createdAt: true,
                         updatedAt: true,
                         isDeleted: true

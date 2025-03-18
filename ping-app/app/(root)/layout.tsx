@@ -17,7 +17,7 @@ export default async function MainLayout({
 
     return (
         <div className="flex flex-col h-screen sm:flex-row">
-            <aside className="z-10 hidden h-full sm:block">
+            <aside className="z-10 w-20 hidden h-full sm:block">
                 <Sidebar />
             </aside>
             <main className="flex-1 overflow-y-auto">

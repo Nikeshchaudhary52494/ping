@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 export default async function Onboarding() {
     const { user } = await getUser();
     if (!user) redirect("/sign-in");
+    if (user.onboarded) redirect("/")
 
     const userData = {
         userId: user?.id,

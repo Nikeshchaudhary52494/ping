@@ -20,6 +20,7 @@ import { RegisterUserInput, registerUserSchema } from "@/lib/validationSchemas";
 import { registerUser } from "@/actions/user/registerUser";
 import { toast } from "@/app/hooks/use-toast";
 import { useRouter } from "next/navigation";
+import { generateUserKeys } from "@/lib/crypto";
 
 export default function SignUp() {
     const router = useRouter();
@@ -41,7 +42,11 @@ export default function SignUp() {
             formData.append("email", data.email);
             formData.append("password", data.password);
 
-            const result = await registerUser(formData);
+            const keys = await generateUserKeys();
+            localStorage.setItem("pingPrivateKey", keys.privateKey);
+            localStorage.setItem("pingPublicKey", keys.publicKey);
+
+            const result = await registerUser(formData, keys.publicKey);
 
             if (result.success) {
                 toast({

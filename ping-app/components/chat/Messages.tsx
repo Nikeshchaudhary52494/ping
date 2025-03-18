@@ -2,12 +2,14 @@
 
 import { useEffect, useRef } from "react";
 import MessageItem from "./MessageItem";
-import { Message } from "@prisma/client";
 import { useMessage } from "@/components/providers/messageProvider";
 import { useSocketContext } from "@/components/providers/socketProvider";
+import { DecryptedMessages } from "@/types/prisma";
+import { decryptPrivateMessage } from "@/lib/crypto";
+import getUserPublicKey from "@/actions/user/getUserPublicKey";
 
 interface MessagesProps {
-    messages: Message[];
+    messages: DecryptedMessages[];
     userId: string;
     toBottom: boolean;
     setToBottom: (set: boolean) => void;
@@ -30,8 +32,17 @@ export default function Messages({
 
     useEffect(() => {
         if (!socket) return;
-        socket.on("newMessage", (newMessage) => {
-            addMessage(newMessage);
+        socket.on("newMessage", async (newMessage) => {
+            const receiverPrivateKey = localStorage.getItem("pingPrivateKey");
+            const senderPublicKey = await getUserPublicKey(newMessage.senderId);
+            const decryptedText = await decryptPrivateMessage(
+                newMessage.encryptedContent!,
+                newMessage.nonce,
+                senderPublicKey!,
+                receiverPrivateKey!
+            );
+
+            addMessage({ ...newMessage, content: decryptedText });
         });
         return () => {
             socket.off("newMessage");

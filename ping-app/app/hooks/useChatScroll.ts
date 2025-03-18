@@ -1,14 +1,14 @@
 "use client"
 
 import { getPaginatedMessages } from "@/actions/chat/shared/getPaginatedMessages";
-import { Message } from "@prisma/client";
+import { DecryptedMessages } from "@/types/prisma";
 import { MutableRefObject, useCallback, useEffect, useState } from "react";
 
 interface UseChatScrollProps {
     scrollContainerRef: MutableRefObject<HTMLDivElement | null>;
     nextCursor: string | null;
     privateChatId?: string;
-    setMessages: (messages: Message[]) => void;
+    setMessages: (messages: DecryptedMessages[]) => void;
 }
 
 export default function useChatScroll({
