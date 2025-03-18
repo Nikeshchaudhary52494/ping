@@ -10,12 +10,16 @@ import axiosInstance from '@/lib/axiosConfig';
 import Image from 'next/image';
 import getUserPublicKey from '@/actions/user/getUserPublicKey';
 import { DecryptedMessages } from '@/types/prisma';
-import { encryptPrivateMessage } from '@/lib/crypto';
+import { decryptGroupKey, encryptGroupMessage, encryptPrivateMessage } from '@/lib/crypto';
 
 interface MessageInputProps {
     senderId: string;
     receiverId?: string;
     setToBottom: (set: boolean) => void;
+    isGroup?: boolean;
+    encryptedGroupKey?: string;
+    nonce?: string;
+    ownerId?: string;
     receiversId?: {
         id: string;
     }[];
@@ -25,7 +29,11 @@ export default function MessageInput({
     senderId,
     receiverId,
     setToBottom,
-    receiversId
+    receiversId,
+    encryptedGroupKey,
+    isGroup = false,
+    nonce,
+    ownerId,
 }: MessageInputProps) {
 
     const { addMessage, updateMessage, updateMessageStatus } = useMessage();
@@ -90,12 +98,23 @@ export default function MessageInput({
             return;
         }
 
-        if (!receiverPublicKey) {
+        if (!receiverPublicKey && !isGroup) {
             console.error("reciver Public key not available");
             return;
         }
+        let encrypted;
+        if (isGroup) {
 
-        const encrypted = await encryptPrivateMessage(content, receiverPublicKey, senderPrivateKey);
+            const currentUserPrivateKey = localStorage.getItem('pingPrivateKey');
+            const groupOwnerPublicKey = await getUserPublicKey(ownerId!);
+            console.log(encryptedGroupKey);
+            const groupKey = await decryptGroupKey(encryptedGroupKey!, nonce!, currentUserPrivateKey!, groupOwnerPublicKey!);
+            console.log("groupkey", groupKey)
+            encrypted = await encryptGroupMessage(content, groupKey);
+        } else {
+            encrypted = await encryptPrivateMessage(content, receiverPublicKey, senderPrivateKey);
+        }
+
         let fileUrl = null;
         if (files.length > 0) {
             try {

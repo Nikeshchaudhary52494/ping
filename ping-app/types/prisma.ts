@@ -53,6 +53,9 @@ export interface GroupChatData {
     name: string;
     chatId: string;
     imageUrl: string | null;
+    ownerId: string;
+    encryptedKey: string;
+    nonce:string;
     members: {
         id: string;
     }[];

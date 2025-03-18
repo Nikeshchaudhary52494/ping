@@ -12,7 +12,7 @@ import ChatWelcome from "./ChatWelcome";
 import ChatHeader from "./ChatHeader";
 import { GroupChatData } from "@/types/prisma";
 import getUserPublicKey from "@/actions/user/getUserPublicKey";
-import { decryptPrivateMessage } from "@/lib/crypto";
+import { decrypGrouptMessage, decryptGroupKey, decryptPrivateMessage } from "@/lib/crypto";
 
 interface ChatSectionProps {
     initialData: {
@@ -64,34 +64,47 @@ export default function ChatSection({
                 return;
             }
 
-            const decryptedChats = await Promise.all(
-                initialData.messages.map(async (msg) => {
-                    const receiverPublicKey = await getUserPublicKey(receiver?.id!);
+            let decryptedChats;
+            if (chatType == "private") {
+                decryptedChats = await Promise.all(
+                    initialData.messages.map(async (msg) => {
+                        const receiverPublicKey = await getUserPublicKey(receiver?.id!);
 
-                    if (!receiverPublicKey) {
-                        console.error(`Failed to fetch public key for user ${msg.senderId}`);
-                        return { ...msg, content: null };
-                    }
-                    let decryptedText;
+                        if (!receiverPublicKey) {
+                            console.error(`Failed to fetch public key for user ${msg.senderId}`);
+                            return { ...msg, content: null };
+                        }
+                        let decryptedText;
 
-                    if (msg.senderId === user?.id) {
-                        decryptedText = await decryptPrivateMessage(
-                            msg.encryptedContent!,
-                            msg.nonce,
-                            receiverPublicKey,
-                            currentUserPrivateKey,
-                        );
-                    } else {
-                        decryptedText = await decryptPrivateMessage(
-                            msg.encryptedContent!,
-                            msg.nonce,
-                            receiverPublicKey,
-                            currentUserPrivateKey
-                        );
-                    }
-                    return { ...msg, content: decryptedText };
-                })
-            );
+                        if (msg.senderId === user?.id) {
+                            decryptedText = await decryptPrivateMessage(
+                                msg.encryptedContent!,
+                                msg.nonce,
+                                receiverPublicKey,
+                                currentUserPrivateKey,
+                            );
+                        } else {
+                            decryptedText = await decryptPrivateMessage(
+                                msg.encryptedContent!,
+                                msg.nonce,
+                                receiverPublicKey,
+                                currentUserPrivateKey
+                            );
+                        }
+                        return { ...msg, content: decryptedText };
+                    })
+                );
+            } else {
+                decryptedChats = await Promise.all(
+                    initialData.messages.map(async (msg) => {
+                        const ownerPublicKey = await getUserPublicKey(groupChatData?.ownerId!);
+                        const groupKey = await decryptGroupKey(groupChatData?.encryptedKey!, groupChatData?.nonce!, currentUserPrivateKey, ownerPublicKey!)
+                        const decryptedText = await decrypGrouptMessage(msg.encryptedContent!, msg.nonce, groupKey);
+
+                        return { ...msg, content: decryptedText };
+                    })
+                );
+            }
 
             setMessages(decryptedChats);
         }
@@ -147,7 +160,15 @@ export default function ChatSection({
             {/* Message Input */}
             <div className="w-full p-3 bg-secondary sm:border-l border-secondary-foreground/10">
                 {chatType === "group" ? (
-                    <MessageInput senderId={user?.id!} receiversId={receiversId} setToBottom={setToBottom} />
+                    <MessageInput
+                        senderId={user?.id!}
+                        receiversId={receiversId}
+                        setToBottom={setToBottom}
+                        isGroup={true}
+                        ownerId={groupChatData?.ownerId}
+                        nonce={groupChatData?.nonce}
+                        encryptedGroupKey={groupChatData?.encryptedKey}
+                    />
                 ) : (
                     <MessageInput senderId={user?.id!} receiverId={receiver?.id} setToBottom={setToBottom} />
                 )}

@@ -26,7 +26,7 @@ export const encryptGroupKey = async (groupKey: string, userPublicKey: string, a
     await initSodium();
     const nonce = sodium.randombytes_buf(sodium.crypto_box_NONCEBYTES);
     const encryptedKey = sodium.crypto_box_easy(
-        groupKey,
+        sodium.from_base64(groupKey),
         nonce,
         sodium.from_base64(userPublicKey),
         sodium.from_base64(adminPrivateKey)
@@ -50,7 +50,7 @@ export const decryptGroupKey = async (encryptedKey: string, nonce: string, userP
 };
 
 // Encrypt Message using Group Key
-export const encryptMessage = async (message: string, groupKey: string) => {
+export const encryptGroupMessage = async (message: string, groupKey: string) => {
     await initSodium();
     const nonce = sodium.randombytes_buf(sodium.crypto_secretbox_NONCEBYTES);
     const encryptedMessage = sodium.crypto_secretbox_easy(
@@ -65,7 +65,7 @@ export const encryptMessage = async (message: string, groupKey: string) => {
 };
 
 // Decrypt Message using Group Key
-export const decryptMessage = async (encryptedMessage: string, nonce: string, groupKey: string) => {
+export const decrypGrouptMessage = async (encryptedMessage: string, nonce: string, groupKey: string) => {
     await initSodium();
     const decryptedMessage = sodium.crypto_secretbox_open_easy(
         sodium.from_base64(encryptedMessage),

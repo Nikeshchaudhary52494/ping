@@ -21,6 +21,7 @@ import { createGroup } from "@/actions/chat/groupChat/createGroup";
 import { useUser } from "@/components/providers/userProvider";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/app/hooks/use-toast";
+import { encryptGroupKey, generateGroupKey } from "@/lib/crypto";
 
 interface CreateGroupFormProps {
     setIsOpen: (value: boolean) => void;
@@ -56,11 +57,18 @@ export default function CreateGroupForm({
                         values.imageUrl = imgRes[0].url;
                     }
                 }
+                const groupKey = await generateGroupKey();
+                const currentUserPrivateKey = localStorage.getItem("pingPrivateKey");
+                const currentUserPublicKey = localStorage.getItem("pingPublicKey");
+
+                const encryptedData = await encryptGroupKey(groupKey, currentUserPublicKey!, currentUserPrivateKey!);
                 await createGroup({
                     ownerId: user?.id!,
                     about: values.about,
                     imageUrl: values.imageUrl,
-                    name: values.name
+                    name: values.name,
+                    encryptedKey: encryptedData.encryptedKey,
+                    nonce: encryptedData.nonce,
                 })
                 toast({
                     description: "Group created"

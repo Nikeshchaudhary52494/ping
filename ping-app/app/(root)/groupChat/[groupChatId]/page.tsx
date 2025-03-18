@@ -21,6 +21,9 @@ async function ChatContent({ params }: GroupsProps) {
                 chatId: true,
                 name: true,
                 imageUrl: true,
+                nonce: true,
+                encryptedKey: true,
+                ownerId: true,
                 members: {
                     select: {
                         id: true
