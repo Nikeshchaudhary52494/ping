@@ -35,7 +35,6 @@ export default function CallActionButton({
     const onAccept = async () => {
 
         const stream = await getMediaStream(currentCall?.type!);
-        console.log("call accepted", { stream })
         if (!stream) {
             console.error("Unable to accept call");
             return;

@@ -65,7 +65,7 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
                     }
                 }
             }
-            await onboardUser({
+            const onboardedUser = await onboardUser({
                 userId: user.id,
                 displayName: values.displayName,
                 imageUrl: values.imageUrl,
@@ -73,13 +73,7 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
                 bio: values.bio
             });
             setLoading(false);
-            updateUser({
-                displayName: values.displayName,
-                imageUrl: values.imageUrl,
-                username: values.username,
-                bio: values.bio
-            })
-
+            updateUser({ ...onboardedUser })
             if (pathname === "/onboarding") {
                 router.push("/");
             }

@@ -21,6 +21,8 @@ import { createGroup } from "@/actions/chat/groupChat/createGroup";
 import { useUser } from "@/components/providers/userProvider";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/app/hooks/use-toast";
+import { useChatData } from "../providers/chatDataProvider";
+import { UserGroups } from "@/types/prisma";
 
 interface CreateGroupFormProps {
     setIsOpen: (value: boolean) => void;
@@ -33,6 +35,7 @@ export default function CreateGroupForm({
     const [files, setFiles] = useState<File[]>([]);
     const { startUpload } = useUploadThing("UserImage");
     const { user } = useUser();
+    const { addGroup } = useChatData();
 
     const form = useForm({
         resolver: zodResolver(createGroupSchema),
@@ -56,12 +59,13 @@ export default function CreateGroupForm({
                         values.imageUrl = imgRes[0].url;
                     }
                 }
-                await createGroup({
+                const group = await createGroup({
                     ownerId: user?.id!,
                     about: values.about,
                     imageUrl: values.imageUrl,
                     name: values.name
                 })
+                addGroup(group.groupChat as UserGroups);
                 toast({
                     description: "Group created"
                 })

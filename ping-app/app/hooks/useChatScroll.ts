@@ -44,8 +44,6 @@ export default function useChatScroll({
 
         setIsLoading(true);
         try {
-            console.log("useState", { cursor });
-
             // Fetch new messages
             const newData = await getPaginatedMessages({
                 privateChatId: privateChatId,

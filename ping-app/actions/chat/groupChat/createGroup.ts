@@ -28,6 +28,31 @@ export async function createGroup({ about, name, ownerId, imageUrl }: createGrou
                     }
                 },
             },
+        },
+        select: {
+            groupChat: {
+                select: {
+                    imageUrl: true,
+                    name: true,
+                    id: true,
+                    chat: {
+                        select: {
+                            id: true,
+                            messages: {
+                                select: {
+                                    fileUrl: true,
+                                    encryptedContent: true,
+                                    createdAt: true,
+                                    updatedAt: true,
+                                    isDeleted: true
+                                },
+                                take: 1,
+                                orderBy: { createdAt: "desc" }
+                            }
+                        }
+                    }
+                }
+            }
         }
     });
 

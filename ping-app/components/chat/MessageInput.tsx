@@ -20,7 +20,8 @@ interface MessageInputProps {
     receiversId?: string[]
     replying: boolean,
     setReplying: (value: boolean) => void;
-    replyingMessage: string
+    replyingMessage: string,
+    isIamBlocked: boolean
 }
 
 export default function MessageInput({
@@ -32,12 +33,12 @@ export default function MessageInput({
     replying,
     setReplying,
     replyingMessage,
+    isIamBlocked,
 }: MessageInputProps) {
 
     const { addMessage, updateMessage, updateMessageStatus } = useMessage();
     const params = useParams();
     const { startUpload } = useUploadThing("messageFile");
-    console.log({ receiversId });
     const chatId = params?.privateChatId || params?.groupChatId as string;
 
     const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -92,7 +93,15 @@ export default function MessageInput({
 
     const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-
+        if (isIamBlocked) {
+            toast({
+                description: "Messaging restricted",
+                variant: "destructive"
+            });
+            setContent("");
+            setFiles([]);
+            return;
+        }
         if (!content?.trim() && files.length === 0) {
             toast({ description: 'Message or image must not be empty.' });
             return;

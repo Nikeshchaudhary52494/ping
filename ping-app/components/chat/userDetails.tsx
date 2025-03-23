@@ -2,6 +2,8 @@ import { blockUser } from "@/actions/chat/privateChat/blockUser";
 import { useUser } from "../providers/userProvider";
 import { Separator } from "../ui/separator";
 import { UserAvatar } from "../user/UserAvatar";
+import { useState } from "react";
+import unBlockUser from "@/actions/chat/privateChat/unBlockUser";
 
 interface UserDetailsProps {
     name: string;
@@ -22,9 +24,17 @@ export function UserDetails({
     const { user: currentUser } = useUser();
 
     const handleBlockUser = async () => {
-        console.log("hello")
         await blockUser(userId, currentUser?.id!);
+        setUserBlocked(true);
     }
+    const handleUnblockUser = async () => {
+        await unBlockUser(currentUser?.id!, userId);
+        setUserBlocked(false)
+    }
+    const isUserBlocked = currentUser?.blockedContacts.some(contact => contact.blockedId === userId) ?? false;
+
+    const [userBlocked, setUserBlocked] = useState<boolean>(isUserBlocked)
+
     return (
         <div className="text-start">
             <section className="flex flex-col items-center py-8">
@@ -40,11 +50,21 @@ export function UserDetails({
             </section>
             <Separator className="bg-foreground/40 mb-5" />
             <section className="mt-6 px-2">
-                <div
-                    onClick={() => handleBlockUser()}
-                    className="bg-red-500/10 text-center p-3 rounded-md cursor-pointer hover:bg-red-500/20 transition">
-                    <span className="text-red-500 font-semibold">Block user </span>
-                </div>
+                {
+                    userBlocked ? (
+                        <div
+                            onClick={handleUnblockUser}
+                            className="bg-red-500/10 text-center p-3 rounded-md cursor-pointer hover:bg-red-500/20 transition">
+                            <span className="text-red-500 font-semibold">Unblock user</span>
+                        </div>
+                    ) : (
+                        <div
+                            onClick={() => handleBlockUser()}
+                            className="bg-red-500/10 text-center p-3 rounded-md cursor-pointer hover:bg-red-500/20 transition">
+                            <span className="text-red-500 font-semibold">Block user </span>
+                        </div>
+                    )
+                }
             </section>
 
         </div>

@@ -1,42 +1,62 @@
-import { getUser } from "@/actions/user/getUser";
-import { db } from "@/lib/db";
+"use client"
+
 import { UserAvatar } from "../user/UserAvatar";
+import { useEffect, useState } from "react";
+import { useUser } from "../providers/userProvider";
+import getBlockedUsers from "@/actions/chat/privateChat/getBlockedUsers";
+import unBlockUser from "@/actions/chat/privateChat/unBlockUser";
+import { toast } from "@/app/hooks/use-toast";
 
-export default async function BlockedUsers() {
-    const { user } = await getUser();
+interface BlockedUser {
+    blocked: {
+        id: string;
+        displayName: string;
+        username: string | null;
+        imageUrl: string | null;
+    };
+}
+export default function BlockedUsers() {
 
-    if (!user) return <p className="text-center text-red-500">User not found.</p>;
+    const { user } = useUser();
 
-    const blockedUsers = await db.user.findUnique({
-        where: { id: user.id },
-        select: {
-            blockedContacts: {
-                select: {
-                    blocked: {
-                        select: {
-                            displayName: true,
-                            id: true,
-                            username: true,
-                            imageUrl: true
-                        }
-                    }
-                }
-            }
-        }
-    });
+    const [blockedUsers, setBlockedUsers] = useState<BlockedUser[]>([]);
+
+    const handleUnblock = async (blockedId: string) => {
+        const remainingUsers = await unBlockUser(user?.id!, blockedId);
+        setBlockedUsers(remainingUsers);
+        toast({
+            description: "User unblocked",
+        });
+    };
+
+    useEffect(() => {
+        if (!user?.id) return;
+
+        const fetchBlockedUsers = async () => {
+            const users = await getBlockedUsers(user.id);
+            setBlockedUsers(users || []);
+        };
+
+        fetchBlockedUsers();
+    }, [user?.id]);
 
     return (
         <div className="flex flex-col items-start p-10 space-y-6">
-            <h2 className="text-3xl font-bold">Manage Blocked Users</h2>
-
-            {blockedUsers?.blockedContacts.length === 0 ? (
+            <div>
+                <h2 className="text-3xl font-bold">Manage Blocked Users</h2>
+                <p className="text-foreground/40">click profile to unblock Usser</p>
+            </div>
+            {blockedUsers?.length === 0 ? (
                 <p className="text-muted-foreground">No blocked users.</p>
             ) : (
-                <div className="space-y-4">
-                    {blockedUsers?.blockedContacts.map(({ blocked }) => (
-                        <div key={blocked.id} className="flex items-center justify-between p-4 border rounded-lg">
+                <div className="space-y-4 grid w-full grid-cols-3">
+                    {blockedUsers?.map(({ blocked }) => (
+                        <div
+                            key={blocked.id}
+                            onClick={() => { handleUnblock(blocked.id) }}
+                            className="flex items-center group w-full hover:bg-secondary duration-200 justify-between p-4 border rounded-lg">
                             <div className="flex items-center gap-4">
-                                <UserAvatar imageUrl={blocked.imageUrl} />
+                                <UserAvatar className="group-hover:bg-background duration-200 bg-secondary rounded-full" imageUrl={blocked.imageUrl} />
                                 <div>
                                     <p className="font-medium">{blocked.displayName}</p>
                                     <p className="text-sm text-muted-foreground">@{blocked.username}</p>

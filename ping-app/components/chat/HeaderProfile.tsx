@@ -16,7 +16,7 @@ export function HeaderProfile({
     user,
     isCurrentUser,
     showDetails,
-    setShowDetails
+    setShowDetails,
 }: HeaderProfileProps) {
 
     const { onlineUsers } = useSocketContext();
@@ -36,7 +36,7 @@ export function HeaderProfile({
     }
 
     return (
-        <div onClick={() => setShowDetails(!showDetails)} className="flex items-center">
+        <div onClick={() => { !isCurrentUser && setShowDetails(!showDetails) }} className="flex items-center">
             <div className="mx-3">
                 <UserAvatar
                     imageUrl={imageUrl}

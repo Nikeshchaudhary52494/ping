@@ -59,8 +59,6 @@ export default function CallView({
 
     if (callState === "accepted" || (callState === "ringing" && currentCall?.type === "VIDEO")) {
 
-        console.log("videoref", { localStream, remoteStream });
-
         return (
             <div className="h-full">
 

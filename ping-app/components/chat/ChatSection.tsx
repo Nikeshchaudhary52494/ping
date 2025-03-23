@@ -46,6 +46,7 @@ export default function ChatSection({
     const receiver = chatType === "private"
         ? members?.find((member) => member.id !== user?.id)
         : null;
+    const isIamBlocked = receiver?.blockedContacts.some(contact => contact.blockedId === user?.id) ?? false;
 
     const receiversId = chatType === "group"
         ? groupChatData?.members
@@ -191,11 +192,18 @@ export default function ChatSection({
                             setReplying={setReplying}
                             replying={replying}
                             replyingMessage={replyingMessage}
+                            isIamBlocked={false}
                         />
                     ) : (
-                        <MessageInput senderId={user?.id!} receiverId={receiver?.id} setToBottom={setToBottom} setReplying={setReplying}
+                        <MessageInput
+                            senderId={user?.id!}
+                            receiverId={receiver?.id}
+                            setToBottom={setToBottom}
+                            setReplying={setReplying}
                             replying={replying}
-                            replyingMessage={replyingMessage} />
+                            replyingMessage={replyingMessage}
+                            isIamBlocked={isIamBlocked}
+                        />
                     )}
                 </div>
             </div>

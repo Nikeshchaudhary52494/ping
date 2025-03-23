@@ -1,7 +1,6 @@
 import Searchbar from "./Searchbar";
 import SidebarHeader from "./SidebarHeader";
 import FriendsSkeleton from "../skeletons/Chats";
-import Profile from "@/components/skeletons/Profile";
 import { useEffect, useState } from "react";
 import { getPrivateChats } from "@/actions/chat/privateChat/getPrivateChats";
 import { GroupSearchData, UserTab } from "@/types/prisma";
@@ -19,7 +18,7 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ CurrentuserId, isMobileDevice, type }: SidebarProps) {
-    const { privateChats, setPrivateChats, setGroupList } = useChatData();
+    const { setPrivateChats, setGroupList } = useChatData();
     const [searchData, setSearchData] = useState<GroupSearchData[] | UserTab[]>([]);
     const [isLoading, setLoading] = useState(true);
 
@@ -55,12 +54,7 @@ export default function Sidebar({ CurrentuserId, isMobileDevice, type }: Sidebar
 
     return (
         <div className="flex flex-col items-center w-full h-full space-y-4 sm:border-x-[1px] border-secondary-foreground/10 border-opacity-10 bg-secondary">
-            {isLoading && !isMobileDevice ?
-                <Profile /> :
-                <SidebarHeader
-                    isMobileDevice={isMobileDevice}
-                />}
-
+            <SidebarHeader isMobileDevice={isMobileDevice} />
             <div className="w-full px-2 my-2">
                 <Searchbar
                     type={type}

@@ -21,6 +21,7 @@ import { signInUser } from "@/actions/auth/signInUser";
 import { toast } from "@/app/hooks/use-toast";
 import Link from "next/link";
 import { decryptPrivateKey } from "@/lib/crypto";
+import { useUser } from "../providers/userProvider";
 
 export default function SignIn() {
     const router = useRouter();
@@ -33,6 +34,7 @@ export default function SignIn() {
     });
 
     const [isPending, startTransition] = useTransition();
+    const { updateUser } = useUser();
 
     const onSubmit = (data: SignInUserInput) => {
         startTransition(async () => {
@@ -40,19 +42,20 @@ export default function SignIn() {
             formData.append("email", data.email);
             formData.append("password", data.password);
 
-            const result = await signInUser(formData);
-            if (result.success) {
+            const { success, user, message } = await signInUser(formData);
+            updateUser({ ...user })
+            if (success) {
                 toast({
                     description: "User signed in successfully",
                 });
-                localStorage.setItem("pingPublicKey", result.user?.publicKey!);
-                const privateKey = await decryptPrivateKey(result.user?.encryptedPrivateKey!, data.password, result.user?.salt!)
+                localStorage.setItem("pingPublicKey", user?.publicKey!);
+                const privateKey = await decryptPrivateKey(user?.encryptedPrivateKey!, data.password, user?.salt!)
                 localStorage.setItem("pingPrivateKey", privateKey);
                 router.push("/");
             } else {
                 toast({
                     variant: "destructive",
-                    description: result.message,
+                    description: message,
                 });
             }
         });
@@ -64,19 +67,20 @@ export default function SignIn() {
             formData.append("email", "guestuser@gmail.com");
             formData.append("password", "guestPassword123");
 
-            const result = await signInUser(formData);
-            if (result.success) {
+            const { success, user, message } = await signInUser(formData);
+            updateUser
+            if (success) {
                 toast({
                     description: "Guest user signed in successfully",
                 });
-                localStorage.setItem("pingPublicKey", result.user?.publicKey!);
-                const privateKey = await decryptPrivateKey(result.user?.encryptedPrivateKey!, result.user?.salt!, "guestPassword123")
+                localStorage.setItem("pingPublicKey", user?.publicKey!);
+                const privateKey = await decryptPrivateKey(user?.encryptedPrivateKey!, user?.salt!, "guestPassword123")
                 localStorage.setItem("pingPrivateKey", privateKey);
                 router.push("/");
             } else {
                 toast({
                     variant: "destructive",
-                    description: result.message,
+                    description: message,
                 });
             }
         });

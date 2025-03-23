@@ -19,6 +19,11 @@ export const getUser = async () => {
                         showProfileImage: true,
                         restrictMessagesFromUnknown: true
                     }
+                },
+                blockedContacts: {
+                    select: {
+                        blockedId: true,
+                    }
                 }
             }
         });

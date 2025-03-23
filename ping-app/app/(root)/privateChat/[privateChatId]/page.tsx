@@ -24,6 +24,11 @@ async function ChatContent({ params }: ChatsProps) {
                                 hideProfile: true,
                                 showProfileImage: true,
                                 restrictMessagesFromUnknown: true
+                            },
+                        },
+                        blockedContacts: {
+                            select: {
+                                blockedId: true,
                             }
                         }
                     }

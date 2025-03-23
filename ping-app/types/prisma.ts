@@ -39,6 +39,9 @@ export interface MyUser extends User {
         hideProfile: boolean;
         hideOnlineStatus: boolean;
     } | null;
+    blockedContacts: {
+        blockedId: string;
+    }[]
 }
 
 export interface GroupSearchData {
@@ -69,6 +72,10 @@ export interface GroupChatData {
     id: string;
     about: string | null;
     chatId: string;
+    admins: {
+        id: string
+    }[];
+    ownerId: string;
     members: {
         imageUrl: string | null;
         id: string;

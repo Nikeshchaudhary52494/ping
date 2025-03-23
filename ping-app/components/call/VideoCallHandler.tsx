@@ -20,8 +20,6 @@ export default function VideoCallHandler({
         }
     }, [stream]);
 
-    console.log({ stream, isLocalStream, active: stream?.active })
-
     return (
         <video
             ref={videoRef}

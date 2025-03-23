@@ -35,14 +35,20 @@ export function GroupDetails({
                 <p className="text-xs text-foreground/40 font-semibold">{groupChatData.members.length} Members</p>
                 <div className="mt-5 space-y-4">
                     {groupChatData.members
-                        .map((member) => (
-                            <MembersList
-                                key={member.id}
-                                name={member.displayName}
-                                imageUrl={member.imageUrl!}
-                                username={member.username!}
-                            />
-                        ))}
+                        .map((member) => {
+                            const isOwner = member.id === groupChatData.ownerId
+                            const isadmin = groupChatData.admins.some(({ id }) => id == member?.id);
+                            return (
+                                <MembersList
+                                    key={member.id}
+                                    name={member.displayName}
+                                    imageUrl={member.imageUrl!}
+                                    username={member.username!}
+                                    role={isOwner ? "owner" : isadmin ? "admin" : "member"}
+                                />
+                            )
+                        }
+                        )}
                 </div>
             </section>
 
@@ -60,13 +66,15 @@ export function GroupDetails({
 interface MembersListProps {
     name: string;
     imageUrl: string;
-    username: string
+    username: string;
+    role: string
 }
 
 function MembersList({
     name,
     imageUrl,
     username,
+    role
 }: MembersListProps) {
     return (
         <div className="flex items-center justify-between bg-foreground/5 p-3 rounded-md">
@@ -77,7 +85,7 @@ function MembersList({
                     <span className="text-xs text-foreground/40">@{username}</span>
                 </div>
             </div>
-            <span className="text-xs text-primary font-medium">Admin</span>
+            <span className="text-xs text-primary font-medium">{role}</span>
         </div>
     );
 }
