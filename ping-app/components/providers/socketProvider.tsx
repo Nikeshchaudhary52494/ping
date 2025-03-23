@@ -13,6 +13,7 @@ import { io, Socket } from 'socket.io-client';
 import { useUser } from './userProvider';
 import { SocketContextType, CallData, CallState } from '@/types/socket';
 import { useSocketEvents } from '@/app/hooks/useSocketEvents';
+import { CallType } from '@prisma/client';
 
 const SocketContext = createContext<SocketContextType | undefined>(undefined);
 
@@ -29,7 +30,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
 
     const { user } = useUser();
 
-    const getMediaStream = useCallback(async (calltype: "voice" | "video") => {
+    const getMediaStream = useCallback(async (calltype: CallType) => {
         if (localStream) {
             return localStream
         }
@@ -37,7 +38,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
         try {
             const stream = await navigator.mediaDevices.getUserMedia({
                 audio: true,
-                video: calltype == "video"
+                video: calltype == "VIDEO"
             })
             setLocalStream(stream);
             return stream;

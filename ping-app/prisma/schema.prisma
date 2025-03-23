@@ -8,39 +8,39 @@ datasource db {
 }
 
 model User {
-  id          String  @id @default(cuid())
-  displayName String
-  email       String  @unique
-  password    String
-  onboarded   Boolean @default(false)
-  username    String? @unique
-  bio         String  @default("New user to ping!!")
-  imageUrl    String?
-  publicKey   String
+  id                  String  @id @default(cuid())
+  displayName         String
+  email               String  @unique
+  password            String
+  onboarded           Boolean @default(false)
+  username            String? @unique
+  bio                 String  @default("New user to ping!!")
+  imageUrl            String?
+  publicKey           String
+  encryptedPrivateKey String
+  salt                String
 
   messages        Message[]
   chats           Chat[]         @relation("ChatMemberships")
   blockedContacts ContactBlock[] @relation("BlockedBy")
   blockedBy       ContactBlock[] @relation("BlockedUsers")
   settings        UserSettings?
-  notifications   Notification[]
 
   ownedGroups      GroupChat[] @relation("GroupOwners")
   adminGroups      GroupChat[] @relation("GroupAdmins")
   groupMemberships GroupChat[] @relation("GroupMemberships")
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  callsAsCaller   CallHistory[] @relation("CallsAsCaller")
+  callsAsReceiver CallHistory[] @relation("CallsAsReceiver")
 }
 
 model UserSettings {
   id                          Int     @id @default(autoincrement())
   userId                      String  @unique
   user                        User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  themeColor                  String  @default("light")
   showProfileImage            Boolean @default(true)
-  allowMessageForwarding      Boolean @default(true)
-  hideLastSeen                Boolean @default(false)
   restrictMessagesFromUnknown Boolean @default(false)
   hideProfile                 Boolean @default(false)
   hideOnlineStatus            Boolean @default(false)
@@ -63,13 +63,12 @@ enum ChatType {
 }
 
 model Chat {
-  id            String         @id @default(cuid())
-  type          ChatType
-  createdAt     DateTime       @default(now())
-  members       User[]         @relation("ChatMemberships")
-  messages      Message[]
-  notifications Notification[]
-  groupChat     GroupChat?
+  id        String     @id @default(cuid())
+  type      ChatType
+  createdAt DateTime   @default(now())
+  members   User[]     @relation("ChatMemberships")
+  messages  Message[]
+  groupChat GroupChat?
 
   @@index([type, createdAt])
 }
@@ -80,14 +79,12 @@ model GroupChat {
   imageUrl String?
   about    String?
   ownerId  String
+  canJoin  Boolean @default(true)
   owner    User    @relation("GroupOwners", fields: [ownerId], references: [id], onDelete: Cascade)
   admins   User[]  @relation("GroupAdmins")
   members  User[]  @relation("GroupMemberships")
   chat     Chat    @relation(fields: [chatId], references: [id])
   chatId   String  @unique
-
-  encryptedKey String
-  nonce        String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -104,7 +101,7 @@ enum messageStatus {
 model Message {
   id               String        @id @default(cuid())
   encryptedContent String?
-  nonce            String
+  nonce            String?
   fileUrl          String?
   isDeleted        Boolean       @default(false)
   isEdited         Boolean       @default(false)
@@ -122,18 +119,26 @@ model Message {
   @@index([senderId, createdAt])
 }
 
-model Notification {
-  id          String    @id @default(cuid())
-  userId      String
-  user        User      @relation(fields: [userId], references: [id])
-  chatId      String
-  chat        Chat      @relation(fields: [chatId], references: [id])
-  unreadCount Int       @default(0)
-  lastMessage String?
-  lastSeenAt  DateTime?
+enum CallStatus {
+  MISSED
+  PICKED
+  OUTGOING
+  INCOMING
+}
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+enum CallType {
+  VOICE
+  VIDEO
+}
 
-  @@index([userId, chatId])
+model CallHistory {
+  id         String     @id @default(cuid())
+  callerId   String
+  receiverId String
+  caller     User       @relation("CallsAsCaller", fields: [callerId], references: [id])
+  receiver   User       @relation("CallsAsReceiver", fields: [receiverId], references: [id])
+  callStatus CallStatus
+  callTime   DateTime   @default(now())
+  duration   String
+  callType   CallType
 }

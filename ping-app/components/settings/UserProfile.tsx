@@ -1,31 +1,28 @@
-import { getUser } from "@/actions/user/getUser";
+"use client";
+
+import AccountProfile from "../account-profile";
 import LogoutButton from "../auth/logout-button";
-import { redirect } from "next/navigation";
-import { UserAvatar } from "../user/UserAvatar";
+import { useUser } from "../providers/userProvider";
+import { useRouter } from "next/navigation";
+import Userprofile from "../skeletons/UserProfile";
 
-export default async function UserProfile() {
-    const { user } = await getUser();
-    if (!user) redirect("/sign-in")
+export default function UserProfile() {
+    const { user, loading } = useUser();
+    const router = useRouter();
+
+    if (!user && !loading) {
+        router.push("/sign-in");
+    }
+    if (!user) {
+        return <Userprofile />
+    }
+
     return (
-        <div className="max-w-lg p-10 flex flex-col items-start space-y-6">
+        <div className="flex flex-col items-start h-full p-10 space-y-6 overflow-y-scroll">
             <h2 className="text-3xl font-bold">Account Details</h2>
-
-            <div className="flex items-center gap-6">
-                  <UserAvatar size={96}/>
-                <div className="flex text-start flex-col">
-                    <span className="font-bold uppercase">{user?.displayName}</span>
-                    <span className="text-sm text-primary">@{user?.username}</span>
-                </div>
-            </div>
-
-            <div className="space-y-1">
-                <p className="font-semibold">Edit Personal Information</p>
-                <button className="text-xs text-foreground/40">Change your Profile Name or Email</button>
-            </div>
-
-            <button className="text-sm hover:underline">Change Password</button>
-
+            <AccountProfile user={user!} btnTitle='Continue' />
             <div className="space-y-2">
+                <p>Sign out from device</p>
                 <LogoutButton />
             </div>
         </div>

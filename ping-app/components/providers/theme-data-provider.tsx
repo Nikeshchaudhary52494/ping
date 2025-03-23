@@ -37,7 +37,7 @@ export default function ThemeDataProvider({
     if (!isMounted) {
       setIsMounted(true);
     }
-  }, [themeColor, theme]);
+  }, [themeColor, theme, isMounted]);
 
   if (!isMounted) {
     return null;

@@ -4,8 +4,9 @@ import { db } from "@/lib/db";
 import bcrypt from "bcryptjs";
 import { registerUserSchema } from "@/lib/validationSchemas";
 import { generateToken, setAuthCookie } from "@/lib/jwtUtils";
+import { encryptPrivateKey } from "@/lib/crypto";
 
-export const registerUser = async (formData: FormData, publicKey: string) => {
+export const registerUser = async (formData: FormData, publicKey: string, privateKey: string) => {
     try {
         const parsedData = registerUserSchema.safeParse({
             displayName: formData.get("displayName"),
@@ -27,6 +28,8 @@ export const registerUser = async (formData: FormData, publicKey: string) => {
             return { success: false, message: "Email already in use." };
         }
 
+        const encryptedPrivateKey = await encryptPrivateKey(privateKey, password);
+
         const hashedPassword = await bcrypt.hash(password, 10);
 
         const newUser = await db.user.create({
@@ -34,7 +37,14 @@ export const registerUser = async (formData: FormData, publicKey: string) => {
                 displayName,
                 email,
                 password: hashedPassword,
-                publicKey
+                publicKey,
+                encryptedPrivateKey: encryptedPrivateKey.encryptedKey,
+                salt: encryptedPrivateKey.nonce,
+                settings: {
+                    create: {
+
+                    }
+                }
             },
         });
 

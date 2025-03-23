@@ -9,6 +9,7 @@ import { MessageProvider } from "@/components/providers/messageProvider";
 import CurrentCallHandler from "@/components/providers/CurrentCallHandler";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
 import ThemeDataProvider from "@/components/providers/theme-data-provider";
+import { ChatDataProvider } from "@/components/providers/chatDataProvider";
 
 const font = Open_Sans({ subsets: ["latin"] });
 
@@ -35,8 +36,10 @@ export default function RootLayout({
             <UserProvider>
               <SocketProvider>
                 <MessageProvider>
-                  {children}
+                  <ChatDataProvider>
+                    {children}
                   <CurrentCallHandler />
+                  </ChatDataProvider>
                 </MessageProvider>
               </SocketProvider>
             </UserProvider>

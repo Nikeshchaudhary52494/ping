@@ -1,14 +1,8 @@
-import { UserGroups } from "@/types/prisma";
 import ChatListItem from "./ChatListItem";
+import { useChatData } from "../providers/chatDataProvider";
 
-interface GroupListParams {
-    groupList: UserGroups[]
-}
-
-export default function GroupList({
-    groupList
-}: GroupListParams) {
-
+export default function GroupList() {
+    const { groupList } = useChatData();
     return (
         <div className="h-full">
             <p className="p-2">Groups</p>

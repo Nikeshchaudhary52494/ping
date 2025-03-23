@@ -4,7 +4,7 @@ import { getReceiverSocketId, io } from "../socket/socket";
 
 export const sendMessage = async (req: Request, res: Response): Promise<Response> => {
     try {
-        const { encryptedContent, nonce, senderId, fileUrl, receiverId } = req.body;
+        const { encryptedContent, nonce, senderId, fileUrl, receiversId, isGroup } = req.body;
         const { chatId } = req.params;
 
         if (!chatId || !senderId || (!encryptedContent && !fileUrl)) {
@@ -26,11 +26,20 @@ export const sendMessage = async (req: Request, res: Response): Promise<Response
                 status: "SENT"
             }
         });
-
-        const receiverSocketId = getReceiverSocketId(receiverId);
-        if (receiverSocketId) {
-            io.to(receiverSocketId).emit("newMessage", newMessage);
+        if (isGroup) {
+            receiversId.map((id: string) => {
+                const receiverSocketId = getReceiverSocketId(id);
+                if (receiverSocketId) {
+                    io.to(receiverSocketId).emit("newMessage", newMessage);
+                }
+            })
+        } else {
+            const receiverSocketId = getReceiverSocketId(receiversId);
+            if (receiverSocketId) {
+                io.to(receiverSocketId).emit("newMessage", newMessage);
+            }
         }
+
 
         return res.status(201).json(newMessage);
     } catch (error) {

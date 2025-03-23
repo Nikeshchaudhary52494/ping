@@ -1,6 +1,5 @@
 "use server"
 
-
 import { db } from "@/lib/db";
 import { ChatType } from "@prisma/client";
 
@@ -9,11 +8,9 @@ interface createGroupParams {
     name: string;
     about: string;
     imageUrl?: string;
-    encryptedKey: string,
-    nonce: string,
 }
 
-export async function createGroup({ about, name, ownerId, imageUrl, encryptedKey, nonce }: createGroupParams) {
+export async function createGroup({ about, name, ownerId, imageUrl }: createGroupParams) {
     const newGroup = await db.chat.create({
         data: {
             type: ChatType.GROUP,
@@ -23,8 +20,6 @@ export async function createGroup({ about, name, ownerId, imageUrl, encryptedKey
                     name,
                     ownerId,
                     imageUrl,
-                    encryptedKey,
-                    nonce,
                     members: {
                         connect: [{ id: ownerId }]
                     },

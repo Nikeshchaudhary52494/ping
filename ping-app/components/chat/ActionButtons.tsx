@@ -1,12 +1,14 @@
 "use client";
 
-import { Video, Phone, MoreVertical } from "lucide-react";
+import { Video, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ActionTooltip from "@/components/action-tooltip";
 import { useCallback } from "react";
 import { useToast } from "@/app/hooks/use-toast";
 import { useSocketContext } from "@/components/providers/socketProvider";
 import { useRouter } from "next/navigation";
+import { CallType } from "@prisma/client";
+import { makeCall } from "@/actions/chat/privateChat/addCall";
 
 interface ActionButtonsProps {
     recipientId: string;
@@ -25,7 +27,7 @@ export function ActionButtons({ recipientId, currentUserId }: ActionButtonsProps
     const { toast } = useToast();
     const router = useRouter();
 
-    const initiateCall = useCallback(async (type: 'video' | 'voice') => {
+    const initiateCall = useCallback(async (type: CallType) => {
         if (!socket) {
             toast({
                 title: "Connection Error",
@@ -47,13 +49,15 @@ export function ActionButtons({ recipientId, currentUserId }: ActionButtonsProps
         })
         setCallState("ringing")
 
-        if (type === "video") router.push("/calls")
+        if (type === "VIDEO") router.push("/calls/callScreen")
 
         socket.emit('call:initiate', {
             from: currentUserId,
             to: recipientId,
             type,
         });
+
+        await makeCall(currentUserId, recipientId, type);
     }, [
         socket,
         currentUserId,
@@ -76,7 +80,7 @@ export function ActionButtons({ recipientId, currentUserId }: ActionButtonsProps
                     variant="ghost"
                     size="icon"
                     className="text-slate-200 hover:text-white hover:bg-slate-700"
-                    onClick={() => initiateCall('video')}
+                    onClick={() => initiateCall('VIDEO')}
                     disabled={disabled}
                 >
                     <Video className="w-5 h-5" />
@@ -87,19 +91,10 @@ export function ActionButtons({ recipientId, currentUserId }: ActionButtonsProps
                     variant="ghost"
                     size="icon"
                     className="text-slate-200 hover:text-white hover:bg-slate-700"
-                    onClick={() => initiateCall('voice')}
+                    onClick={() => initiateCall('VOICE')}
                     disabled={disabled}
                 >
                     <Phone className="w-5 h-5" />
-                </Button>
-            </ActionTooltip>
-            <ActionTooltip label="More options">
-                <Button
-                    disabled
-                    variant="ghost"
-                    size="icon"
-                    className="text-slate-200 hover:text-white hover:bg-slate-700">
-                    <MoreVertical className="w-5 h-5" />
                 </Button>
             </ActionTooltip>
         </div>

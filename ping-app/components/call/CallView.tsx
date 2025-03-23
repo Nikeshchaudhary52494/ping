@@ -4,9 +4,11 @@ import CallAlert from "./CallAlert";
 import VideoCallHandler from "./VideoCallHandler";
 import CallController from "./CallController";
 import AudioCallHandler from "./AudioCallHandler";
+import { CallType } from "@prisma/client";
+import { useRouter } from "next/navigation";
 
 interface CallViewProps {
-    callType: "video" | "voice";
+    callType: CallType;
     remoteParticipantName: string;
     remoteUserId: string;
 }
@@ -16,6 +18,8 @@ export default function CallView({
     remoteParticipantName,
     remoteUserId
 }: CallViewProps) {
+
+    const router = useRouter();
 
     const {
         socket,
@@ -41,6 +45,7 @@ export default function CallView({
                 from: currentCall?.from,
                 to: remoteUserId,
             });
+            router.push("/calls");
         }
 
         if (peerConnectionRef.current) {
@@ -52,7 +57,7 @@ export default function CallView({
         setLocalStream(null);
     };
 
-    if (callState === "accepted" || (callState === "ringing" && currentCall?.type === "video")) {
+    if (callState === "accepted" || (callState === "ringing" && currentCall?.type === "VIDEO")) {
 
         console.log("videoref", { localStream, remoteStream });
 
@@ -61,7 +66,7 @@ export default function CallView({
 
                 <CallAlert callState={callState} />
 
-                {callType === "video" ? (
+                {callType === "VIDEO" ? (
                     <div className="flex flex-col h-full">
                         <div className="flex-1 h-20 m-2 rounded-lg">
                             <div className="flex items-center justify-center h-full mx-auto overflow-hidden bg-transparent rounded-lg w-fit">
@@ -117,7 +122,7 @@ export default function CallView({
                                 <p className="text-muted-foreground">Voice Call</p>
                             </div>
                         </div>
-                        {callType === "voice" && callState === "accepted" && (
+                        {callType === "VOICE" && callState === "accepted" && (
                             <AudioCallHandler stream={remoteStream} />
                         )}
                         <CallController

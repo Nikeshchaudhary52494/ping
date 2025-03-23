@@ -6,7 +6,6 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog"
 import CreateGroupForm from '../chat/CreateGroupForm';
-import { cn } from "@/lib/utils";
 import { useState } from "react";
 import ActionTooltip from "../action-tooltip";
 import { Button } from "../ui/button";
@@ -26,20 +25,14 @@ export default function ActionButton({
             <ActionTooltip label="Create Group">
                 <Dialog open={isopen} onOpenChange={setIsOpen}>
                     <DialogTrigger asChild>
-                        <Button 
-                        variant="ghost"
-                        className="flex items-center group">
-                            <div
-                                className={cn(
-                                    "flex mx-3 rounded-[24px] group-hover:rounded-[16px] transition-all overflow-hidden items-center justify-center bg-primary/20 group-hover:bg-emerald-500",
-                                    size === "sm" ? "w-8 h-8 p-2" : "w-12 h-12"
-                                )}
-                            >
-                                <Plus
-                                    className="transition group-hover:text-white text-emerald-500"
-                                    size={size === "sm" ? 18 : 25}
-                                />
-                            </div>
+                        <Button className={`
+                            flex  rounded-full group hover:rounded-[16px] bg-primary/20 duration-200 hover:bg-emerald-500
+                           ${size === "sm" ? "w-8 h-8 p-2" : "w-12 h-12"}
+                        `}>
+                            <Plus
+                                className="group-hover:text-white text-emerald-500"
+                                size={size === "sm" ? 18 : 25}
+                            />
                         </Button>
                     </DialogTrigger>
                     <DialogContent className="h-full sm:h-fit">
@@ -48,13 +41,11 @@ export default function ActionButton({
                                 <p className="font-bold text-3xl">Create Group</p>
                                 <p className="text-sm">Create a group to hang out with your friends!</p>
                             </div>
-                            <div>
-                                <CreateGroupForm setIsOpen={setIsOpen} />
-                            </div>
+                            <CreateGroupForm setIsOpen={setIsOpen} />
                         </div>
                     </DialogContent>
                 </Dialog>
-            </ActionTooltip>
+            </ActionTooltip >
         </>
     );
 }

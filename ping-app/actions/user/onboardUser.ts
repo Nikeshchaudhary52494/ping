@@ -12,18 +12,35 @@ interface onboardUserParams {
 }
 
 export async function onboardUser({ userId, displayName, username, bio, imageUrl }: onboardUserParams) {
-    const newProfile = await db.user.update({
-        where: {
-            id: userId
-        },
-        data: {
-            username,
-            displayName,
-            bio,
-            imageUrl,
-            onboarded: true
-        }
-    });
+    try {
+        const isUsernameTaken = await db.user.count({
+            where: {
+                username,
+                id: {
+                    not: userId
+                }
+            }
+        })
 
-    return newProfile;
+        if (isUsernameTaken > 0) {
+            throw new Error("Username already takne");
+        }
+
+        const newProfile = await db.user.update({
+            where: {
+                id: userId
+            },
+            data: {
+                username,
+                displayName,
+                bio,
+                imageUrl,
+                onboarded: true
+            }
+        });
+
+        return newProfile;
+    } catch (error) {
+        console.error(error)
+    }
 }

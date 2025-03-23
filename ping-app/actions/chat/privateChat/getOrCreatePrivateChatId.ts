@@ -15,7 +15,41 @@ const findChatByTypeAndMembers = async (type: ChatType, memberIds: string[]) => 
                     }
                 }
             }
-        }
+        },
+        select: {
+            type: true,
+            id: true,
+            members: {
+                where: {
+                    id: { not: memberIds[0] }
+                },
+                select: {
+                    id: true,
+                    displayName: true,
+                    imageUrl: true,
+                    settings: {
+                        select: {
+                            showProfileImage: true,
+                            hideProfile: true,
+                            hideOnlineStatus: true,
+                        }
+                    }
+                },
+            },
+            messages: {
+                select: {
+                    status: true,
+                    fileUrl: true,
+                    encryptedContent: true,
+                    nonce: true,
+                    createdAt: true,
+                    updatedAt: true,
+                    isDeleted: true
+                },
+                take: 1,
+                orderBy: { createdAt: "desc" }
+            }
+        },
     });
 };
 
@@ -26,12 +60,46 @@ const createChat = async (type: ChatType, memberIds: string[]) => {
             type,
             members: {
                 connect: memberIds.map((id) => ({ id }))
+            },
+        },
+        select: {
+            type: true,
+            id: true,
+            members: {
+                where: {
+                    id: { not: memberIds[0] }
+                },
+                select: {
+                    id: true,
+                    displayName: true,
+                    imageUrl: true,
+                    settings: {
+                        select: {
+                            showProfileImage: true,
+                            hideProfile: true,
+                            hideOnlineStatus: true,
+                        }
+                    }
+                },
+            },
+            messages: {
+                select: {
+                    status: true,
+                    fileUrl: true,
+                    encryptedContent: true,
+                    nonce: true,
+                    createdAt: true,
+                    updatedAt: true,
+                    isDeleted: true
+                },
+                take: 1,
+                orderBy: { createdAt: "desc" }
             }
         }
     });
 };
 
-export const getOrCreatePrivateChatId = async (memberOne: string, memberTwo: string) => {
+export const getOrCreatePrivateChat = async (memberOne: string, memberTwo: string) => {
     try {
         const isSelfChat = memberOne === memberTwo;
         const chatType = isSelfChat ? ChatType.SELF : ChatType.PRIVATE;
@@ -39,11 +107,11 @@ export const getOrCreatePrivateChatId = async (memberOne: string, memberTwo: str
 
         const existingChat = await findChatByTypeAndMembers(chatType, memberIds);
         if (existingChat) {
-            return existingChat.id;
+            return existingChat;
         }
 
         const newChat = await createChat(chatType, memberIds);
-        return newChat.id;
+        return newChat;
 
     } catch (error) {
         console.error("Error fetching or creating private chat:", error);

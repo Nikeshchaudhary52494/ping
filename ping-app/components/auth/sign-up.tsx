@@ -17,7 +17,7 @@ import {
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { RegisterUserInput, registerUserSchema } from "@/lib/validationSchemas";
-import { registerUser } from "@/actions/user/registerUser";
+import { registerUser } from "@/actions/auth/registerUser";
 import { toast } from "@/app/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { generateUserKeys } from "@/lib/crypto";
@@ -46,7 +46,7 @@ export default function SignUp() {
             localStorage.setItem("pingPrivateKey", keys.privateKey);
             localStorage.setItem("pingPublicKey", keys.publicKey);
 
-            const result = await registerUser(formData, keys.publicKey);
+            const result = await registerUser(formData, keys.publicKey, keys.privateKey);
 
             if (result.success) {
                 toast({

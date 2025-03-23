@@ -15,7 +15,20 @@ async function ChatContent({ params }: ChatsProps) {
         getPaginatedMessages({ privateChatId: params.privateChatId }),
         db.chat.findUnique({
             where: { id: params.privateChatId },
-            select: { members: true },
+            select: {
+                members: {
+                    include: {
+                        settings: {
+                            select: {
+                                hideOnlineStatus: true,
+                                hideProfile: true,
+                                showProfileImage: true,
+                                restrictMessagesFromUnknown: true
+                            }
+                        }
+                    }
+                }
+            },
         }),
     ]);
 

@@ -1,5 +1,9 @@
-import CallScreen from "@/components/call/CallScreen";
+import CallHistory from "@/components/call/CallHistory";
 
 export default function Calls() {
-    return <CallScreen />
+    return (
+        <div className="w-full h-full overflow-y-scroll">
+            <CallHistory />
+        </div>
+    )
 }

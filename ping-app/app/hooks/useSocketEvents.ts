@@ -43,7 +43,7 @@ export const useSocketEvents = (
     );
 
     const handleIncomingCall = useCallback(
-        (data: CallData) => {
+        async (data: CallData) => {
             setCurrentCall(data);
             setCallState("incoming")
         },
@@ -53,7 +53,7 @@ export const useSocketEvents = (
     const handleCallAccepted = useCallback((data: CallData) => {
         setCurrentCall(data);
         setCallState("accepted");
-        router.push("/calls");
+        router.push("/calls/callScreen");
     },
         [setCallState, router, setCurrentCall]
     );
@@ -75,6 +75,7 @@ export const useSocketEvents = (
             description: "The call has ended",
         });
         setCurrentCall(null);
+        router.push("/calls");
         if (peerConnectionRef.current) {
             peerConnectionRef.current.close();
             peerConnectionRef.current = null;
@@ -82,7 +83,7 @@ export const useSocketEvents = (
 
         localStream?.getTracks().forEach((track) => track.stop());
         setLocalStream(null);
-    }, [toast, setCurrentCall, setCallState, localStream, peerConnectionRef, setLocalStream]);
+    }, [toast, setCurrentCall, setCallState, localStream, peerConnectionRef, setLocalStream, router]);
 
     const handleUserOffline = useCallback(() => {
         toast({

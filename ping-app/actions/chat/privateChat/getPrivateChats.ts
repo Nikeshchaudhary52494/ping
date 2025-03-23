@@ -14,8 +14,8 @@ export const getPrivateChats = async (userId: string) => {
                 }
             },
             select: {
-                type: true,
                 id: true,
+                type: true,
                 members: {
                     where: {
                         id: { not: userId }
@@ -24,12 +24,20 @@ export const getPrivateChats = async (userId: string) => {
                         id: true,
                         displayName: true,
                         imageUrl: true,
-                    }
+                        settings: {
+                            select: {
+                                showProfileImage: true,
+                                hideProfile: true,
+                                hideOnlineStatus: true,
+                            }
+                        }
+                    },
                 },
                 messages: {
                     select: {
                         status: true,
                         fileUrl: true,
+                        senderId: true,
                         encryptedContent: true,
                         nonce: true,
                         createdAt: true,

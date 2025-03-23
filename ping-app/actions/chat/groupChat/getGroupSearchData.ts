@@ -6,9 +6,9 @@ export default async function getGroupSearchData() {
     try {
         const groupSearchData = await db.groupChat.findMany({
             select: {
-                id: true,
                 imageUrl: true,
                 name: true,
+                chatId: true,
             }
         });
         return groupSearchData;

@@ -21,7 +21,6 @@ import { createGroup } from "@/actions/chat/groupChat/createGroup";
 import { useUser } from "@/components/providers/userProvider";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/app/hooks/use-toast";
-import { encryptGroupKey, generateGroupKey } from "@/lib/crypto";
 
 interface CreateGroupFormProps {
     setIsOpen: (value: boolean) => void;
@@ -57,18 +56,11 @@ export default function CreateGroupForm({
                         values.imageUrl = imgRes[0].url;
                     }
                 }
-                const groupKey = await generateGroupKey();
-                const currentUserPrivateKey = localStorage.getItem("pingPrivateKey");
-                const currentUserPublicKey = localStorage.getItem("pingPublicKey");
-
-                const encryptedData = await encryptGroupKey(groupKey, currentUserPublicKey!, currentUserPrivateKey!);
                 await createGroup({
                     ownerId: user?.id!,
                     about: values.about,
                     imageUrl: values.imageUrl,
-                    name: values.name,
-                    encryptedKey: encryptedData.encryptedKey,
-                    nonce: encryptedData.nonce,
+                    name: values.name
                 })
                 toast({
                     description: "Group created"
@@ -120,7 +112,7 @@ export default function CreateGroupForm({
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>
-                                        <div className="relative flex h-20 w-20 bg-secondary items-center justify-center rounded-full overflow-hidden">
+                                        <div className="relative flex items-center justify-center w-20 h-20 overflow-hidden rounded-full bg-secondary">
                                             {field.value ? (
                                                 <Image
                                                     fill
@@ -178,7 +170,7 @@ export default function CreateGroupForm({
                         )}
                     />
                     <Button
-                        className="bg-primary p-6 w-full font-bold"
+                        className="w-full p-6 font-bold bg-primary"
                         type="submit"
                         disabled={isPending}>
                         {isPending ? "Creating.." : "Create group"}

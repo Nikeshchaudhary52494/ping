@@ -1,6 +1,7 @@
 "use client"
 
 import { getUser } from '@/actions/user/getUser';
+import { MyUser } from '@/types/prisma';
 import { User as PrismaUser } from '@prisma/client';
 import React, { createContext, useContext, useEffect, useState, useCallback, ReactNode } from 'react';
 
@@ -14,10 +15,10 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
 export default UserProvider;
 
-
 interface UserContextType {
-    user: PrismaUser | null;
+    user: MyUser | null;
     loading: boolean;
+    updateUser: (updatedUser: Partial<PrismaUser>) => void;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -27,7 +28,8 @@ export type Props = {
 }
 
 const MyUserContextProvider = (props: Props) => {
-    const [user, setUser] = useState<PrismaUser | null>(null);
+    const [user, setUser] = useState<MyUser | null>(null);
+
     const [loading, setLoading] = useState(true);
 
     const fetchUser = useCallback(async () => {
@@ -41,12 +43,19 @@ const MyUserContextProvider = (props: Props) => {
         setLoading(false);
     }, []);
 
+    const updateUser = useCallback((updatedUser: Partial<PrismaUser>) => {
+        setUser((prevUser) => {
+            if (!prevUser) return null;
+            return { ...prevUser, ...updatedUser };
+        });
+    }, []);
+
     useEffect(() => {
         fetchUser();
     }, [fetchUser]);
 
     return (
-        <UserContext.Provider value={{ user, loading }} {...props} />
+        <UserContext.Provider value={{ user, loading, updateUser }} {...props} />
     );
 };
 

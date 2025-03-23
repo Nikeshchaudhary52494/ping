@@ -10,19 +10,17 @@ import axiosInstance from '@/lib/axiosConfig';
 import Image from 'next/image';
 import getUserPublicKey from '@/actions/user/getUserPublicKey';
 import { DecryptedMessages } from '@/types/prisma';
-import { decryptGroupKey, encryptGroupMessage, encryptPrivateMessage } from '@/lib/crypto';
+import { encryptPrivateMessage } from '@/lib/crypto';
 
 interface MessageInputProps {
     senderId: string;
     receiverId?: string;
     setToBottom: (set: boolean) => void;
     isGroup?: boolean;
-    encryptedGroupKey?: string;
-    nonce?: string;
-    ownerId?: string;
-    receiversId?: {
-        id: string;
-    }[];
+    receiversId?: string[]
+    replying: boolean,
+    setReplying: (value: boolean) => void;
+    replyingMessage: string
 }
 
 export default function MessageInput({
@@ -30,16 +28,16 @@ export default function MessageInput({
     receiverId,
     setToBottom,
     receiversId,
-    encryptedGroupKey,
     isGroup = false,
-    nonce,
-    ownerId,
+    replying,
+    setReplying,
+    replyingMessage,
 }: MessageInputProps) {
 
     const { addMessage, updateMessage, updateMessageStatus } = useMessage();
     const params = useParams();
     const { startUpload } = useUploadThing("messageFile");
-
+    console.log({ receiversId });
     const chatId = params?.privateChatId || params?.groupChatId as string;
 
     const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -66,7 +64,9 @@ export default function MessageInput({
             if (receiverId) {
                 const receiverPublicKey = await getUserPublicKey(receiverId);
                 setReceiverPublicKey(receiverPublicKey!);
-
+            } else {
+                const receiverPublicKey = localStorage.getItem("pingPublicKey");
+                setReceiverPublicKey(receiverPublicKey!);
             }
         }
 
@@ -98,24 +98,24 @@ export default function MessageInput({
             return;
         }
 
-        if (!receiverPublicKey && !isGroup) {
-            console.error("reciver Public key not available");
+        if (!isGroup && (!receiverPublicKey || receiverId === senderId)) {
+            console.error("Receiver public key not available or invalid receiver.");
             return;
         }
-        let encrypted;
-        if (isGroup) {
 
-            const currentUserPrivateKey = localStorage.getItem('pingPrivateKey');
-            const groupOwnerPublicKey = await getUserPublicKey(ownerId!);
-            console.log(encryptedGroupKey);
-            const groupKey = await decryptGroupKey(encryptedGroupKey!, nonce!, currentUserPrivateKey!, groupOwnerPublicKey!);
-            console.log("groupkey", groupKey)
-            encrypted = await encryptGroupMessage(content, groupKey);
-        } else {
-            encrypted = await encryptPrivateMessage(content, receiverPublicKey, senderPrivateKey);
+        let encrypted: { encryptedMessage: string; nonce: string } | null = null;
+
+        if (!isGroup && receiverPublicKey) {
+            try {
+                encrypted = await encryptPrivateMessage(content, receiverPublicKey, senderPrivateKey);
+            } catch (error) {
+                console.error("Encryption failed:", error);
+                toast({ description: 'Failed to encrypt message.', variant: "destructive" });
+                return;
+            }
         }
 
-        let fileUrl = null;
+        let fileUrl: string | null = null;
         if (files.length > 0) {
             try {
                 const imgRes = await startUpload(files);
@@ -124,7 +124,7 @@ export default function MessageInput({
                 }
             } catch (error) {
                 console.error('Failed to upload file:', error);
-                toast({ description: 'Failed to upload the file. Please try again.' });
+                toast({ description: 'Failed to upload the file. Please try again.', variant: "destructive" });
                 return;
             }
         }
@@ -152,13 +152,17 @@ export default function MessageInput({
             setImagePreview(null);
             if (fileInputRef.current) fileInputRef.current.value = '';
 
-            const res = await axiosInstance.post(`/api/message/send/${chatId}`, {
-                encryptedContent: encrypted.encryptedMessage,
-                nonce: encrypted.nonce,
+            const payload = {
+                encryptedContent: encrypted ? encrypted.encryptedMessage : content,
+                nonce: encrypted ? encrypted.nonce : "1",
                 senderId,
-                receiverId,
+                receiversId: isGroup ? receiversId : receiverId,
                 fileUrl,
-            });
+                isGroup
+            };
+
+            const res = await axiosInstance.post(`/api/message/send/${chatId}`, payload);
+
             // Replace the temporary message with the actual one from the server
             updateMessage(tempMessage.id, { ...res.data, content });
             console.log("response data", res.data);
@@ -166,9 +170,9 @@ export default function MessageInput({
             console.error('Failed to send message:', error);
             toast({ description: 'Failed to send message. Please try again later.', variant: "destructive" });
             updateMessageStatus(tempMessage.id);
-
         }
     };
+
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -207,10 +211,27 @@ export default function MessageInput({
                     </div>
                 </div>
             )}
+            {replying && (
+                <div className="flex items-center gap-2 mb-3">
+                    <div className="relative w-full p-3 border rounded-lg text-start bg-secondary/10 border-secondary-foreground/20">
+                        <p className="text-xs text-muted-foreground">Replying to</p>
+                        <p className="text-sm font-medium truncate">{replyingMessage}</p>
+
+                        <button
+                            onClick={() => setReplying(false)}
+                            className="absolute flex items-center justify-center p-1 transition-all duration-200 bg-red-400 rounded-full top-2 right-2 hover:bg-red-500"
+                            type="button"
+                            aria-label="Cancel reply"
+                        >
+                            <X size={12} className="text-white" />
+                        </button>
+                    </div>
+                </div>
+            )}
             <form
                 ref={formRef}
                 onSubmit={onSubmit}
-                className="flex p-2 items-center border rounded-full border-primary/50"
+                className="flex items-center p-2 border rounded-full border-primary/50"
                 onClick={() => setIsFocused(true)}
             >
                 <input
@@ -239,7 +260,7 @@ export default function MessageInput({
                 <button
                     type="submit"
                     disabled={!fileInputRef.current?.value && !content}
-                    className="flex items-center disabled:hidden text-slate-400 hover:bg-primary/40 hover:text-primary-foreground justify-center p-2 rounded-full"
+                    className="flex items-center justify-center p-2 rounded-full disabled:hidden text-slate-400 hover:bg-primary/40 hover:text-primary-foreground"
                 >
                     <SendHorizonal size={20} />
                 </button>

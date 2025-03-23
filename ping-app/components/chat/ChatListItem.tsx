@@ -1,7 +1,10 @@
+import getUserPublicKey from "@/actions/user/getUserPublicKey";
 import { UserAvatar } from "@/components/user/UserAvatar";
-import { LastMessage } from "@/types/prisma";
+import { decryptPrivateMessage } from "@/lib/crypto";
+import { GroupChatData, LastMessage } from "@/types/prisma";
 import { useRouter } from "next/navigation";
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
+import { useUser } from "../providers/userProvider";
 
 interface ChatListItemProps {
     imageUrl: string | null;
@@ -11,6 +14,8 @@ interface ChatListItemProps {
     isOnline?: boolean;
     lastMessage?: LastMessage;
     isGroupChat?: boolean;
+    groupChatData?: GroupChatData;
+    reciverId?: string
 }
 
 export default function ChatListItem({
@@ -21,9 +26,13 @@ export default function ChatListItem({
     isOnline = false,
     lastMessage,
     isGroupChat = false,
+    groupChatData,
+    reciverId
 }: ChatListItemProps) {
 
     const router = useRouter();
+    const [decryptedMessage, setDecryptedMessage] = useState<string | null>(null);
+    const { user } = useUser();
 
     // Format last message timestamp
     const formattedTime = useMemo(() => {
@@ -36,6 +45,64 @@ export default function ChatListItem({
             : "";
     }, [lastMessage?.createdAt]);
 
+    useEffect(() => {
+        const decryptMessage = async () => {
+            const currentUserPrivateKey = localStorage.getItem("pingPrivateKey");
+            const currentUserPublicKey = localStorage.getItem("pingPublicKey");
+
+            if (!currentUserPrivateKey || !currentUserPublicKey) {
+                console.error("No key pair found in local storage for current user.");
+                return;
+            }
+
+            if (!lastMessage) {
+                setDecryptedMessage("No messages yet");
+                return;
+            }
+
+            try {
+                let decryptedText;
+                if (!isGroupChat) {
+                    let receiverPublicKey;
+                    if (reciverId)
+                        receiverPublicKey = await getUserPublicKey(reciverId);
+                    else
+                        receiverPublicKey = currentUserPublicKey;
+
+                    if (!receiverPublicKey) {
+                        console.error(`Failed to fetch public key for user ${lastMessage.senderId}`);
+                        setDecryptedMessage("Failed to decrypt message");
+                        return;
+                    }
+
+                    if (lastMessage.isDeleted) {
+                        decryptedText = "This message is deleted";
+                    } else {
+                        decryptedText = await decryptPrivateMessage(
+                            lastMessage.encryptedContent!,
+                            lastMessage.nonce!,
+                            receiverPublicKey,
+                            currentUserPrivateKey
+                        );
+                    }
+                } else {
+                    if (lastMessage.isDeleted) {
+                        decryptedText = "This message is deleted";
+                    } else {
+                        decryptedText = lastMessage.encryptedContent;
+                    }
+                }
+
+                setDecryptedMessage(decryptedText);
+            } catch (error) {
+                console.error("Failed to decrypt message:", error);
+                setDecryptedMessage("Failed to decrypt message");
+            }
+        };
+
+        decryptMessage();
+    }, [lastMessage, isGroupChat, groupChatData, reciverId, user?.id]);
+
     return (
         <div
             onClick={() => router.push(isGroupChat ? `/groupChat/${chatId}` : `/privateChat/${chatId}`)}
@@ -47,8 +114,8 @@ export default function ChatListItem({
                     <p className="text-sm truncate">{name}</p>
                     <p className="text-xs">{formattedTime}</p>
                 </div>
-                <p className={`mb-2 text-xs truncate max-w-40 group-hover:text-primary-foreground ${isActive?`text-primary-foreground/50`:`text-secondary-foreground/50`}`}>
-                    {lastMessage?.content || "No messages yet"}
+                <p className={`mb-2 text-xs truncate max-w-40 group-hover:text-primary-foreground ${isActive ? `text-primary-foreground/50` : `text-secondary-foreground/50`}`}>
+                    {decryptedMessage || "No messages yet"}
                 </p>
             </div>
         </div>

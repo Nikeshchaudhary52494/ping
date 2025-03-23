@@ -2,21 +2,15 @@
 
 import { useSocketContext } from "@/components/providers/socketProvider";
 import { useUser } from "@/components/providers/userProvider";
-import { PrivateChat } from "@/types/prisma";
 import { useParams } from "next/navigation";
 import ChatListItem from "./ChatListItem";
+import { useChatData } from "../providers/chatDataProvider";
 
-interface FriendsListProps {
-    privateChats: PrivateChat[]
-}
-
-export default function FriendList({
-    privateChats
-}: FriendsListProps) {
-
+export default function FriendList() {
     const { user } = useUser();
     const { onlineUsers } = useSocketContext();
     const params = useParams();
+    const { privateChats } = useChatData();
 
     const paramChatId = params?.privateChatId as string;
 
@@ -32,23 +26,24 @@ export default function FriendList({
             <p className="p-2">Messages</p>
             <div className="flex flex-col mt-2">
                 {sortedPrivateChats.map(({ id, members, messages, type }) => (
-                    type == "PRIVATE" ? (
+                    type === "PRIVATE" ? (
                         <ChatListItem
                             key={id}
                             name={members[0].displayName}
-                            imageUrl={members[0].imageUrl!}
-                            isOnline={onlineUsers.includes(members[0].id)}
-                            isActive={paramChatId == id}
+                            imageUrl={members[0].settings?.showProfileImage ? members[0].imageUrl : ""}
+                            isOnline={members[0].settings?.hideOnlineStatus ? false : onlineUsers.includes(members[0].id)}
+                            isActive={paramChatId === id}
                             chatId={id}
                             lastMessage={messages[0]}
+                            reciverId={members[0].id}
                         />
                     ) : (
                         <ChatListItem
                             key={id}
-                            name={user?.displayName! + "(YOU)"}
-                            imageUrl={user?.imageUrl!}
+                            name={`${user?.displayName}(YOU)`}
+                            imageUrl={user?.imageUrl || ""}
                             isOnline={false}
-                            isActive={paramChatId == id}
+                            isActive={paramChatId === id}
                             chatId={id}
                             lastMessage={messages[0]}
                         />

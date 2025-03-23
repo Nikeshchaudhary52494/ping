@@ -13,12 +13,20 @@ interface MessagesProps {
     userId: string;
     toBottom: boolean;
     setToBottom: (set: boolean) => void;
+    setReplying: (value: boolean) => void;
+    SetReplyingMessage: (value: string) => void;
+    reciverId?: string;
+    isGroup?: boolean
 }
 
 export default function Messages({
     userId,
     toBottom,
     messages: initialMessages,
+    setReplying,
+    SetReplyingMessage,
+    reciverId,
+    isGroup = false
 }: MessagesProps) {
 
     const { socket } = useSocketContext();
@@ -35,19 +43,23 @@ export default function Messages({
         socket.on("newMessage", async (newMessage) => {
             const receiverPrivateKey = localStorage.getItem("pingPrivateKey");
             const senderPublicKey = await getUserPublicKey(newMessage.senderId);
-            const decryptedText = await decryptPrivateMessage(
-                newMessage.encryptedContent!,
-                newMessage.nonce,
-                senderPublicKey!,
-                receiverPrivateKey!
-            );
+            let decryptedText;
+
+            isGroup ?
+                decryptedText = newMessage.encryptedContent! :
+                decryptedText = await decryptPrivateMessage(
+                    newMessage.encryptedContent!,
+                    newMessage.nonce,
+                    senderPublicKey!,
+                    receiverPrivateKey!
+                );
 
             addMessage({ ...newMessage, content: decryptedText });
         });
         return () => {
             socket.off("newMessage");
         };
-    }, [socket, addMessage]);
+    }, [socket, addMessage, isGroup]);
 
     useEffect(() => {
         if (messageEndRef.current) {
@@ -58,7 +70,7 @@ export default function Messages({
     return (
         <div
             className="flex flex-col h-full space-y-1">
-            {messages && messages.map(({ content, senderId, fileUrl, status, createdAt, isDeleted, isEdited }, index) => {
+            {messages && messages.map(({ id, content, senderId, fileUrl, status, createdAt, isDeleted, isEdited }, index) => {
                 const isFirstMessage = index === 0 || messages[index - 1].senderId !== senderId;
                 const isLastMessage = messages[index + 1]?.senderId !== senderId;
                 return (
@@ -66,6 +78,7 @@ export default function Messages({
                         key={index}
                         className={`flex ${messages.length - 1 == index && `pb-4`} ${userId === senderId ? `justify-end` : `justify-start`}`}>
                         <MessageItem
+                            messageId={id}
                             content={content!}
                             fileUrl={fileUrl!}
                             isMine={userId === senderId}
@@ -75,6 +88,9 @@ export default function Messages({
                             isLastMessage={isLastMessage}
                             isDeleted={isDeleted}
                             isEdited={isEdited}
+                            SetReplyingMessage={SetReplyingMessage}
+                            setReplying={setReplying}
+                            receiverId={reciverId}
                         />
                     </div>
                 )

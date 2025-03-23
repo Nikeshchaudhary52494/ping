@@ -18,15 +18,18 @@ async function ChatContent({ params }: GroupsProps) {
                 chatId: params.groupChatId
             },
             select: {
+                id: true,
                 chatId: true,
                 name: true,
                 imageUrl: true,
-                nonce: true,
-                encryptedKey: true,
                 ownerId: true,
+                about: true,
                 members: {
                     select: {
-                        id: true
+                        id: true,
+                        displayName: true,
+                        imageUrl: true,
+                        username: true,
                     }
                 }
             }

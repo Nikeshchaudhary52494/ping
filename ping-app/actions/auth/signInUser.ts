@@ -19,6 +19,14 @@ export const signInUser = async (formData: FormData) => {
 
     const existingUser = await db.user.findUnique({
         where: { email },
+        select: {
+            password: true,
+            email: true,
+            id: true,
+            publicKey: true,
+            encryptedPrivateKey: true,
+            salt: true,
+        }
     });
 
     if (!existingUser) {
@@ -34,5 +42,5 @@ export const signInUser = async (formData: FormData) => {
     const token = generateToken(existingUser.id, existingUser.email);
     setAuthCookie(token);
 
-    return { success: true, message: "Signed in successfully", token };
+    return { success: true, message: "Signed in successfully", token, user: existingUser };
 };

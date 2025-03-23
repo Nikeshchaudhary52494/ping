@@ -1,11 +1,12 @@
 "use client";
 
+import { CallType } from '@prisma/client';
 import { Socket } from 'socket.io-client';
 
 export interface CallData {
     from: string;
     to: string;
-    type: 'video' | 'voice';
+    type: CallType;
     roomId?: string;
 }
 
@@ -34,5 +35,5 @@ export interface SocketContextType {
     setRemoteStream: (stream: MediaStream | null) => void
     setLocalStream: (stream: MediaStream | null) => void
     peerConnectionRef: React.MutableRefObject<RTCPeerConnection | null>
-    getMediaStream: (calltype: "video" | "voice") => Promise<MediaStream | null>
+    getMediaStream: (calltype: CallType) => Promise<MediaStream | null>
 }

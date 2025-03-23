@@ -8,7 +8,19 @@ export const getUser = async () => {
 
     try {
         const user = await db.user.findUnique({
-            where: { id: data?.userId }
+            where: {
+                id: data?.userId
+            },
+            include: {
+                settings: {
+                    select: {
+                        hideOnlineStatus: true,
+                        hideProfile: true,
+                        showProfileImage: true,
+                        restrictMessagesFromUnknown: true
+                    }
+                }
+            }
         });
 
         if (!user) {

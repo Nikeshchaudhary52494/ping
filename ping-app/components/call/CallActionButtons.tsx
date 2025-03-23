@@ -5,10 +5,11 @@ import { FaVideo } from "react-icons/fa";
 import { useSocketContext } from "../providers/socketProvider";
 import { useRouter } from "next/navigation";
 import { handleCallAccepted } from "@/lib/webrtc";
+import { CallType } from "@prisma/client";
 
 
 interface CallActionButtonProps {
-    type: "voice" | "video";
+    type: CallType;
     incomingUserId: string;
     onReject: () => void;
     remoteUserId: string;
@@ -52,13 +53,13 @@ export default function CallActionButton({
             ...currentCall
         })
 
-        router.push("/calls")
+        router.push("/calls/callScreen")
         setCallState("accepted")
     };
 
     return (
         <div className="flex justify-center w-full gap-6 mt-4">
-            {type == "voice" ? (
+            {type == "VOICE" ? (
                 <button
                     onClick={onAccept}
                     className="flex items-center justify-center text-white transition-transform rounded-full shadow-lg w-14 h-14 bg-gradient-to-br from-green-500 to-green-600 hover:scale-110"

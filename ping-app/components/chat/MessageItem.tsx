@@ -2,11 +2,10 @@
 
 import { messageStatus } from "@prisma/client";
 import Image from "next/image";
-import { useEffect, useRef, useState, useCallback, useMemo } from "react";
-import { IoCheckmarkDone, IoCheckmark } from "react-icons/io5";
-import { CircleAlert, Copy, Delete, Edit, EllipsisVertical, Forward, Reply, Smile, Trash, Trash2 } from "lucide-react";
-import useScreenWidth from "@/app/hooks/useScreenWidth";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Copy, EllipsisVertical, Reply, Trash2 } from "lucide-react";
 import ActionTooltip from "@/components/action-tooltip";
+
 
 import {
     Popover,
@@ -15,9 +14,12 @@ import {
 } from "@/components/ui/popover"
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { actionButtons } from "@/lib/tabLinks";
+import deleteMessage from "@/actions/chat/shared/deleteMessage";
+import { toast } from "@/app/hooks/use-toast";
+import { EditMessageDialog } from "./EditMessageDialog";
 
 interface MessageItemProps {
+    messageId: string;
     content: string;
     fileUrl?: string;
     isMine: boolean;
@@ -27,9 +29,13 @@ interface MessageItemProps {
     isLastMessage: Boolean;
     isDeleted: boolean;
     isEdited: boolean;
+    setReplying: (value: boolean) => void;
+    SetReplyingMessage: (value: string) => void;
+    receiverId?: string
 }
 
 export default function MessageItem({
+    messageId,
     content,
     fileUrl,
     isMine,
@@ -39,14 +45,31 @@ export default function MessageItem({
     isLastMessage,
     isDeleted,
     isEdited,
+    setReplying,
+    SetReplyingMessage,
+    receiverId
 }: MessageItemProps) {
     const containerRef = useRef<HTMLDivElement>(null);
 
     const [imageSize, setImageSize] = useState({ width: 100, height: 100 });
     const [isPopOpen, setPopOpen] = useState(false);
+    const [openEditDialog, setOpenEditDialog] = useState(false);
 
     const canDeleteMessage = !isDeleted && isMine;
-    const canEditMessage = !isDeleted && isMine && !fileUrl;
+
+    const handleMessageDelete = async () => {
+        await deleteMessage(messageId);
+    }
+
+    const handleCopyMessage = () => {
+        navigator.clipboard.writeText(content);
+        toast({ description: "Message copied!" });
+    };
+
+    const handleReplyMessage = () => {
+        setReplying(true);
+        SetReplyingMessage(content);
+    }
 
     useEffect(() => {
         if (fileUrl) {
@@ -98,10 +121,16 @@ export default function MessageItem({
                     content && (
                         <div
                             ref={containerRef}
-                            className={`flex relative w-full gap-2`}>
-                            <p className={`sm:max-w-[50vw] max-w-[60vw] text-sm sm:text-base break-words text-start ${fileUrl ? "p-2" : ""} `}>
-                                {content}
-                            </p>
+                            className={`flex flex-col relative w-full gap-2`}>
+                            {isDeleted ?
+                                <p className="text-sm italic"> this message is deleted</p> :
+                                <p className={`sm:max-w-[50vw] max-w-[60vw] text-sm sm:text-base break-words text-start ${fileUrl ? "p-2" : ""} `}>
+                                    {content}
+                                </p>
+                            }
+                            {isEdited && !isDeleted && (
+                                <p className={`text-xs italic text-end ${isMine ? "text-primary-foreground" : "text-xs italic text-primary"}`}>edited</p>
+                            )}
                         </div>
                     )
                 }
@@ -117,44 +146,44 @@ export default function MessageItem({
                                         className="w-4 h-4 ml-auto transition cursor-pointer text-foreground/50 hover:text-foreground"
                                     />
                                 </PopoverTrigger>
-                                <PopoverContent className="w-44 rounded-[18px] p-1 absolute gap-1 flex flex-col -top-60 -left-44">
+                                <PopoverContent className="w-44 rounded-[18px] p-1 gap-1 absolute flex flex-col -top-32 -left-48">
                                     <p className="p-1 px-4 text-sm">{formattedTime}</p>
                                     <Separator className="separator" />
+                                    <Button onClick={handleCopyMessage} size="sm" variant="tab">
+                                        <p>Copy</p>
+                                        <Copy size={18} />
+                                    </Button>
 
-                                    {actionButtons.map(({ label, Icon }) => (
-                                        <Button key={label} size="sm" variant="tab">
-                                            <p>{label}</p>
-                                            <Icon size={18} />
-                                        </Button>
-                                    ))}
+                                    <EditMessageDialog
+                                        messageId={messageId}
+                                        originalMessage={content}
+                                        setOpenEditDialog={setOpenEditDialog}
+                                        openEditDialog={openEditDialog}
+                                        receiverId={receiverId}
+                                    />
 
                                     <Separator className="separator" />
-
-                                    <Button size="sm" className="flex justify-between w-full font-semibold bg-transparent hover:bg-secondary text-red-500 rounded-[16px]">
+                                    <Button onClick={handleMessageDelete} size="sm" className="flex justify-between w-full font-semibold bg-transparent hover:bg-secondary text-red-500 rounded-[16px]">
                                         <p>Delete</p>
                                         <Trash2 size={18} />
                                     </Button>
+
                                 </PopoverContent>
                             </Popover>
                         </ActionTooltip>
 
                         <ActionTooltip label="reply">
                             <Reply
-                                onClick={() => { }}
+                                onClick={handleReplyMessage}
                                 className="w-4 h-4 ml-auto transition cursor-pointer text-foreground/50 hover:text-foreground"
                             />
                         </ActionTooltip>
 
-                        <ActionTooltip label="smile">
-                            <Smile
-                                onClick={() => { }}
-                                className="w-4 h-4 ml-auto transition cursor-pointer text-foreground/50 hover:text-foreground"
-                            />
-                        </ActionTooltip>
+                        {/* reaction button will be added */}
+
                     </div>
                 </div>
             )}
         </div>
     );
 }
-

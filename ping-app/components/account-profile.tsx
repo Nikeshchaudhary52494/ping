@@ -23,15 +23,11 @@ import { isBase64Image } from "@/lib/utils";
 import { OnBoardingUserSchema, onBoardingUserSchema } from "@/lib/validationSchemas";
 import { onboardUser } from "@/actions/user/onboardUser";
 import { User } from "lucide-react";
+import { User as UserType } from "@prisma/client";
+import { useUser } from "./providers/userProvider";
 
 interface Props {
-    user: {
-        userId: string;
-        username: string;
-        displayName: string;
-        bio: string;
-        imageUrl: string;
-    };
+    user: UserType;
     btnTitle: string;
 }
 
@@ -39,6 +35,7 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
     const router = useRouter();
     const pathname = usePathname();
     const { startUpload } = useUploadThing("UserImage");
+    const [loading, setLoading] = useState(false);
 
     const [files, setFiles] = useState<File[]>([]);
 
@@ -52,9 +49,11 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
         },
     });
 
+    const { updateUser } = useUser();
 
     const onSubmit = async (values: OnBoardingUserSchema) => {
         try {
+            setLoading(true);
             const blob = values.imageUrl;
             if (blob) {
                 const hasImageChanged = isBase64Image(blob);
@@ -67,16 +66,21 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
                 }
             }
             await onboardUser({
-                userId: user.userId,
+                userId: user.id,
                 displayName: values.displayName,
                 imageUrl: values.imageUrl,
                 username: values.username,
                 bio: values.bio
             });
+            setLoading(false);
+            updateUser({
+                displayName: values.displayName,
+                imageUrl: values.imageUrl,
+                username: values.username,
+                bio: values.bio
+            })
 
-            if (pathname === "/profile/edit") {
-                router.back();
-            } else {
+            if (pathname === "/onboarding") {
                 router.push("/");
             }
         } catch (error) {
@@ -120,7 +124,7 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
                         <FormItem className='relative flex items-center gap-4 mt-10'>
                             <FormLabel className="space-y-2">
                                 <p className="absolute full -top-4"> Profile Image (optional)</p>
-                                <div className="relative flex mx-3 h-20 w-20 bg-[#252B2E] items-center justify-center rounded-full overflow-hidden">
+                                <div className="relative flex items-center justify-center w-20 h-20 mx-3 overflow-hidden rounded-full bg-secondary">
                                     {field.value ? (
                                         <Image
                                             fill
@@ -192,8 +196,8 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
                     )}
                 />
 
-                <Button type='submit'>
-                    {btnTitle}
+                <Button type='submit' disabled={loading}>
+                    {loading ? "saving..." : btnTitle}
                 </Button>
             </form>
         </Form>

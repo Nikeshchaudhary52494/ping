@@ -1,78 +1,49 @@
 import sodium from "libsodium-wrappers";
 
-// Initialize libsodium
 export const initSodium = async () => {
     await sodium.ready;
 };
 
-// Generate User Key Pair
 export const generateUserKeys = async () => {
     await initSodium();
     const keyPair = sodium.crypto_box_keypair();
     return {
-        publicKey: sodium.to_base64(keyPair.publicKey), // Shareable
-        privateKey: sodium.to_base64(keyPair.privateKey), // Keep Secret
+        publicKey: sodium.to_base64(keyPair.publicKey),
+        privateKey: sodium.to_base64(keyPair.privateKey),
     };
 };
 
-// Generate Group Key (AES-256)
-export const generateGroupKey = async () => {
-    await initSodium();
-    return sodium.to_base64(sodium.randombytes_buf(32));
-};
+export const encryptPrivateKey = async (privateKey: string, password: string) => {
+    await sodium.ready;
+    const nonce = sodium.randombytes_buf(sodium.crypto_secretbox_NONCEBYTES);
 
-// Encrypt Group Key for a User
-export const encryptGroupKey = async (groupKey: string, userPublicKey: string, adminPrivateKey: string) => {
-    await initSodium();
-    const nonce = sodium.randombytes_buf(sodium.crypto_box_NONCEBYTES);
-    const encryptedKey = sodium.crypto_box_easy(
-        sodium.from_base64(groupKey),
+    const key = sodium.crypto_generichash(32, sodium.from_string(password));
+
+    const encryptedPrivateKey = sodium.crypto_secretbox_easy(
+        sodium.from_string(privateKey),
         nonce,
-        sodium.from_base64(userPublicKey),
-        sodium.from_base64(adminPrivateKey)
+        key
     );
+
     return {
-        encryptedKey: sodium.to_base64(encryptedKey),
+        encryptedKey: sodium.to_base64(encryptedPrivateKey),
         nonce: sodium.to_base64(nonce),
     };
 };
 
-// Decrypt Group Key
-export const decryptGroupKey = async (encryptedKey: string, nonce: string, userPrivateKey: string, adminPublicKey: string) => {
-    await initSodium();
-    const decryptedKey = sodium.crypto_box_open_easy(
+
+export const decryptPrivateKey = async (encryptedKey: string, password: string, nonce: string) => {
+    await sodium.ready;
+
+    const key = sodium.crypto_generichash(32, sodium.from_string(password));
+
+    const decryptedPrivateKey = sodium.crypto_secretbox_open_easy(
         sodium.from_base64(encryptedKey),
         sodium.from_base64(nonce),
-        sodium.from_base64(adminPublicKey),
-        sodium.from_base64(userPrivateKey)
+        key
     );
-    return sodium.to_base64(decryptedKey);
-};
 
-// Encrypt Message using Group Key
-export const encryptGroupMessage = async (message: string, groupKey: string) => {
-    await initSodium();
-    const nonce = sodium.randombytes_buf(sodium.crypto_secretbox_NONCEBYTES);
-    const encryptedMessage = sodium.crypto_secretbox_easy(
-        sodium.from_string(message),
-        nonce,
-        sodium.from_base64(groupKey)
-    );
-    return {
-        encryptedMessage: sodium.to_base64(encryptedMessage),
-        nonce: sodium.to_base64(nonce),
-    };
-};
-
-// Decrypt Message using Group Key
-export const decrypGrouptMessage = async (encryptedMessage: string, nonce: string, groupKey: string) => {
-    await initSodium();
-    const decryptedMessage = sodium.crypto_secretbox_open_easy(
-        sodium.from_base64(encryptedMessage),
-        sodium.from_base64(nonce),
-        sodium.from_base64(groupKey)
-    );
-    return sodium.to_string(decryptedMessage);
+    return sodium.to_string(decryptedPrivateKey);
 };
 
 export const encryptPrivateMessage = async (
@@ -82,16 +53,13 @@ export const encryptPrivateMessage = async (
 ) => {
     await initSodium();
 
-    // Generate shared secret key
     const sharedKey = sodium.crypto_box_beforenm(
-        sodium.from_base64(receiverPublicKey), // Receiver's public key
-        sodium.from_base64(senderPrivateKey)  // Sender's private key
+        sodium.from_base64(receiverPublicKey),
+        sodium.from_base64(senderPrivateKey)
     );
 
-    // Generate a random nonce
     const nonce = sodium.randombytes_buf(sodium.crypto_box_NONCEBYTES);
 
-    // Encrypt using shared key and crypto_box_easy_afternm
     const encryptedMessage = sodium.crypto_box_easy_afternm(
         sodium.from_string(message),
         nonce,
@@ -107,18 +75,16 @@ export const encryptPrivateMessage = async (
 export const decryptPrivateMessage = async (
     encryptedMessage: string,
     nonce: string,
-    otherPartyPublicKey: string, // Public key of the other party (sender or receiver)
-    myPrivateKey: string         // Private key of the current user (sender or receiver)
+    otherPartyPublicKey: string,
+    myPrivateKey: string
 ) => {
     await initSodium();
 
-    // Generate the shared secret key
     const sharedKey = sodium.crypto_box_beforenm(
-        sodium.from_base64(otherPartyPublicKey), // Other party's public key
-        sodium.from_base64(myPrivateKey)        // Current user's private key
+        sodium.from_base64(otherPartyPublicKey),
+        sodium.from_base64(myPrivateKey)
     );
 
-    // Decrypt the message
     const decryptedMessage = sodium.crypto_box_open_easy_afternm(
         sodium.from_base64(encryptedMessage),
         sodium.from_base64(nonce),

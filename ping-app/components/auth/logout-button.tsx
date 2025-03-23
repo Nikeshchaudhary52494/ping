@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { Button } from "../ui/button";
-import { logoutUser } from "@/actions/user/logoutUser";
+import { logoutUser } from "@/actions/auth/logoutUser";
 
 const LogoutButton: React.FC = () => {
     const router = useRouter();

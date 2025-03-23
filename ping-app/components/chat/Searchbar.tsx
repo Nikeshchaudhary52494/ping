@@ -1,4 +1,4 @@
-import { SearchIcon, User } from 'lucide-react';
+import { SearchIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import {
     CommandDialog,
@@ -7,11 +7,13 @@ import {
     CommandItem,
     CommandList,
 } from '@/components/ui/command';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { getOrCreatePrivateChatId } from '@/actions/chat/privateChat/getOrCreatePrivateChatId';
-import { GroupSearchData, UserTab } from '@/types/prisma';
+import { GroupSearchData, PrivateChat, UserGroups, UserTab } from '@/types/prisma';
 import { UserAvatar } from '../user/UserAvatar';
+import { useChatData } from '../providers/chatDataProvider';
+import { getOrCreatePrivateChat } from '@/actions/chat/privateChat/getOrCreatePrivateChatId';
+import getGroupByChatId from '@/actions/chat/groupChat/getGroupById';
+import getGroupOrAddMember from '@/actions/chat/groupChat/getGroupOrAddMember';
 
 interface SearchbarProps {
     CurrentuserId: string,
@@ -29,6 +31,7 @@ export default function Searchbar({
 
     const [open, setOpen] = useState(false);
     const router = useRouter();
+    const { addPrivateChat, addGroup } = useChatData();
 
     useEffect(() => {
         const down = (e: KeyboardEvent) => {
@@ -44,15 +47,24 @@ export default function Searchbar({
         };
     }, []);
 
-    const onClick = async (memberOne: string, memberTwo: string) => {
-        const privateChatId = await getOrCreatePrivateChatId(memberOne, memberTwo);
-        router.push(`/privateChat/${privateChatId}`);
+    const handleSelectUser = async (memberOne: string, memberTwo: string) => {
+        const privateChat = await getOrCreatePrivateChat(memberOne, memberTwo);
+        addPrivateChat(privateChat as PrivateChat);
+        setOpen(!open);
+        router.push(`/privateChat/${privateChat.id}`);
     };
+
+    const handleSelectGroup = async (chatId: string) => {
+        const group = await getGroupOrAddMember(chatId, CurrentuserId);
+        addGroup(group as UserGroups);
+        setOpen(!open);
+        router.push(`/groupChat/${chatId}`);
+    }
 
     return (
         <>
             <button
-                className="flex items-center w-full px-2 py-2 transition-all border-primary hover:bg-background/50 border group rounded-xl gap-x-2"
+                className="flex items-center w-full px-2 py-2 transition-all border border-primary hover:bg-background/50 group rounded-xl gap-x-2"
                 onClick={() => setOpen(!open)}
             >
                 <SearchIcon className="w-4 h-4" />
@@ -71,9 +83,8 @@ export default function Searchbar({
                         <CommandItem
                             className='cursor-pointer'
                             key={id}
-                            onSelect={() => onClick(id, CurrentuserId)}
-                        >
-                           <UserAvatar imageUrl={imageUrl}/>
+                            onSelect={() => handleSelectUser(CurrentuserId, id)}>
+                            <UserAvatar imageUrl={imageUrl} />
                             <div className='flex flex-col'>
                                 <span>
                                     {displayName}
@@ -85,11 +96,11 @@ export default function Searchbar({
                             </div>
                         </CommandItem>
                     )) :
-                        groupSearchData?.map(({ id, imageUrl, name }) => (
+                        groupSearchData?.map(({ chatId, imageUrl, name }) => (
                             <CommandItem
                                 className='cursor-pointer'
-                                key={id}
-                                onSelect={() => { }}
+                                key={chatId}
+                                onSelect={() => handleSelectGroup(chatId)}
                             >
                                 <UserAvatar imageUrl={imageUrl} isGroupAvatar={true} />
                                 <div className='flex flex-col'>
@@ -101,7 +112,7 @@ export default function Searchbar({
                         ))
                     }
                 </CommandList>
-            </CommandDialog>
+            </CommandDialog >
         </>
     );
 };

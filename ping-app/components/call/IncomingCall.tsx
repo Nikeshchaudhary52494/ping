@@ -1,12 +1,12 @@
 import { useSocketContext } from "../providers/socketProvider";
 import { UserAvatar } from "../user/UserAvatar";
-import { User } from "@prisma/client";
+import { CallType, User } from "@prisma/client";
 import CallAlert from "./CallAlert";
 import CallActionButton from "./CallActionButtons";
 
 type IncomingCallProps = {
     user: User
-    type: "voice" | "video"
+    type: CallType
 };
 
 export default function IncomingCall({

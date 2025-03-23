@@ -1,6 +1,6 @@
 "use client";
 
-import { MutableRefObject, useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
     Camera,
     CameraOff,
@@ -12,9 +12,10 @@ import {
     VolumeX,
 } from "lucide-react";
 import CallControllerButton from "./CallControllerButton";
+import { CallType } from "@prisma/client";
 
 interface CallControllerProps {
-    callType: "video" | "voice";
+    callType: CallType;
     localStream: MediaStream | null;
     remoteStream: MediaStream | null;
     onEndCall: () => void;
@@ -35,7 +36,7 @@ export default function CallController({
             const videoTrack = localStream.getVideoTracks()[0];
             const audioTrack = localStream.getAudioTracks()[0];
 
-            if (callType === "video" && videoTrack) setIsCameraOn(videoTrack.enabled);
+            if (callType === "VIDEO" && videoTrack) setIsCameraOn(videoTrack.enabled);
             if (audioTrack) setIsMicOn(audioTrack.enabled);
         }
     }, [callType, localStream]);
@@ -101,8 +102,8 @@ export default function CallController({
     };
 
     return (
-        <div className="flex justify-center gap-6 border-l border-secondary-foreground/10 p-4 bg-secondary">
-            {callType === "video" && (
+        <div className="flex justify-center gap-6 p-4 border-l border-secondary-foreground/10 bg-secondary">
+            {callType === "VIDEO" && (
                 <>
                     <CallControllerButton
                         icon={isCameraOn ? Camera : CameraOff}

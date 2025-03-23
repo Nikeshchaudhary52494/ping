@@ -1,13 +1,10 @@
 import {
-    Copy,
-    Edit,
-    Forward,
+    Ban,
     Lock,
     MessageCircle,
     Palette,
     Phone,
     Settings,
-    Star,
     UserRoundCog,
     UsersRound
 } from "lucide-react";
@@ -48,13 +45,12 @@ export const settingsTabs = [
     },
     {
         icon: Lock,
-        label: "Security",
+        label: "Privacy and Security",
         route: "/security"
     },
+    {
+        icon: Ban,
+        label: "Blocked User",
+        route: "/blocked-user"
+    },
 ]
-
-export const actionButtons = [
-    { label: "Copy", Icon: Copy },
-    { label: "Edit", Icon: Edit },
-    { label: "Forward", Icon: Forward },
-];

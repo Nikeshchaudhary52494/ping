@@ -4,12 +4,13 @@ import FriendsSkeleton from "../skeletons/Chats";
 import Profile from "@/components/skeletons/Profile";
 import { useEffect, useState } from "react";
 import { getPrivateChats } from "@/actions/chat/privateChat/getPrivateChats";
-import { GroupSearchData, UserGroups, PrivateChat, UserTab, GroupChatData } from "@/types/prisma";
+import { GroupSearchData, UserTab } from "@/types/prisma";
 import getPrivateSearchData from "@/actions/chat/privateChat/getPrivateSearchData";
-import getGroupSearchData from "@/actions/chat/groupChat/getGroupSearchData";
 import getUserGroups from "@/actions/chat/groupChat/getUserGroups";
 import GroupList from "./GroupList";
 import FriendList from "./FriendList";
+import getGroupSearchData from "@/actions/chat/groupChat/getGroupSearchData";
+import { useChatData } from "../providers/chatDataProvider";
 
 interface SidebarProps {
     CurrentuserId: string;
@@ -18,9 +19,10 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ CurrentuserId, isMobileDevice, type }: SidebarProps) {
-    const [chatData, setChatData] = useState<UserGroups[] | PrivateChat[]>([]);
+    const { privateChats, setPrivateChats, setGroupList } = useChatData();
     const [searchData, setSearchData] = useState<GroupSearchData[] | UserTab[]>([]);
     const [isLoading, setLoading] = useState(true);
+
 
     useEffect(() => {
         const fetchChats = async () => {
@@ -31,14 +33,14 @@ export default function Sidebar({ CurrentuserId, isMobileDevice, type }: Sidebar
                         getUserGroups(CurrentuserId),
                         getGroupSearchData(),
                     ]);
-                    setChatData(groupChats || []);
+                    setGroupList(groupChats || [])
                     setSearchData(groupSearch || []);
                 } else {
                     const [privateChats, privateSearch] = await Promise.all([
                         getPrivateChats(CurrentuserId),
                         getPrivateSearchData(),
                     ]);
-                    setChatData(privateChats || []);
+                    setPrivateChats(privateChats);
                     setSearchData(privateSearch || []);
                 }
             } catch (error) {
@@ -49,10 +51,10 @@ export default function Sidebar({ CurrentuserId, isMobileDevice, type }: Sidebar
         };
 
         fetchChats();
-    }, [type, CurrentuserId]);
+    }, [type, CurrentuserId, setGroupList, setPrivateChats]);
 
     return (
-        <div className="space-y-4 flex sm:border-l-[1px] border-secondary-foreground/10 border-opacity-10 flex-col items-center h-full w-full bg-secondary">
+        <div className="flex flex-col items-center w-full h-full space-y-4 sm:border-x-[1px] border-secondary-foreground/10 border-opacity-10 bg-secondary">
             {isLoading && !isMobileDevice ?
                 <Profile /> :
                 <SidebarHeader
@@ -71,8 +73,8 @@ export default function Sidebar({ CurrentuserId, isMobileDevice, type }: Sidebar
                 {isLoading ?
                     <FriendsSkeleton /> :
                     type === "Group" ?
-                        <GroupList groupList={chatData as UserGroups[]} /> :
-                        <FriendList privateChats={chatData as PrivateChat[]} />
+                        <GroupList /> :
+                        <FriendList />
                 }
             </div>
         </div>

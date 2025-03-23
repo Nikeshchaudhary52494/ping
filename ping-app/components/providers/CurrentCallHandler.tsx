@@ -35,7 +35,7 @@ export default function CurrentCallHandler() {
 
     if (!currentCall) return null;
 
-    if (currentCall.type === "video") {
+    if (currentCall.type === "VIDEO") {
         if (currentCall.from === user?.id && callState === "incoming") {
             return <IncomingCall
                 type={currentCall.type}
@@ -44,7 +44,7 @@ export default function CurrentCallHandler() {
         } return null;
     }
 
-    if (currentCall.type === "voice") {
+    if (currentCall.type === "VOICE") {
         if (currentCall.from === user?.id && callState === "incoming") {
             return <IncomingCall
                 type={currentCall.type}

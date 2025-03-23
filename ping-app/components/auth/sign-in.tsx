@@ -17,9 +17,10 @@ import { Input } from "@/components/ui/input";
 import { ShieldQuestion } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { SignInUserInput, signInUserSchema } from "@/lib/validationSchemas";
-import { signInUser } from "@/actions/user/signInUser";
+import { signInUser } from "@/actions/auth/signInUser";
 import { toast } from "@/app/hooks/use-toast";
 import Link from "next/link";
+import { decryptPrivateKey } from "@/lib/crypto";
 
 export default function SignIn() {
     const router = useRouter();
@@ -40,11 +41,13 @@ export default function SignIn() {
             formData.append("password", data.password);
 
             const result = await signInUser(formData);
-
             if (result.success) {
                 toast({
                     description: "User signed in successfully",
                 });
+                localStorage.setItem("pingPublicKey", result.user?.publicKey!);
+                const privateKey = await decryptPrivateKey(result.user?.encryptedPrivateKey!, data.password, result.user?.salt!)
+                localStorage.setItem("pingPrivateKey", privateKey);
                 router.push("/");
             } else {
                 toast({
@@ -62,11 +65,13 @@ export default function SignIn() {
             formData.append("password", "guestPassword123");
 
             const result = await signInUser(formData);
-
             if (result.success) {
                 toast({
                     description: "Guest user signed in successfully",
                 });
+                localStorage.setItem("pingPublicKey", result.user?.publicKey!);
+                const privateKey = await decryptPrivateKey(result.user?.encryptedPrivateKey!, result.user?.salt!, "guestPassword123")
+                localStorage.setItem("pingPrivateKey", privateKey);
                 router.push("/");
             } else {
                 toast({
