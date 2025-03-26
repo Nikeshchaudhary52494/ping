@@ -124,8 +124,17 @@ export default function MessageItem({
                             className={`flex flex-col relative w-full gap-2`}>
                             {isDeleted ?
                                 <p className="text-sm italic"> this message is deleted</p> :
-                                <p className={`sm:max-w-[50vw] max-w-[60vw] text-sm sm:text-base break-words text-start ${fileUrl ? "p-2" : ""} `}>
-                                    {content}
+                                <p className={`sm:max-w-[50vw] max-w-[60vw] text-sm sm:text-base break-words whitespace-pre-wrap text-start ${fileUrl ? "p-2" : ""}`}>
+                                    {content.split(' ').map((word, i) => {
+                                        const isUrl = word.match(/(https?:\/\/[^\s]+)/);
+                                        return isUrl ? (
+                                            <a key={i} href={word} target="_blank" rel="noopener noreferrer" className="italic underline">
+                                                {word}
+                                            </a>
+                                        ) : (
+                                            <span key={i}>{word} </span>
+                                        );
+                                    })}
                                 </p>
                             }
                             {isEdited && !isDeleted && (
@@ -136,8 +145,8 @@ export default function MessageItem({
                 }
             </div >
             {canDeleteMessage && (
-                <div className="relative">
-                    <div className={`gap-2 flex ${!isPopOpen && `hidden group-hover:flex`}`}>
+                <div className="relative h-full pb-[10px]">
+                    <div className={`gap-2 flex h-full items-end ${!isPopOpen && `hidden group-hover:flex`}`}>
                         <ActionTooltip label="more">
                             <Popover open={isPopOpen} onOpenChange={setPopOpen}>
                                 <PopoverTrigger asChild>

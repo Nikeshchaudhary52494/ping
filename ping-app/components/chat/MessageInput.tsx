@@ -46,7 +46,7 @@ export default function MessageInput({
     const [content, setContent] = useState<string>("");
     const [files, setFiles] = useState<File[]>([]);
 
-    const inputRef = useRef<HTMLInputElement | null>(null);
+    const inputRef = useRef<HTMLTextAreaElement | null>(null);
     const formRef = useRef<HTMLFormElement | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -93,6 +93,9 @@ export default function MessageInput({
 
     const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        if (inputRef.current) {
+            inputRef.current.style.height = "auto";
+        }
         if (isIamBlocked) {
             toast({
                 description: "Messaging restricted",
@@ -240,7 +243,7 @@ export default function MessageInput({
             <form
                 ref={formRef}
                 onSubmit={onSubmit}
-                className="flex items-center p-2 border rounded-full border-primary/50"
+                className="flex p-2 border rounded-[30px] items-end border-primary/50"
                 onClick={() => setIsFocused(true)}
             >
                 <input
@@ -257,14 +260,21 @@ export default function MessageInput({
                 >
                     <ImageIcon size={20} />
                 </button>
-                <input
-                    type="text"
+                <textarea
                     ref={inputRef}
                     value={content!}
-                    onChange={(e) => setContent(e.target.value)}
+                    onChange={(e) => {
+                        setContent(e.target.value);
+                        if (inputRef.current) {
+                            inputRef.current.style.height = "auto";
+                            inputRef.current.style.height = inputRef.current.scrollHeight + "px";
+                        }
+                    }}
+
                     placeholder="Type your message..."
-                    className="w-full px-2 bg-transparent outline-none placeholder:text-sm"
+                    className="w-full px-2 bg-transparent resize-none max-h-24 self-center whitespace-pre-wrap outline-none placeholder:text-sm"
                     onFocus={() => setIsFocused(true)}
+                    rows={1}
                 />
                 <button
                     type="submit"
