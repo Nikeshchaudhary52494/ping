@@ -10,7 +10,7 @@ export default async function GroupChatLayout({
     children
 }: GroupChatLayoutProps) {
 
-    const data = verifyToken();
+    const data = await verifyToken();
     return (
         <SeconadaryLayout
             type='Group'

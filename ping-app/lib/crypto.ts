@@ -17,7 +17,7 @@ export const encryptPrivateKey = async (privateKey: string, password: string) =>
     await sodium.ready;
     const nonce = sodium.randombytes_buf(sodium.crypto_secretbox_NONCEBYTES);
 
-    const key = sodium.crypto_generichash(32, sodium.from_string(password));
+    const key = sodium.crypto_generichash(32, sodium.from_string(password), null);
 
     const encryptedPrivateKey = sodium.crypto_secretbox_easy(
         sodium.from_string(privateKey),
@@ -35,7 +35,7 @@ export const encryptPrivateKey = async (privateKey: string, password: string) =>
 export const decryptPrivateKey = async (encryptedKey: string, password: string, nonce: string) => {
     await sodium.ready;
 
-    const key = sodium.crypto_generichash(32, sodium.from_string(password));
+    const key = sodium.crypto_generichash(32, sodium.from_string(password), null);
 
     const decryptedPrivateKey = sodium.crypto_secretbox_open_easy(
         sodium.from_base64(encryptedKey),

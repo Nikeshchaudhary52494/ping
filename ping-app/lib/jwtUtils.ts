@@ -9,8 +9,8 @@ export const generateToken = (userId: string, email: string): string => {
     });
 };
 
-export const setAuthCookie = (token: string): void => {
-    const cookieStore = cookies();
+export const setAuthCookie = async (token: string): Promise<void> => {
+    const cookieStore = await cookies();
     cookieStore.set("token", token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
@@ -20,8 +20,8 @@ export const setAuthCookie = (token: string): void => {
     });
 };
 
-export const verifyToken = (): { userId: string; email: string } | null => {
-    const cookieStore = cookies();
+export const verifyToken = async (): Promise<{ userId: string; email: string } | null> => {
+    const cookieStore = await cookies();
     const token = cookieStore.get("token")?.value;
 
     if (!token) {

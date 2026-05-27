@@ -49,7 +49,7 @@ export const registerUser = async (formData: FormData, publicKey: string, privat
         });
 
         const token = generateToken(newUser.id, newUser.email);
-        setAuthCookie(token);
+        await setAuthCookie(token);
         return { success: true, message: "User registered successfully", token };
 
     } catch (error) {

@@ -9,7 +9,7 @@ interface PrivateChatLayoutProps {
 export default async function PrivateChatLayout({
     children
 }: PrivateChatLayoutProps) {
-    const data = verifyToken();
+    const data = await verifyToken();
     return (
         <SeconadaryLayout type='Private' CurrentuserId={data?.userId!}>
             {children}

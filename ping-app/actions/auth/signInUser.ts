@@ -40,7 +40,7 @@ export const signInUser = async (formData: FormData) => {
     }
 
     const token = generateToken(existingUser.id, existingUser.email);
-    setAuthCookie(token);
+    await setAuthCookie(token);
 
     return { success: true, message: "Signed in successfully", token, user: existingUser };
 };

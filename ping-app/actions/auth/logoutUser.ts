@@ -5,7 +5,7 @@ import { cookies } from 'next/headers';
 
 export const logoutUser = async () => {
     try {
-        const cookieStore = cookies();
+        const cookieStore = await cookies();
 
         cookieStore.set('token', '', {
             httpOnly: true,

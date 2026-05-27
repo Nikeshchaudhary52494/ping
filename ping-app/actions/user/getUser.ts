@@ -4,7 +4,7 @@ import { db } from "@/lib/db";
 import { verifyToken } from "@/lib/jwtUtils";
 
 export const getUser = async () => {
-    const data = verifyToken();
+    const data = await verifyToken();
 
     try {
         const user = await db.user.findUnique({
