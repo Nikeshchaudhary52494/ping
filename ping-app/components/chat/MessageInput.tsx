@@ -6,9 +6,10 @@ import React, { useRef, useState, ChangeEvent, FormEvent, useEffect } from 'reac
 import { toast } from '@/app/hooks/use-toast';
 import { useUploadThing } from '@/lib/uploadthing';
 import { useMessage } from '@/components/providers/messageProvider';
+import { useChatData } from '@/components/providers/chatDataProvider';
 import axiosInstance from '@/lib/axiosConfig';
 import Image from 'next/image';
-import getUserPublicKey from '@/actions/user/getUserPublicKey';
+import getUserPublicKey from "@/lib/getUserPublicKeyClient";
 import { DecryptedMessages } from '@/types/prisma';
 import { encryptPrivateMessage } from '@/lib/crypto';
 
@@ -37,6 +38,7 @@ export default function MessageInput({
 }: MessageInputProps) {
 
     const { addMessage, updateMessage, updateMessageStatus } = useMessage();
+    const { updateChatLastMessage } = useChatData();
     const params = useParams();
     const { startUpload } = useUploadThing("messageFile");
     const chatId = params?.privateChatId || params?.groupChatId as string;
@@ -156,6 +158,17 @@ export default function MessageInput({
         };
 
         addMessage(tempMessage);
+        updateChatLastMessage(chatId.toString(), {
+            id: tempMessage.id,
+            encryptedContent: encrypted ? encrypted.encryptedMessage : content,
+            nonce: encrypted ? encrypted.nonce : "1",
+            senderId,
+            fileUrl,
+            isDeleted: false,
+            status: 'PENDING',
+            createdAt: tempMessage.createdAt,
+            updatedAt: tempMessage.updatedAt
+        });
         setToBottom(true);
 
         try {
@@ -264,13 +277,47 @@ export default function MessageInput({
                     ref={inputRef}
                     value={content!}
                     onChange={(e) => {
-                        setContent(e.target.value);
+                        let val = e.target.value;
+                        val = val.replace(/(^|\n)-\s/g, '$1• ');
+                        setContent(val);
                         if (inputRef.current) {
                             inputRef.current.style.height = "auto";
                             inputRef.current.style.height = inputRef.current.scrollHeight + "px";
                         }
                     }}
-
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault();
+                            if (content.trim() || files.length > 0) {
+                                if (formRef.current) {
+                                    formRef.current.requestSubmit();
+                                }
+                            }
+                        } else if (e.key === 'Enter' && e.shiftKey) {
+                            const cursorPosition = e.currentTarget.selectionStart;
+                            const textBeforeCursor = content.substring(0, cursorPosition);
+                            const lines = textBeforeCursor.split('\n');
+                            const currentLine = lines[lines.length - 1];
+                            
+                            if (currentLine.trimStart().startsWith('-') || currentLine.trimStart().startsWith('•')) {
+                                e.preventDefault();
+                                const match = currentLine.match(/^\s*[-•](\s*)/);
+                                const prefix = match ? match[0].replace('-', '•') : '• ';
+                                
+                                const newContent = content.substring(0, cursorPosition) + '\n' + prefix + content.substring(cursorPosition);
+                                setContent(newContent);
+                                
+                                setTimeout(() => {
+                                    if (inputRef.current) {
+                                        inputRef.current.selectionStart = cursorPosition + 1 + prefix.length;
+                                        inputRef.current.selectionEnd = cursorPosition + 1 + prefix.length;
+                                        inputRef.current.style.height = "auto";
+                                        inputRef.current.style.height = inputRef.current.scrollHeight + "px";
+                                    }
+                                }, 0);
+                            }
+                        }
+                    }}
                     placeholder="Type your message..."
                     className="w-full px-2 bg-transparent resize-none max-h-24 self-center whitespace-pre-wrap outline-none placeholder:text-sm"
                     onFocus={() => setIsFocused(true)}

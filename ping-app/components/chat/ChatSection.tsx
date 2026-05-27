@@ -11,7 +11,7 @@ import useChatScroll from "@/app/hooks/useChatScroll";
 import ChatWelcome from "./ChatWelcome";
 import ChatHeader from "./ChatHeader";
 import { GroupChatData, MyUser } from "@/types/prisma";
-import getUserPublicKey from "@/actions/user/getUserPublicKey";
+import getUserPublicKey from "@/lib/getUserPublicKeyClient";
 import { decryptPrivateMessage } from "@/lib/crypto";
 import { GroupDetails } from "./groupDetails";
 import { UserDetails } from "./userDetails";
@@ -78,17 +78,20 @@ export default function ChatSection({
 
             let decryptedChats;
             if (chatType == "private") {
+                let receiverPublicKey;
+                if (receiver) {
+                    receiverPublicKey = await getUserPublicKey(receiver.id);
+                } else {
+                    receiverPublicKey = currentUserPublicKey;
+                }
+
+                if (!receiverPublicKey) {
+                    console.error("Failed to fetch public key for receiver");
+                }
+
                 decryptedChats = await Promise.all(
                     initialData.messages.map(async (msg) => {
-                        let receiverPublicKey;
-                        if (receiver)
-                            receiverPublicKey = await getUserPublicKey(receiver?.id!);
-                        else
-                            receiverPublicKey = currentUserPublicKey;
-
-
                         if (!receiverPublicKey) {
-                            console.error(`Failed to fetch public key for user ${msg.senderId}`);
                             return { ...msg, content: null };
                         }
                         let decryptedText;
@@ -96,12 +99,17 @@ export default function ChatSection({
                         if (msg.isDeleted) {
                             decryptedText = "this message is deleted";
                         } else {
-                            decryptedText = await decryptPrivateMessage(
-                                msg.encryptedContent!,
-                                msg.nonce!,
-                                receiverPublicKey,
-                                currentUserPrivateKey,
-                            );
+                            try {
+                                decryptedText = await decryptPrivateMessage(
+                                    msg.encryptedContent!,
+                                    msg.nonce!,
+                                    receiverPublicKey,
+                                    currentUserPrivateKey,
+                                );
+                            } catch (error) {
+                                console.error("Failed to decrypt message in ChatSection:", error);
+                                decryptedText = "Failed to decrypt message";
+                            }
                         }
                         return { ...msg, content: decryptedText };
                     })

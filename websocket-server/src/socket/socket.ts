@@ -46,6 +46,30 @@ io.on("connection", (socket: Socket) => {
     socket.on("call:end", (data) => callService.endCall(socket, data));
     socket.on("call:drop", (data) => callService.dropCall(socket, data));
 
+    // Message events for real-time updates
+    socket.on("message:delete", (data) => {
+        if (Array.isArray(data.receiverId)) {
+            data.receiverId.forEach((id: string) => {
+                const receiverSocketId = getReceiverSocketId(id);
+                if (receiverSocketId) io.to(receiverSocketId).emit("message:delete", data);
+            });
+        } else {
+            const receiverSocketId = getReceiverSocketId(data.receiverId);
+            if (receiverSocketId) io.to(receiverSocketId).emit("message:delete", data);
+        }
+    });
+
+    socket.on("message:edit", (data) => {
+        if (Array.isArray(data.receiverId)) {
+            data.receiverId.forEach((id: string) => {
+                const receiverSocketId = getReceiverSocketId(id);
+                if (receiverSocketId) io.to(receiverSocketId).emit("message:edit", data);
+            });
+        } else {
+            const receiverSocketId = getReceiverSocketId(data.receiverId);
+            if (receiverSocketId) io.to(receiverSocketId).emit("message:edit", data);
+        }
+    });
     // WebRTC signaling events
     socket.on("webrtc:offer", (data) => {
         const receiverSocketId = getReceiverSocketId(data.to);

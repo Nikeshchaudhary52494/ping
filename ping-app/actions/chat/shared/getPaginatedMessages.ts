@@ -25,6 +25,6 @@ export async function getPaginatedMessages({
 
     return {
         messages: messages.reverse(),
-        nextCursor: messages.length > 0 ? messages[0].id : null,
+        nextCursor: messages.length === pageSize ? messages[0].id : null,
     };
 }

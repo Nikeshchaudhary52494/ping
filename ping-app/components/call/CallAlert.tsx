@@ -19,7 +19,12 @@ export default function CallAlert({ callState }: { callState: CallState }) {
                 audioRef.current = new Audio(soundUrl);
                 audioRef.current.loop = callState === "ringing" || callState === "incoming";
             }
-            audioRef.current.play();
+            const playPromise = audioRef.current.play();
+            if (playPromise !== undefined) {
+                playPromise.catch(error => {
+                    console.log("Audio playback interrupted (expected if call state changed quickly).");
+                });
+            }
         } else {
             audioRef.current?.pause();
             audioRef.current = null;

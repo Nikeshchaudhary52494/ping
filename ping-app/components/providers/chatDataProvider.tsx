@@ -10,6 +10,7 @@ interface dataContextProps {
     addGroup: (group: UserGroups) => void;
     setPrivateChats: (friendList: PrivateChat[]) => void;
     setGroupList: (groupList: UserGroups[]) => void;
+    updateChatLastMessage: (chatId: string, message: any) => void;
 }
 
 const ChatDataContext = createContext<dataContextProps | undefined>(undefined);
@@ -35,8 +36,23 @@ export const ChatDataProvider: React.FC<{ children: ReactNode }> = ({ children }
         }
     };
 
+    const updateChatLastMessage = (chatId: string, message: any) => {
+        setPrivateChats(prev => prev.map(chat => {
+            if (chat.id === chatId) {
+                return { ...chat, messages: [message] };
+            }
+            return chat;
+        }));
+        setGroupList(prev => prev.map(group => {
+            if (group.chat.id === chatId) {
+                return { ...group, chat: { ...group.chat, messages: [message] } };
+            }
+            return group;
+        }));
+    };
+
     return (
-        <ChatDataContext.Provider value={{ privateChats, groupList, addPrivateChat, addGroup, setPrivateChats, setGroupList }}>
+        <ChatDataContext.Provider value={{ privateChats, groupList, addPrivateChat, addGroup, setPrivateChats, setGroupList, updateChatLastMessage }}>
             {children}
         </ChatDataContext.Provider>
     );

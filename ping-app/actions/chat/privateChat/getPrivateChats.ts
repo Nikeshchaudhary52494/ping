@@ -35,6 +35,7 @@ export const getPrivateChats = async (userId: string) => {
                 },
                 messages: {
                     select: {
+                        id: true,
                         status: true,
                         fileUrl: true,
                         senderId: true,

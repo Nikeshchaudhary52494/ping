@@ -7,9 +7,11 @@ import { logoutUser } from "@/actions/auth/logoutUser";
 const LogoutButton: React.FC = () => {
     const router = useRouter();
 
-    const handleLogout = () => {
-        logoutUser();
-    router.refresh();
+    const handleLogout = async () => {
+        localStorage.removeItem("pingPrivateKey");
+        localStorage.removeItem("pingPublicKey");
+        await logoutUser();
+        router.push("/sign-in");
     };
 
     return (

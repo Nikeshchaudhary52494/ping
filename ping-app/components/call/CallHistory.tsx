@@ -116,7 +116,10 @@ export default function CallHistory() {
                             <div>
                                 <p>{call.caller.username === user?.username ? call.receiver.displayName : call.caller.displayName}</p>
                                 <p className="text-xs text-primary">@{call.caller.username === user?.username ? call.receiver.username : call.caller.username}</p>
-                                <p className="text-sm text-foreground/40">{formatTime(call.duration)}</p>
+                                <p className="text-sm text-foreground/40">
+                                    {formatTime(call.callTime.toString())} 
+                                    {call.callStatus === "PICKED" && call.duration && ` • ${call.duration}`}
+                                </p>
                             </div>
                         </div>
 

@@ -4,8 +4,10 @@ import { Button } from '../ui/button';
 import { Textarea } from '../ui/textarea';
 import EditMessage from '@/actions/chat/shared/editMessage';
 import { encryptPrivateMessage } from "@/lib/crypto";
-import getUserPublicKey from "@/actions/user/getUserPublicKey";
+import getUserPublicKey from "@/lib/getUserPublicKeyClient";
 import { Edit } from "lucide-react";
+import { useMessage } from "@/components/providers/messageProvider";
+import { useSocketContext } from "@/components/providers/socketProvider";
 
 interface EditMessageDialogProps {
     originalMessage: string;
@@ -26,6 +28,8 @@ export function EditMessageDialog({
 }: EditMessageDialogProps) {
     const [editedMessage, setEditedMessage] = useState(originalMessage);
     const [isLoading, setIsLoading] = useState(false);
+    const { setMessages } = useMessage();
+    const { socket } = useSocketContext();
 
     const handleEditMessage = async () => {
         if (!editedMessage.trim()) return;
@@ -41,6 +45,12 @@ export function EditMessageDialog({
                 encrypted = await encryptPrivateMessage(editedMessage, receiverPublicKey!, storedPrivateKey!);
                 await EditMessage(messageId, encrypted.encryptedMessage, encrypted.nonce);
             }
+            
+            setMessages((prev) => prev.map((msg) => msg.id === messageId ? { ...msg, content: editedMessage, isEdited: true } : msg));
+            if (socket && receiverId) {
+                socket.emit("message:edit", { messageId, receiverId, newContent: editedMessage });
+            }
+            setOpenEditDialog(false);
         } finally {
             setIsLoading(false);
         }
@@ -48,18 +58,16 @@ export function EditMessageDialog({
 
     return (
         <Dialog open={openEditDialog} defaultOpen onOpenChange={setOpenEditDialog}>
-            <DialogTrigger>
-                <Button size="sm" variant="tab">
-                    <p>Edit</p>
-                    <Edit size={18} />
-                </Button>
-            </DialogTrigger>
-            <DialogContent>
+            <DialogContent aria-describedby={undefined}>
                 <DialogHeader>
                     <DialogTitle className="text-sm text-foreground/40">Edit Message</DialogTitle>
                 </DialogHeader>
                 <p className="font-medium">{originalMessage}</p>
                 <Textarea
+                    autoFocus
+                    onFocus={(e) => {
+                        e.target.setSelectionRange(e.target.value.length, e.target.value.length);
+                    }}
                     placeholder="Edit your message..."
                     value={editedMessage}
                     onChange={(e) => setEditedMessage(e.target.value)}

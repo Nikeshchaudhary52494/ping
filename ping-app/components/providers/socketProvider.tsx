@@ -51,7 +51,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
     useEffect(() => {
         if (user) {
             const socketInstance = io(
-                process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:5000',
+                process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000',
                 {
                     path: "/socket.io",
                     query: {

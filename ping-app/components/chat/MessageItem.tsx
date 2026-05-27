@@ -3,8 +3,10 @@
 import { messageStatus } from "@prisma/client";
 import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Copy, EllipsisVertical, Reply, Trash2 } from "lucide-react";
+import { Copy, Edit, EllipsisVertical, Reply, Trash2 } from "lucide-react";
 import ActionTooltip from "@/components/action-tooltip";
+import { useSocketContext } from "@/components/providers/socketProvider";
+import { useMessage } from "@/components/providers/messageProvider";
 
 
 import {
@@ -54,14 +56,22 @@ export default function MessageItem({
     const [imageSize, setImageSize] = useState({ width: 100, height: 100 });
     const [isPopOpen, setPopOpen] = useState(false);
     const [openEditDialog, setOpenEditDialog] = useState(false);
+    const { socket } = useSocketContext();
+    const { setMessages } = useMessage();
 
     const canDeleteMessage = !isDeleted && isMine;
 
     const handleMessageDelete = async () => {
+        setPopOpen(false);
         await deleteMessage(messageId);
+        setMessages((prev) => prev.map(msg => msg.id === messageId ? { ...msg, isDeleted: true } : msg));
+        if (socket && receiverId) {
+            socket.emit("message:delete", { messageId, receiverId });
+        }
     }
 
     const handleCopyMessage = () => {
+        setPopOpen(false);
         navigator.clipboard.writeText(content);
         toast({ description: "Message copied!" });
     };
@@ -163,13 +173,10 @@ export default function MessageItem({
                                         <Copy size={18} />
                                     </Button>
 
-                                    <EditMessageDialog
-                                        messageId={messageId}
-                                        originalMessage={content}
-                                        setOpenEditDialog={setOpenEditDialog}
-                                        openEditDialog={openEditDialog}
-                                        receiverId={receiverId}
-                                    />
+                                    <Button onClick={() => { setOpenEditDialog(true); setPopOpen(false); }} size="sm" variant="tab">
+                                        <p>Edit</p>
+                                        <Edit size={18} />
+                                    </Button>
 
                                     <Separator className="separator" />
                                     <Button onClick={handleMessageDelete} size="sm" className="flex justify-between w-full font-semibold bg-transparent hover:bg-secondary text-red-500 rounded-[16px]">
@@ -192,6 +199,15 @@ export default function MessageItem({
 
                     </div>
                 </div>
+            )}
+            {openEditDialog && (
+                <EditMessageDialog
+                    messageId={messageId}
+                    originalMessage={content}
+                    setOpenEditDialog={setOpenEditDialog}
+                    openEditDialog={openEditDialog}
+                    receiverId={receiverId}
+                />
             )}
         </div>
     );

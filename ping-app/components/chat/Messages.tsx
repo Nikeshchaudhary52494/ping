@@ -4,9 +4,10 @@ import { useEffect, useRef } from "react";
 import MessageItem from "./MessageItem";
 import { useMessage } from "@/components/providers/messageProvider";
 import { useSocketContext } from "@/components/providers/socketProvider";
+import { useChatData } from "@/components/providers/chatDataProvider";
 import { DecryptedMessages } from "@/types/prisma";
 import { decryptPrivateMessage } from "@/lib/crypto";
-import getUserPublicKey from "@/actions/user/getUserPublicKey";
+import getUserPublicKey from "@/lib/getUserPublicKeyClient";
 
 interface MessagesProps {
     messages: DecryptedMessages[];
@@ -31,6 +32,7 @@ export default function Messages({
 
     const { socket } = useSocketContext();
     const { messages, setMessages, addMessage } = useMessage();
+    const { updateChatLastMessage } = useChatData();
     const messageEndRef = useRef<HTMLDivElement | null>(null);
 
 
@@ -55,11 +57,23 @@ export default function Messages({
                 );
 
             addMessage({ ...newMessage, content: decryptedText });
+            updateChatLastMessage(newMessage.chatId, newMessage);
         });
+
+        socket.on("message:delete", (data) => {
+            setMessages((prev) => prev.map(msg => msg.id === data.messageId ? { ...msg, isDeleted: true } : msg));
+        });
+
+        socket.on("message:edit", (data) => {
+            setMessages((prev) => prev.map(msg => msg.id === data.messageId ? { ...msg, isEdited: true, content: data.newContent } : msg));
+        });
+
         return () => {
             socket.off("newMessage");
+            socket.off("message:delete");
+            socket.off("message:edit");
         };
-    }, [socket, addMessage, isGroup]);
+    }, [socket, addMessage, isGroup, updateChatLastMessage]);
 
     useEffect(() => {
         if (messageEndRef.current) {

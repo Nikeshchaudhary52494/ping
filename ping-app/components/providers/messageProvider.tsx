@@ -5,7 +5,7 @@ import React, { createContext, useContext, useState, ReactNode } from 'react';
 
 interface MessageContextType {
     messages: DecryptedMessages[];
-    setMessages: (messages: DecryptedMessages[]) => void;
+    setMessages: React.Dispatch<React.SetStateAction<DecryptedMessages[]>>;
     addMessage: (newMessage: DecryptedMessages) => void;
     updateMessage: (tempId: string, newMessage: DecryptedMessages) => void;
     updateMessageStatus: (tempId: string) => void;

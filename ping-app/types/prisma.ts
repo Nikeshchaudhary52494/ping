@@ -14,6 +14,7 @@ export interface PrivateChat {
         } | null;
     }[];
     messages: {
+        id: string;
         status: messageStatus;
         fileUrl: string | null;
         senderId: string
@@ -85,6 +86,7 @@ export interface GroupChatData {
 }
 
 export interface LastMessage {
+    id: string;
     nonce?: string | null;
     senderId?: string
     encryptedContent: string | null;

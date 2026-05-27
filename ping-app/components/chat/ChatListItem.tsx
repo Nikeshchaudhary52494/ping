@@ -1,4 +1,4 @@
-import getUserPublicKey from "@/actions/user/getUserPublicKey";
+import getUserPublicKey from "@/lib/getUserPublicKeyClient";
 import { UserAvatar } from "@/components/user/UserAvatar";
 import { decryptPrivateMessage } from "@/lib/crypto";
 import { GroupChatData, LastMessage } from "@/types/prisma";
@@ -101,7 +101,7 @@ export default function ChatListItem({
         };
 
         decryptMessage();
-    }, [lastMessage, isGroupChat, groupChatData, reciverId, user?.id]);
+    }, [lastMessage?.id, lastMessage?.isDeleted, isGroupChat, groupChatData?.chatId, reciverId, user?.id]);
 
     return (
         <div
