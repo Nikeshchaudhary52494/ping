@@ -61,7 +61,7 @@ export default function ChatSection({
         const currentUserPrivateKey = localStorage.getItem("pingPrivateKey");
         const currentUserPublicKey = localStorage.getItem("pingPublicKey");
         
-        let receiverPublicKey;
+        let receiverPublicKey: string | null | undefined = undefined;
         if (chatType === "private") {
             receiverPublicKey = receiver ? await getUserPublicKey(receiver.id) : currentUserPublicKey;
         }

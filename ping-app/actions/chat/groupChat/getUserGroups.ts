@@ -23,6 +23,7 @@ export default async function getUserGroups(userId: string) {
                             take: 1,
                             orderBy: { createdAt: "desc" },
                             select: {
+                                id: true,
                                 nonce: true,
                                 senderId: true,
                                 encryptedContent: true,

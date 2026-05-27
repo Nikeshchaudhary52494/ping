@@ -56,13 +56,7 @@ export interface UserGroups {
     name: string;
     chat: {
         id: string;
-        messages: {
-            encryptedContent: string | null;
-            createdAt: Date;
-            updatedAt: Date;
-            fileUrl: string | null;
-            isDeleted: boolean;
-        }[];
+        messages: LastMessage[];
     };
     imageUrl: string | null;
 }
