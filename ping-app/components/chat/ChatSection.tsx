@@ -186,6 +186,7 @@ export default function ChatSection({
                         setReplying={setReplying}
                         reciverId={receiver?.id!}
                         isGroup={chatType === "group"}
+                        members={groupChatData?.members}
                     />
                 </div>
 
@@ -223,7 +224,10 @@ export default function ChatSection({
             >
                 {chatType === "group" ?
 
-                    <GroupDetails groupChatData={groupChatData!} /> :
+                    <GroupDetails 
+                        groupChatData={groupChatData!} 
+                        setShowDetails={SetShowDetails} 
+                    /> :
 
                     <UserDetails
                         name={receiver?.displayName!}
@@ -231,6 +235,7 @@ export default function ChatSection({
                         username={receiver?.username!}
                         imageUrl={receiver?.imageUrl!}
                         userId={receiver?.id!}
+                        setShowDetails={SetShowDetails}
                     />
                 }
             </div>

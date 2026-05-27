@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from '../ui/button';
 import { Textarea } from '../ui/textarea';
 import EditMessage from '@/actions/chat/shared/editMessage';
@@ -58,9 +58,12 @@ export function EditMessageDialog({
 
     return (
         <Dialog open={openEditDialog} defaultOpen onOpenChange={setOpenEditDialog}>
-            <DialogContent aria-describedby={undefined}>
+            <DialogContent>
                 <DialogHeader>
                     <DialogTitle className="text-sm text-foreground/40">Edit Message</DialogTitle>
+                    <DialogDescription className="hidden">
+                        Edit your message below.
+                    </DialogDescription>
                 </DialogHeader>
                 <p className="font-medium">{originalMessage}</p>
                 <Textarea

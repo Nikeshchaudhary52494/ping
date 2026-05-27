@@ -3,13 +3,16 @@ import { Separator } from "../ui/separator";
 import { UserAvatar } from "../user/UserAvatar";
 import { removeMemberFromGroup } from "@/actions/chat/groupChat/removeMember";
 import { useUser } from "../providers/userProvider";
+import { X } from "lucide-react";
 
 interface GroupDetailsProps {
-    groupChatData: GroupChatData
+    groupChatData: GroupChatData;
+    setShowDetails: (value: boolean) => void;
 }
 
 export function GroupDetails({
-    groupChatData
+    groupChatData,
+    setShowDetails
 }: GroupDetailsProps
 ) {
 
@@ -18,7 +21,13 @@ export function GroupDetails({
     }
     const { user } = useUser();
     return (
-        <div className="text-start">
+        <div className="relative text-start">
+            <button 
+                onClick={() => setShowDetails(false)}
+                className="absolute top-4 right-4 p-2 rounded-full bg-secondary/80 hover:bg-secondary transition"
+            >
+                <X size={20} className="text-foreground/60 hover:text-foreground" />
+            </button>
             <section className="flex flex-col items-center py-8">
                 <UserAvatar imageUrl={groupChatData.imageUrl} size={100} />
                 <p className="text-lg font-semibold mt-2">{groupChatData.name}</p>

@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Copy, Edit, EllipsisVertical, Reply, Trash2 } from "lucide-react";
 import ActionTooltip from "@/components/action-tooltip";
+import { UserAvatar } from "@/components/user/UserAvatar";
 import { useSocketContext } from "@/components/providers/socketProvider";
 import { useMessage } from "@/components/providers/messageProvider";
 
@@ -33,7 +34,14 @@ interface MessageItemProps {
     isEdited: boolean;
     setReplying: (value: boolean) => void;
     SetReplyingMessage: (value: string) => void;
-    receiverId?: string
+    receiverId?: string;
+    isGroup?: boolean;
+    sender?: {
+        imageUrl: string | null;
+        id: string;
+        username: string | null;
+        displayName: string;
+    };
 }
 
 export default function MessageItem({
@@ -49,7 +57,9 @@ export default function MessageItem({
     isEdited,
     setReplying,
     SetReplyingMessage,
-    receiverId
+    receiverId,
+    isGroup = false,
+    sender
 }: MessageItemProps) {
     const containerRef = useRef<HTMLDivElement>(null);
 
@@ -105,6 +115,15 @@ export default function MessageItem({
 
     return (
         <div className={`relative flex w-full items-center gap-6 group ${isMine && `flex-row-reverse`}`}>
+            {isGroup && !isMine && (
+                <div className="flex-shrink-0 self-end mb-1 w-8">
+                    {isLastMessage ? (
+                         <UserAvatar imageUrl={sender?.imageUrl || ""} size={32} />
+                    ) : (
+                         <div className="w-8 h-8" />
+                    )}
+                </div>
+            )}
             <div className={`
                 ${fileUrl ? "rounded-md" : "rounded-[18px] px-[12px] py-[7px] "} 
                 ${isMine ?
@@ -132,6 +151,9 @@ export default function MessageItem({
                         <div
                             ref={containerRef}
                             className={`flex flex-col relative w-full gap-2`}>
+                            {isGroup && !isMine && isFirstMessage && sender && (
+                                <span className="text-xs font-semibold text-primary">{sender.displayName}</span>
+                            )}
                             {isDeleted ?
                                 <p className="text-sm italic"> this message is deleted</p> :
                                 <p className={`sm:max-w-[50vw] max-w-[60vw] text-sm sm:text-base break-words whitespace-pre-wrap text-start ${fileUrl ? "p-2" : ""}`}>

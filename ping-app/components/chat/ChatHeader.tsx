@@ -8,7 +8,7 @@ import { MyUser, UserTab } from "@/types/prisma";
 import { Link2, UserPlus } from "lucide-react";
 import ActionTooltip from "../action-tooltip";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/app/hooks/use-toast";
 import { addMembersToGroup, searchUsers } from "@/actions/chat/groupChat/addMembers";
@@ -89,16 +89,19 @@ export default function ChatHeader({
                 <div className="flex justify-between gap-5 mr-5">
 
                     <Dialog>
-                        <DialogTrigger>
-                            <ActionTooltip label="Add member">
+                        <ActionTooltip label="Add member">
+                            <DialogTrigger asChild>
                                 <Button variant="ghost" size="icon">
                                     <UserPlus className="w-5 h-5" />
                                 </Button>
-                            </ActionTooltip>
-                        </DialogTrigger>
+                            </DialogTrigger>
+                        </ActionTooltip>
                         <DialogContent>
                             <DialogHeader>
                                 <DialogTitle>Add Members</DialogTitle>
+                                <DialogDescription className="hidden">
+                                    Search and add members to the group chat.
+                                </DialogDescription>
                             </DialogHeader>
                             <Input
                                 placeholder="Search users..."

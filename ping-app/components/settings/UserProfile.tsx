@@ -20,7 +20,7 @@ export default function UserProfile() {
     return (
         <div className="flex flex-col items-start h-full p-10 space-y-6 overflow-y-scroll">
             <h2 className="text-3xl font-bold">Account Details</h2>
-            <AccountProfile user={user!} btnTitle='Continue' />
+            <AccountProfile user={user!} btnTitle='Save' />
             <div className="space-y-2">
                 <p>Sign out from device</p>
                 <LogoutButton />

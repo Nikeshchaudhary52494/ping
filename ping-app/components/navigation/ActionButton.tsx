@@ -4,6 +4,8 @@ import {
     Dialog,
     DialogContent,
     DialogTrigger,
+    DialogTitle,
+    DialogDescription,
 } from "@/components/ui/dialog"
 import CreateGroupForm from '../chat/CreateGroupForm';
 import { useState } from "react";
@@ -38,8 +40,8 @@ export default function ActionButton({
                     <DialogContent className="h-full sm:h-fit">
                         <div className="flex flex-col gap-10">
                             <div>
-                                <p className="font-bold text-3xl">Create Group</p>
-                                <p className="text-sm">Create a group to hang out with your friends!</p>
+                                <DialogTitle className="font-bold text-3xl">Create Group</DialogTitle>
+                                <DialogDescription className="text-sm">Create a group to hang out with your friends!</DialogDescription>
                             </div>
                             <CreateGroupForm setIsOpen={setIsOpen} />
                         </div>

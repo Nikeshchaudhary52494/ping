@@ -17,7 +17,13 @@ interface MessagesProps {
     setReplying: (value: boolean) => void;
     SetReplyingMessage: (value: string) => void;
     reciverId?: string;
-    isGroup?: boolean
+    isGroup?: boolean;
+    members?: {
+        imageUrl: string | null;
+        id: string;
+        username: string | null;
+        displayName: string;
+    }[];
 }
 
 export default function Messages({
@@ -27,7 +33,8 @@ export default function Messages({
     setReplying,
     SetReplyingMessage,
     reciverId,
-    isGroup = false
+    isGroup = false,
+    members = []
 }: MessagesProps) {
 
     const { socket } = useSocketContext();
@@ -105,6 +112,8 @@ export default function Messages({
                             SetReplyingMessage={SetReplyingMessage}
                             setReplying={setReplying}
                             receiverId={reciverId}
+                            isGroup={isGroup}
+                            sender={members?.find(m => m.id === senderId)}
                         />
                     </div>
                 )

@@ -4,13 +4,15 @@ import { Separator } from "../ui/separator";
 import { UserAvatar } from "../user/UserAvatar";
 import { useState } from "react";
 import unBlockUser from "@/actions/chat/privateChat/unBlockUser";
+import { X } from "lucide-react";
 
 interface UserDetailsProps {
     name: string;
     username: string;
     bio: string;
     imageUrl: string;
-    userId: string
+    userId: string;
+    setShowDetails: (value: boolean) => void;
 }
 
 export function UserDetails({
@@ -18,7 +20,8 @@ export function UserDetails({
     username,
     bio,
     imageUrl,
-    userId
+    userId,
+    setShowDetails
 }: UserDetailsProps) {
 
     const { user: currentUser } = useUser();
@@ -36,7 +39,13 @@ export function UserDetails({
     const [userBlocked, setUserBlocked] = useState<boolean>(isUserBlocked)
 
     return (
-        <div className="text-start">
+        <div className="relative text-start">
+            <button 
+                onClick={() => setShowDetails(false)}
+                className="absolute top-4 right-4 p-2 rounded-full bg-secondary/80 hover:bg-secondary transition"
+            >
+                <X size={20} className="text-foreground/60 hover:text-foreground" />
+            </button>
             <section className="flex flex-col items-center py-8">
                 <UserAvatar imageUrl={imageUrl} size={100} />
                 <p className="text-lg font-semibold mt-2">{name}</p>

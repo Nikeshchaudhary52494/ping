@@ -7,7 +7,7 @@ import { toast } from "@/app/hooks/use-toast";
 import { getUserSettings } from "@/actions/user/getUserSettings";
 import { updateUserSettings } from "@/actions/user/updateUserSettings";
 import { useUser } from "../providers/userProvider";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { updatePassword } from "@/actions/auth/updatePassword";
 import Privacy from "../skeletons/privacy";
@@ -98,6 +98,7 @@ export default function ManagePrivacy() {
                 <DialogContent>
                     <DialogHeader>
                         <DialogTitle>Update Password</DialogTitle>
+                        <DialogDescription className="hidden">Enter your new password below</DialogDescription>
                     </DialogHeader>
                     <Input
                         type="password"
