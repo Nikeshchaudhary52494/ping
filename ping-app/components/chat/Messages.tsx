@@ -7,6 +7,7 @@ import { useSocketContext } from "@/components/providers/socketProvider";
 import { useChatData } from "@/components/providers/chatDataProvider";
 import { DecryptedMessages } from "@/types/prisma";
 import { decryptPrivateMessage } from "@/lib/crypto";
+import { idbMessages } from "@/lib/indexedDB";
 import getUserPublicKey from "@/lib/getUserPublicKeyClient";
 
 interface MessagesProps {
@@ -63,12 +64,15 @@ export default function Messages({
                     receiverPrivateKey!
                 );
 
-            addMessage({ ...newMessage, content: decryptedText });
-            updateChatLastMessage(newMessage.chatId, newMessage);
+            const msgToStore = { ...newMessage, content: decryptedText };
+            addMessage(msgToStore);
+            updateChatLastMessage(newMessage.chatId, msgToStore);
+            await idbMessages.put(msgToStore);
         });
 
-        socket.on("message:delete", (data) => {
+        socket.on("message:delete", async (data) => {
             setMessages((prev) => prev.map(msg => msg.id === data.messageId ? { ...msg, isDeleted: true } : msg));
+            await idbMessages.delete(data.messageId);
         });
 
         socket.on("message:edit", (data) => {

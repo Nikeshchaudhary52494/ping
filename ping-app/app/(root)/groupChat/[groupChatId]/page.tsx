@@ -12,9 +12,7 @@ interface GroupsProps {
 
 async function ChatContent({ params }: GroupsProps) {
     const { groupChatId } = await params;
-    const [initialData, groupChatData] = await Promise.all([
-        getPaginatedMessages({ groupChatId }),
-        db.groupChat.findUnique({
+    const groupChatData = await db.groupChat.findUnique({
             where: {
                 chatId: groupChatId
             },
@@ -39,13 +37,12 @@ async function ChatContent({ params }: GroupsProps) {
                     }
                 }
             }
-        }),
-    ]);
-
+        })
+        
     return (
         <ChatSection
             chatType="group"
-            initialData={initialData}
+            initialData={{ messages: [], nextCursor: null }}
             groupChatData={groupChatData!}
 
         />
@@ -56,9 +53,7 @@ async function ChatContent({ params }: GroupsProps) {
 export default async function Page({ params }: GroupsProps) {
     return (
         <div className="h-full">
-            <Suspense fallback={< ChatSkeleton />}>
-                <ChatContent params={params} />
-            </Suspense>
+            <ChatContent params={params} />
         </div>
     )
 }

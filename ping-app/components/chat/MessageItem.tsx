@@ -75,6 +75,12 @@ export default function MessageItem({
         setPopOpen(false);
         await deleteMessage(messageId);
         setMessages((prev) => prev.map(msg => msg.id === messageId ? { ...msg, isDeleted: true } : msg));
+        
+        // Update IndexedDB directly to prevent old state on reload
+        import("@/lib/indexedDB").then(({ idbMessages }) => {
+            idbMessages.update(messageId, { isDeleted: true });
+        });
+
         if (socket && receiverId) {
             socket.emit("message:delete", { messageId, receiverId });
         }

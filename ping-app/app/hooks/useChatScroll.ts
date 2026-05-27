@@ -9,13 +9,15 @@ interface UseChatScrollProps {
     nextCursor: string | null;
     privateChatId?: string;
     setMessages: (messages: DecryptedMessages[]) => void;
+    decryptMessages?: (messages: any[]) => Promise<any[]>;
 }
 
 export default function useChatScroll({
     scrollContainerRef,
     nextCursor,
     privateChatId,
-    setMessages
+    setMessages,
+    decryptMessages
 }: UseChatScrollProps) {
 
     const [isLoading, setIsLoading] = useState(false);
@@ -50,9 +52,19 @@ export default function useChatScroll({
                 cursor,
             });
 
+            let finalMessages = newData.messages;
+            if (decryptMessages) {
+                finalMessages = await decryptMessages(newData.messages);
+            }
+
+            // Save to IndexedDB
+            import("@/lib/indexedDB").then(({ idbMessages }) => {
+                idbMessages.putBulk(finalMessages as any);
+            });
+
             // Append new messages at the top
             // @ts-ignore
-            setMessages((prev) => [...newData.messages, ...prev]);
+            setMessages((prev) => [...finalMessages, ...prev]);
 
             // Update cursor for next pagination
             setCursor(newData.nextCursor);

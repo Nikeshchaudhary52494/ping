@@ -47,6 +47,12 @@ export function EditMessageDialog({
             }
             
             setMessages((prev) => prev.map((msg) => msg.id === messageId ? { ...msg, content: editedMessage, isEdited: true } : msg));
+            
+            // Update IndexedDB directly
+            import("@/lib/indexedDB").then(({ idbMessages }) => {
+                idbMessages.update(messageId, { content: editedMessage, isEdited: true });
+            });
+
             if (socket && receiverId) {
                 socket.emit("message:edit", { messageId, receiverId, newContent: editedMessage });
             }

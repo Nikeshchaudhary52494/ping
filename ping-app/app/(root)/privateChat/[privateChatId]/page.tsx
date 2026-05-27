@@ -12,9 +12,7 @@ interface ChatsProps {
 
 async function ChatContent({ params }: ChatsProps) {
     const { privateChatId } = await params;
-    const [initialData, privateChat] = await Promise.all([
-        getPaginatedMessages({ privateChatId }),
-        db.chat.findUnique({
+    const privateChat = await db.chat.findUnique({
             where: { id: privateChatId },
             select: {
                 members: {
@@ -35,13 +33,12 @@ async function ChatContent({ params }: ChatsProps) {
                     }
                 }
             },
-        }),
-    ]);
+        })
 
     return (
         <ChatSection
             chatType="private"
-            initialData={initialData}
+            initialData={{ messages: [], nextCursor: null }}
             privateChatId={privateChatId}
             members={privateChat?.members!}
         />
@@ -52,9 +49,7 @@ async function ChatContent({ params }: ChatsProps) {
 export default function Page({ params }: ChatsProps) {
     return (
         <div className="h-full">
-            <Suspense fallback={< ChatSkeleton />}>
-                <ChatContent params={params} />
-            </Suspense>
+            <ChatContent params={params} />
         </div>
     );
 }  

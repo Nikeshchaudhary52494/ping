@@ -15,6 +15,8 @@ import getUserPublicKey from "@/lib/getUserPublicKeyClient";
 import { decryptPrivateMessage } from "@/lib/crypto";
 import { GroupDetails } from "./groupDetails";
 import { UserDetails } from "./userDetails";
+import { getPaginatedMessages } from "@/actions/chat/shared/getPaginatedMessages";
+import { idbMessages } from "@/lib/indexedDB";
 
 
 interface ChatSectionProps {
@@ -55,84 +57,92 @@ export default function ChatSection({
         : [];
 
 
+    const decryptMessagesCallback = async (msgs: any[]) => {
+        const currentUserPrivateKey = localStorage.getItem("pingPrivateKey");
+        const currentUserPublicKey = localStorage.getItem("pingPublicKey");
+        
+        let receiverPublicKey;
+        if (chatType === "private") {
+            receiverPublicKey = receiver ? await getUserPublicKey(receiver.id) : currentUserPublicKey;
+        }
+
+        return await Promise.all(
+            msgs.map(async (msg: any) => {
+                let decryptedText;
+                if (msg.isDeleted) {
+                    decryptedText = "this message is deleted";
+                } else if (chatType === "group") {
+                    decryptedText = msg.encryptedContent;
+                } else {
+                    if (!receiverPublicKey || !currentUserPrivateKey) {
+                        decryptedText = "Failed to decrypt";
+                    } else {
+                        try {
+                            decryptedText = await decryptPrivateMessage(
+                                msg.encryptedContent!,
+                                msg.nonce!,
+                                receiverPublicKey,
+                                currentUserPrivateKey
+                            );
+                        } catch (e) {
+                            decryptedText = "Failed to decrypt";
+                        }
+                    }
+                }
+                return { ...msg, content: decryptedText };
+            })
+        );
+    };
+
     const { toBottom, isLoading, loadMoreMessages, hasNextMessage, setToBottom }
         = useChatScroll({
             nextCursor: initialData.nextCursor,
             scrollContainerRef,
             setMessages,
             privateChatId: privateChatId ?? groupChatData?.chatId!,
+            decryptMessages: decryptMessagesCallback,
         });
-
 
     useEffect(() => {
         if (!user) return;
 
-        async function setDecryptedMessages() {
-            const currentUserPrivateKey = localStorage.getItem("pingPrivateKey");
-            const currentUserPublicKey = localStorage.getItem("pingPublicKey");
+        async function loadMessages() {
+            const chatId = privateChatId ?? groupChatData?.chatId;
+            if (!chatId) return;
 
-            if (!currentUserPrivateKey || !currentUserPublicKey) {
-                console.error("No key pair found in local storage for current user.");
-                return;
+            // 1. Load instantly from IndexedDB
+            const localMessages = await idbMessages.getByChatId(chatId);
+            if (localMessages.length > 0) {
+                setMessages(localMessages as any);
             }
 
-            let decryptedChats;
-            if (chatType == "private") {
-                let receiverPublicKey;
-                if (receiver) {
-                    receiverPublicKey = await getUserPublicKey(receiver.id);
-                } else {
-                    receiverPublicKey = currentUserPublicKey;
+            // 2. Fetch fresh from server in the background
+            try {
+                const fetchedData = await getPaginatedMessages({
+                    privateChatId: chatType === "private" ? chatId : undefined,
+                    groupChatId: chatType === "group" ? chatId : undefined
+                });
+
+                if (fetchedData.messages && fetchedData.messages.length > 0) {
+                    const decryptedChats = await decryptMessagesCallback(fetchedData.messages);
+                    await idbMessages.putBulk(decryptedChats as any);
+                    
+                    const allMessagesMap = new Map();
+                    localMessages.forEach((msg: any) => allMessagesMap.set(msg.id, msg));
+                    decryptedChats.forEach((msg: any) => allMessagesMap.set(msg.id, msg));
+                    
+                    const mergedMessages = Array.from(allMessagesMap.values())
+                        .sort((a: any, b: any) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+
+                    setMessages(mergedMessages as any);
                 }
-
-                if (!receiverPublicKey) {
-                    console.error("Failed to fetch public key for receiver");
-                }
-
-                decryptedChats = await Promise.all(
-                    initialData.messages.map(async (msg) => {
-                        if (!receiverPublicKey) {
-                            return { ...msg, content: null };
-                        }
-                        let decryptedText;
-
-                        if (msg.isDeleted) {
-                            decryptedText = "this message is deleted";
-                        } else {
-                            try {
-                                decryptedText = await decryptPrivateMessage(
-                                    msg.encryptedContent!,
-                                    msg.nonce!,
-                                    receiverPublicKey,
-                                    currentUserPrivateKey,
-                                );
-                            } catch (error) {
-                                console.error("Failed to decrypt message in ChatSection:", error);
-                                decryptedText = "Failed to decrypt message";
-                            }
-                        }
-                        return { ...msg, content: decryptedText };
-                    })
-                );
-            } else {
-                decryptedChats = await Promise.all(
-                    initialData.messages.map((msg) => {
-                        let decryptedText;
-                        if (msg.isDeleted) {
-                            decryptedText = "this message is deleted";
-                        } else {
-                            decryptedText = msg.encryptedContent;
-                        }
-                        return { ...msg, content: decryptedText };
-                    })
-                );
+            } catch (error) {
+                console.error("Failed to fetch fresh messages:", error);
             }
-
-            setMessages(decryptedChats);
         }
 
-        setDecryptedMessages();
-    }, [initialData.messages, user?.id, chatType, receiver, setMessages, user]);
+        loadMessages();
+    }, [user?.id, chatType, receiver, setMessages, user, privateChatId, groupChatData]);
 
     return (
         <div className="relative flex h-full overflow-hidden">

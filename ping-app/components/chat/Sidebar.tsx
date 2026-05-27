@@ -10,6 +10,7 @@ import GroupList from "./GroupList";
 import FriendList from "./FriendList";
 import getGroupSearchData from "@/actions/chat/groupChat/getGroupSearchData";
 import { useChatData } from "../providers/chatDataProvider";
+import { idbChats } from "@/lib/indexedDB";
 
 interface SidebarProps {
     CurrentuserId: string;
@@ -26,20 +27,41 @@ export default function Sidebar({ CurrentuserId, isMobileDevice, type }: Sidebar
     useEffect(() => {
         const fetchChats = async () => {
             try {
-                setLoading(true);
+                // Try loading from IndexedDB first
+                if (type === "Group") {
+                    const localGroups = await idbChats.getGroupChats();
+                    if (localGroups.length > 0) {
+                        setGroupList(localGroups);
+                        setLoading(false); // Render instantly
+                    }
+                } else {
+                    const localPrivate = await idbChats.getPrivateChats();
+                    if (localPrivate.length > 0) {
+                        setPrivateChats(localPrivate);
+                        setLoading(false); // Render instantly
+                    }
+                }
+
+                // Fetch from network
                 if (type === "Group") {
                     const [groupChats, groupSearch] = await Promise.all([
                         getUserGroups(CurrentuserId),
                         getGroupSearchData(),
                     ]);
-                    setGroupList(groupChats || [])
+                    if (groupChats) {
+                        setGroupList(groupChats);
+                        await idbChats.putGroupChats(groupChats);
+                    }
                     setSearchData(groupSearch || []);
                 } else {
                     const [privateChats, privateSearch] = await Promise.all([
                         getPrivateChats(CurrentuserId),
                         getPrivateSearchData(),
                     ]);
-                    setPrivateChats(privateChats);
+                    if (privateChats) {
+                        setPrivateChats(privateChats);
+                        await idbChats.putPrivateChats(privateChats);
+                    }
                     setSearchData(privateSearch || []);
                 }
             } catch (error) {
