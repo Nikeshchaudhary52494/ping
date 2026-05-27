@@ -5,16 +5,17 @@ import ChatSkeleton from "@/components/skeletons/Chat";
 import ChatSection from "@/components/chat/ChatSection";
 
 interface ChatsProps {
-    params: {
+    params: Promise<{
         privateChatId: string;
-    };
+    }>;
 }
 
 async function ChatContent({ params }: ChatsProps) {
+    const { privateChatId } = await params;
     const [initialData, privateChat] = await Promise.all([
-        getPaginatedMessages({ privateChatId: params.privateChatId }),
+        getPaginatedMessages({ privateChatId }),
         db.chat.findUnique({
-            where: { id: params.privateChatId },
+            where: { id: privateChatId },
             select: {
                 members: {
                     include: {
@@ -41,7 +42,7 @@ async function ChatContent({ params }: ChatsProps) {
         <ChatSection
             chatType="private"
             initialData={initialData}
-            privateChatId={params.privateChatId}
+            privateChatId={privateChatId}
             members={privateChat?.members!}
         />
 

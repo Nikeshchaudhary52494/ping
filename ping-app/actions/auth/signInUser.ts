@@ -19,13 +19,20 @@ export const signInUser = async (formData: FormData) => {
 
     const existingUser = await db.user.findUnique({
         where: { email },
-        select: {
-            password: true,
-            email: true,
-            id: true,
-            publicKey: true,
-            encryptedPrivateKey: true,
-            salt: true,
+        include: {
+            settings: {
+                select: {
+                    hideOnlineStatus: true,
+                    hideProfile: true,
+                    showProfileImage: true,
+                    restrictMessagesFromUnknown: true
+                }
+            },
+            blockedContacts: {
+                select: {
+                    blockedId: true,
+                }
+            }
         }
     });
 

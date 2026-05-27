@@ -68,13 +68,13 @@ export default function SignIn() {
             formData.append("password", "guestPassword123");
 
             const { success, user, message } = await signInUser(formData);
-            updateUser
+            updateUser({ ...user })
             if (success) {
                 toast({
                     description: "Guest user signed in successfully",
                 });
                 localStorage.setItem("pingPublicKey", user?.publicKey!);
-                const privateKey = await decryptPrivateKey(user?.encryptedPrivateKey!, user?.salt!, "guestPassword123")
+                const privateKey = await decryptPrivateKey(user?.encryptedPrivateKey!, "guestPassword123", user?.salt!)
                 localStorage.setItem("pingPrivateKey", privateKey);
                 router.push("/");
             } else {

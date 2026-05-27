@@ -6,10 +6,14 @@ import { verifyToken } from "@/lib/jwtUtils";
 export const getUser = async () => {
     const data = await verifyToken();
 
+    if (!data?.userId) {
+        return { success: false, message: 'Unauthorized: No valid user ID found in token' };
+    }
+
     try {
         const user = await db.user.findUnique({
             where: {
-                id: data?.userId
+                id: data.userId
             },
             include: {
                 settings: {

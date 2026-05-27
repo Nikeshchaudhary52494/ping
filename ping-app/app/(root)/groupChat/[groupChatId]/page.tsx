@@ -5,17 +5,18 @@ import { db } from "@/lib/db";
 import { Suspense } from "react";
 
 interface GroupsProps {
-    params: {
+    params: Promise<{
         groupChatId: string
-    }
+    }>
 }
 
 async function ChatContent({ params }: GroupsProps) {
+    const { groupChatId } = await params;
     const [initialData, groupChatData] = await Promise.all([
-        getPaginatedMessages({ groupChatId: params.groupChatId }),
+        getPaginatedMessages({ groupChatId }),
         db.groupChat.findUnique({
             where: {
-                chatId: params.groupChatId
+                chatId: groupChatId
             },
             select: {
                 id: true,

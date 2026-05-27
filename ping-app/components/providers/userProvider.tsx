@@ -45,8 +45,8 @@ const MyUserContextProvider = (props: Props) => {
 
     const updateUser = useCallback((updatedUser: Partial<PrismaUser>) => {
         setUser((prevUser) => {
-            if (!prevUser) return null;
-            return { ...prevUser, ...updatedUser };
+            if (!prevUser) return updatedUser as MyUser;
+            return { ...prevUser, ...updatedUser } as MyUser;
         });
     }, []);
 
